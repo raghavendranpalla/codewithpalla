@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learn with Palla — AI-Powered Test Automation with TypeScript &amp; Playwright</title>
+  <meta name="description" content="Master modern test automation with TypeScript, Playwright, Playwright MCP and AI agents. Live, hands-on training for software engineers and students by Palla Raghavendran, SDET &amp; trainer." />
+  <meta name="theme-color" content="#0a0e14" />
+  <link rel="canonical" href="https://learnwithpalla.com/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Learn with Palla — AI-Powered Test Automation" />
+  <meta property="og:description" content="Live, hands-on training: TypeScript + Playwright + AI agents &amp; Playwright MCP. Built for engineers and students." />
+  <meta property="og:url" content="https://learnwithpalla.com/" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <!-- ===== Header ===== -->
+  <header class="site-header" id="siteHeader">
+    <div class="container nav">
+      <a class="brand" href="index.html" aria-label="Learn with Palla home">
+        <span class="brand-mark">&lt;/&gt;</span>
+        <span class="brand-name">Learn<span class="grad">with</span>Palla</span>
+      </a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="index.html" class="active">Home</a>
+        <a href="courses.html">Courses</a>
+        <a href="curriculum.html">Curriculum</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a class="btn btn-primary btn-sm" href="contact.html">Enroll Now</a>
+      </nav>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== Hero ===== -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="reveal">
+          <span class="eyebrow">Playwright · Selenium · AI</span>
+          <h1>Become an <span class="grad">AI-powered</span><br />test automation engineer</h1>
+          <p class="lead">Live, hands-on training in modern automation — TypeScript, Playwright, Playwright MCP and AI agents that plan, write and self-heal your tests. Taught by a working SDET, built for real engineers and students.</p>
+          <div class="hero-cta">
+            <a class="btn btn-primary btn-lg" href="contact.html">Enroll Now</a>
+            <a class="btn btn-wa btn-lg" target="_blank" rel="noopener"
+               href="https://wa.me/919581341999?text=Hi%20Palla%2C%20I%27m%20interested%20in%20your%20TypeScript%20%2B%20Playwright%20%2B%20AI%20course.%20Please%20share%20the%20details.">
+              <svg viewBox="0 0 32 32" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M16 3C9 3 3.5 8.5 3.5 15.5c0 2.4.7 4.7 1.9 6.7L3 29l7-1.8c1.9 1 4 1.6 6 1.6 7 0 12.5-5.5 12.5-12.5S23 3 16 3zm0 22.7c-1.8 0-3.6-.5-5.1-1.4l-.4-.2-4.1 1.1 1.1-4-.3-.4a10 10 0 01-1.6-5.4C5.5 9.9 10.2 5.2 16 5.2s10.5 4.7 10.5 10.3S21.8 25.7 16 25.7zm5.8-7.7c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.3-.7.1c-1.9-1-3.2-1.7-4.4-3.9-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-1 .9-1.3 2.1-1.3 3.6 0 2.1 1.6 4.2 1.8 4.5.2.3 3.1 4.8 7.6 6.5 2.8 1.1 3.5.9 4.2.8.9-.1 1.9-.8 2.2-1.6.3-.8.3-1.4.2-1.6-.1-.2-.3-.3-.6-.4z"/></svg>
+              Chat on WhatsApp
+            </a>
+          </div>
+          <div class="hero-meta">
+            <span><i class="dot"></i> 1:1 mentoring</span>
+            <span><i class="dot"></i> Real-world projects</span>
+            <span><i class="dot"></i> Job-ready skills</span>
+          </div>
+          <div style="margin-top:20px"><span class="bonus-badge">🎁 Bonus: 1 month Claude Pro free</span></div>
+        </div>
+
+        <div class="reveal">
+          <div class="code-window" aria-hidden="true">
+            <div class="code-bar">
+              <span class="dots"><i></i><i></i><i></i></span>
+              <span class="file"><b>login.spec.ts</b> — Playwright + AI</span>
+            </div>
+            <div class="code-body">
+<pre><span class="cl">1</span><span class="k">import</span> <span class="p">{</span> <span class="v">test</span><span class="p">,</span> <span class="v">expect</span> <span class="p">}</span> <span class="k">from</span> <span class="s">'@playwright/test'</span><span class="p">;</span>
+<span class="cl">2</span>
+<span class="cl">3</span><span class="c">// AI agent generated &amp; self-heals this locator</span>
+<span class="cl">4</span><span class="v">test</span><span class="p">(</span><span class="s">'user can log in'</span><span class="p">,</span> <span class="k">async</span> <span class="p">({</span> <span class="v">page</span> <span class="p">})</span> <span class="k">=&gt;</span> <span class="p">{</span>
+<span class="cl">5</span>  <span class="k">await</span> <span class="v">page</span><span class="p">.</span><span class="f">goto</span><span class="p">(</span><span class="s">'/login'</span><span class="p">);</span>
+<span class="cl">6</span>  <span class="k">await</span> <span class="v">page</span><span class="p">.</span><span class="f">getByLabel</span><span class="p">(</span><span class="s">'Email'</span><span class="p">).</span><span class="f">fill</span><span class="p">(</span><span class="v">user</span><span class="p">.</span><span class="v">email</span><span class="p">);</span>
+<span class="cl">7</span>  <span class="k">await</span> <span class="v">page</span><span class="p">.</span><span class="f">getByRole</span><span class="p">(</span><span class="s">'button'</span><span class="p">,</span> <span class="p">{</span> <span class="v">name</span><span class="p">:</span> <span class="s">'Sign in'</span> <span class="p">})</span><span class="p">.</span><span class="f">click</span><span class="p">();</span>
+<span class="cl">8</span>  <span class="k">await</span> <span class="f">expect</span><span class="p">(</span><span class="v">page</span><span class="p">).</span><span class="f">toHaveURL</span><span class="p">(</span><span class="s">'/dashboard'</span><span class="p">);</span>
+<span class="cl">9</span><span class="p">}</span><span class="p">);</span>
+<span class="cl">10</span>
+<span class="cl">11</span><span class="c">// $ npx playwright test --ui  </span><span class="caret"></span>
+</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Tech strip ===== -->
+    <div class="tech-strip">
+      <div class="container">
+        <div class="row">
+          <span class="chip"><b>TS</b> TypeScript</span>
+          <span class="chip"><b>▶</b> Playwright</span>
+          <span class="chip"><b>⚡</b> Playwright MCP</span>
+          <span class="chip"><b>✦</b> AI Test Agents</span>
+          <span class="chip"><b>↺</b> Self-Healing</span>
+          <span class="chip"><b>⊞</b> Page Objects</span>
+          <span class="chip"><b>{ }</b> API Testing</span>
+          <span class="chip"><b>⟳</b> CI/CD</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Stats ===== -->
+    <section class="section-sm">
+      <div class="container">
+        <div class="stats">
+          <div class="stat reveal"><div class="num grad">12+</div><div class="lbl">Years in software testing</div></div>
+          <div class="stat reveal"><div class="num grad">2000+</div><div class="lbl">Engineers &amp; students trained</div></div>
+          <div class="stat reveal"><div class="num grad">100%</div><div class="lbl">Hands-on, project-based</div></div>
+          <div class="stat reveal"><div class="num grad">1:1</div><div class="lbl">Doubt-clearing &amp; mentoring</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== What you'll learn ===== -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">What you'll master</span>
+          <h2>From writing your first test<br />to orchestrating AI agents</h2>
+          <p>A complete path into modern QA automation — the same stack used by top product teams today.</p>
+        </div>
+        <div class="grid grid-3">
+          <article class="card feature reveal">
+            <div class="ico">📘</div>
+            <h3>TypeScript for Testers</h3>
+            <p>Types, async/await, modules and clean code patterns — the foundation every modern automation framework is built on.</p>
+          </article>
+          <article class="card feature reveal">
+            <div class="ico">▶️</div>
+            <h3>Playwright, deeply</h3>
+            <p>Locators, fixtures, auto-waiting, network mocking, parallelism, the Trace Viewer and the UI mode — end to end.</p>
+          </article>
+          <article class="card feature reveal">
+            <div class="ico">⚡</div>
+            <h3>Playwright MCP</h3>
+            <p>Drive the browser through the Model Context Protocol so AI assistants can explore your app and generate tests.</p>
+          </article>
+          <article class="card feature reveal">
+            <div class="ico">🤖</div>
+            <h3>AI Test Agents</h3>
+            <p>Use AI to plan test scenarios, generate specs, review coverage and turn user stories into runnable tests.</p>
+          </article>
+          <article class="card feature reveal">
+            <div class="ico">🩹</div>
+            <h3>Self-Healing Tests</h3>
+            <p>Build resilient suites where agents repair broken locators automatically and cut flaky-test maintenance.</p>
+          </article>
+          <article class="card feature reveal">
+            <div class="ico">🚀</div>
+            <h3>CI/CD &amp; Reporting</h3>
+            <p>Run suites in GitHub Actions, shard for speed, publish HTML reports and wire automation into your pipeline.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Why learn with me ===== -->
+    <section class="section" style="padding-top:0">
+      <div class="container split">
+        <div class="reveal">
+          <span class="eyebrow">Why Learn with Palla</span>
+          <h2>Taught by a working SDET — not a slide deck</h2>
+          <p class="lead" style="margin:16px 0 8px">I've spent over a decade testing real products and leading QA teams, and years training engineers on Selenium with Java &amp; Python. Now I teach the AI-first stack the industry is moving to.</p>
+          <ul class="check">
+            <li><b>Live &amp; interactive</b> — code along in every session, ask anything, no recordings-only.</li>
+            <li><b>Real projects</b> — you finish with a portfolio framework you can show in interviews.</li>
+            <li><b>AI-first mindset</b> — learn to pair with AI agents, not fear them.</li>
+            <li><b>Career support</b> — resume, interview prep and guidance from someone who's hired testers.</li>
+          </ul>
+        </div>
+        <div class="panel reveal">
+          <div class="code-window" aria-hidden="true">
+            <div class="code-bar">
+              <span class="dots"><i></i><i></i><i></i></span>
+              <span class="file"><b>agent.plan.ts</b></span>
+            </div>
+            <div class="code-body">
+<pre><span class="cl">1</span><span class="c">// Ask the AI agent to plan tests</span>
+<span class="cl">2</span><span class="k">const</span> <span class="v">plan</span> <span class="p">=</span> <span class="k">await</span> <span class="v">agent</span><span class="p">.</span><span class="f">plan</span><span class="p">({</span>
+<span class="cl">3</span>  <span class="v">story</span><span class="p">:</span> <span class="s">'Checkout with a coupon'</span><span class="p">,</span>
+<span class="cl">4</span>  <span class="v">app</span><span class="p">:</span>   <span class="s">'https://shop.demo'</span><span class="p">,</span>
+<span class="cl">5</span><span class="p">});</span>
+<span class="cl">6</span>
+<span class="cl">7</span><span class="v">plan</span><span class="p">.</span><span class="v">cases</span><span class="p">.</span><span class="f">forEach</span><span class="p">(</span><span class="v">c</span> <span class="k">=&gt;</span>
+<span class="cl">8</span>  <span class="v">agent</span><span class="p">.</span><span class="f">write</span><span class="p">(</span><span class="v">c</span><span class="p">).</span><span class="f">toSpec</span><span class="p">());</span>
+<span class="cl">9</span><span class="c">// → 6 specs generated ✓</span><span class="caret"></span>
+</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Courses preview ===== -->
+    <section class="section" style="padding-top:0">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">Programs</span>
+          <h2>Pick your track</h2>
+          <p>Beginner to advanced — start where you are.</p>
+        </div>
+        <div class="grid grid-3">
+          <article class="card feature reveal">
+            <div class="ico">▶️</div>
+            <h3>Playwright + TypeScript</h3>
+            <p>Modern, fast end-to-end testing with Playwright, Playwright MCP and AI test agents.</p>
+            <p class="mono" style="color:var(--primary);margin-top:14px;font-size:.9rem">45 days · 45 min/day · 15 Q&amp;A</p>
+            <a class="btn btn-primary btn-sm" href="curriculum.html#playwright" style="margin-top:16px">View 45-day plan →</a>
+          </article>
+          <article class="card feature reveal">
+            <div class="ico">☕</div>
+            <h3>Selenium + Java</h3>
+            <p>The industry classic — Selenium WebDriver, TestNG, Page Object Model and AI-assisted testing.</p>
+            <p class="mono" style="color:var(--primary);margin-top:14px;font-size:.9rem">45 days · 45 min/day · 15 Q&amp;A</p>
+            <a class="btn btn-primary btn-sm" href="curriculum.html#selenium" style="margin-top:16px">View 45-day plan →</a>
+          </article>
+          <article class="card reveal">
+            <div class="ico">🏢</div>
+            <h3>Corporate / College</h3>
+            <p>Custom cohorts for teams and colleges, tailored to your stack and timelines.</p>
+            <p class="mono" style="color:var(--primary);margin-top:14px;font-size:.9rem">Flexible · Team</p>
+            <a class="btn btn-ghost btn-sm" href="contact.html" style="margin-top:16px">Request a plan →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Testimonials ===== -->
+    <section class="section" style="padding-top:0">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">Student stories</span>
+          <h2>What learners say</h2>
+        </div>
+        <div class="grid grid-3">
+          <figure class="quote reveal">
+            <div class="stars">★★★★★</div>
+            <p>"I came from manual testing and Palla's course got me writing Playwright tests with AI in weeks. Cleared my automation interview right after."</p>
+            <figcaption class="who"><span class="av">SK</span><div><b>Sushma K.</b><span>QA Engineer</span></div></figcaption>
+          </figure>
+          <figure class="quote reveal">
+            <div class="stars">★★★★★</div>
+            <p>"The Playwright MCP and agent sessions were eye-opening. Practical, hands-on, and he answers every doubt patiently."</p>
+            <figcaption class="who"><span class="av">RV</span><div><b>Ravi V.</b><span>SDET</span></div></figcaption>
+          </figure>
+          <figure class="quote reveal">
+            <div class="stars">★★★★★</div>
+            <p>"Best trainer I've had. Real projects, real code, and you actually understand the 'why' behind every line."</p>
+            <figcaption class="who"><span class="av">AP</span><div><b>Anjali P.</b><span>Final-year student</span></div></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section class="section" style="padding-top:0">
+      <div class="container">
+        <div class="cta-band reveal">
+          <h2>Ready to build AI-powered test skills?</h2>
+          <p>Join the next batch. Message me on WhatsApp with your background and I'll help you pick the right track.</p>
+          <div class="hero-cta">
+            <a class="btn btn-wa btn-lg" target="_blank" rel="noopener"
+               href="https://wa.me/919581341999?text=Hi%20Palla%2C%20I%27d%20like%20to%20join%20the%20next%20batch.%20Here%27s%20my%20background%3A">
+              <svg viewBox="0 0 32 32" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M16 3C9 3 3.5 8.5 3.5 15.5c0 2.4.7 4.7 1.9 6.7L3 29l7-1.8c1.9 1 4 1.6 6 1.6 7 0 12.5-5.5 12.5-12.5S23 3 16 3zm0 22.7c-1.8 0-3.6-.5-5.1-1.4l-.4-.2-4.1 1.1 1.1-4-.3-.4a10 10 0 01-1.6-5.4C5.5 9.9 10.2 5.2 16 5.2s10.5 4.7 10.5 10.3S21.8 25.7 16 25.7zm5.8-7.7c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.3-.7.1c-1.9-1-3.2-1.7-4.4-3.9-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-1 .9-1.3 2.1-1.3 3.6 0 2.1 1.6 4.2 1.8 4.5.2.3 3.1 4.8 7.6 6.5 2.8 1.1 3.5.9 4.2.8.9-.1 1.9-.8 2.2-1.6.3-.8.3-1.4.2-1.6-.1-.2-.3-.3-.6-.4z"/></svg>
+              Chat on WhatsApp
+            </a>
+            <a class="btn btn-ghost btn-lg" href="contact.html">Send a message</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="foot-grid">
+        <div class="foot-about">
+          <a class="brand" href="index.html">
+            <span class="brand-mark">&lt;/&gt;</span>
+            <span class="brand-name">Learn<span class="grad">with</span>Palla</span>
+          </a>
+          <p>AI-powered test automation training with TypeScript, Playwright &amp; agents — for engineers and students who want job-ready skills.</p>
+          <div class="foot-social">
+            <a href="https://in.linkedin.com/in/palla-raghavendran" target="_blank" rel="noopener" aria-label="LinkedIn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 11-.02 5 2.5 2.5 0 01.02-5zM3 9h4v12H3zM10 9h3.8v1.7h.05c.53-1 1.83-2.05 3.76-2.05C21.4 8.65 22 11 22 14.1V21h-4v-6.1c0-1.45-.03-3.3-2-3.3-2 0-2.3 1.57-2.3 3.2V21h-4z"/></svg>
+            </a>
+            <a href="https://wa.me/919581341999" target="_blank" rel="noopener" aria-label="WhatsApp">
+              <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 3C9 3 3.5 8.5 3.5 15.5c0 2.4.7 4.7 1.9 6.7L3 29l7-1.8c1.9 1 4 1.6 6 1.6 7 0 12.5-5.5 12.5-12.5S23 3 16 3z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h4>Explore</h4>
+          <div class="foot-links">
+            <a href="index.html">Home</a>
+            <a href="courses.html">Courses</a>
+            <a href="curriculum.html">Curriculum</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+          </div>
+        </div>
+        <div>
+          <h4>Courses</h4>
+          <div class="foot-links">
+            <a href="curriculum.html">45-Day Plan</a>
+            <a href="courses.html">AI-Powered Automation</a>
+            <a href="contact.html">Corporate / Batch</a>
+          </div>
+        </div>
+        <div>
+          <h4>Get in touch</h4>
+          <div class="foot-links">
+            <a href="https://wa.me/919581341999" target="_blank" rel="noopener">Chat on WhatsApp</a>
+            <a href="https://in.linkedin.com/in/palla-raghavendran" target="_blank" rel="noopener">LinkedIn</a>
+          </div>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© <span id="year">2026</span> Learn with Palla. All rights reserved.</span>
+        <span class="mono">// built for engineers, by an engineer</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp -->
+  <a class="wa-float" target="_blank" rel="noopener" aria-label="Chat on WhatsApp"
+     href="https://wa.me/919581341999?text=Hi%20Palla%2C%20I%27m%20interested%20in%20your%20course.">
+    <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 3C9 3 3.5 8.5 3.5 15.5c0 2.4.7 4.7 1.9 6.7L3 29l7-1.8c1.9 1 4 1.6 6 1.6 7 0 12.5-5.5 12.5-12.5S23 3 16 3zm0 22.7c-1.8 0-3.6-.5-5.1-1.4l-.4-.2-4.1 1.1 1.1-4-.3-.4a10 10 0 01-1.6-5.4C5.5 9.9 10.2 5.2 16 5.2s10.5 4.7 10.5 10.3S21.8 25.7 16 25.7zm5.8-7.7c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.3-.7.1c-1.9-1-3.2-1.7-4.4-3.9-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-1 .9-1.3 2.1-1.3 3.6 0 2.1 1.6 4.2 1.8 4.5.2.3 3.1 4.8 7.6 6.5 2.8 1.1 3.5.9 4.2.8.9-.1 1.9-.8 2.2-1.6.3-.8.3-1.4.2-1.6-.1-.2-.3-.3-.6-.4z"/></svg>
+  </a>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

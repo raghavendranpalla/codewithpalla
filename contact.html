@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact &amp; Enroll — Learn with Palla</title>
+  <meta name="description" content="Enroll or ask about TypeScript, Playwright and AI test automation training. Message Palla on WhatsApp, call, or send the enquiry form." />
+  <meta name="theme-color" content="#0a0e14" />
+  <link rel="canonical" href="https://learnwithpalla.com/contact.html" />
+  <meta property="og:title" content="Contact &amp; Enroll — Learn with Palla" />
+  <meta property="og:description" content="WhatsApp, call or send the enquiry form to join the next batch." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://learnwithpalla.com/contact.html" />
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <header class="site-header" id="siteHeader">
+    <div class="container nav">
+      <a class="brand" href="index.html" aria-label="Learn with Palla home">
+        <span class="brand-mark">&lt;/&gt;</span>
+        <span class="brand-name">Learn<span class="grad">with</span>Palla</span>
+      </a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="courses.html">Courses</a>
+        <a href="curriculum.html">Curriculum</a>
+        <a href="about.html">About</a>
+        <a href="contact.html" class="active">Contact</a>
+        <a class="btn btn-primary btn-sm" href="contact.html">Enroll Now</a>
+      </nav>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <span class="eyebrow">Contact</span>
+        <h1>Let's get you <span class="grad">enrolled</span></h1>
+        <p class="lead">The fastest way to reach me is WhatsApp. Prefer email? Use the form and I'll reply personally.</p>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:30px">
+      <div class="container split" style="align-items:start">
+        <!-- Left: contact options -->
+        <div class="reveal">
+          <h2 style="margin-bottom:8px">Talk to Palla directly</h2>
+          <p style="margin-bottom:22px">Quick questions about batches, fees or which course fits you? Ping me — I usually reply the same day.</p>
+          <div class="contact-tiles">
+            <a class="ctile" target="_blank" rel="noopener"
+               href="https://wa.me/919581341999?text=Hi%20Palla%2C%20I%27d%20like%20to%20enroll%20in%20your%20course.">
+              <div class="ico">💬</div>
+              <div><b>Chat on WhatsApp</b><span>Fastest reply — tap to open a chat with Palla</span></div>
+            </a>
+            <a class="ctile" href="https://in.linkedin.com/in/palla-raghavendran" target="_blank" rel="noopener">
+              <div class="ico">in</div>
+              <div><b>LinkedIn</b><span>palla-raghavendran</span></div>
+            </a>
+          </div>
+
+          <div class="qr-card">
+            <img src="assets/img/whatsapp-qr.svg" alt="QR code to start a WhatsApp chat with Palla" width="150" height="150" loading="lazy" />
+            <div>
+              <b>Scan to chat on WhatsApp</b>
+              <span>Point your phone camera at the code, or <a href="https://wa.me/919581341999" target="_blank" rel="noopener">tap here on mobile</a> to open WhatsApp instantly.</span>
+            </div>
+          </div>
+
+          <div class="panel" style="margin-top:24px">
+            <h3 style="margin-bottom:12px">What to include in your message</h3>
+            <ul class="check">
+              <li>Your <b>current role</b> (student, manual tester, developer…)</li>
+              <li>Your <b>experience</b> with coding or automation</li>
+              <li>Which <b>track</b> you're considering</li>
+              <li>Preferred <b>batch timing</b> (weekday / weekend)</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Right: lead form -->
+        <div class="reveal">
+          <div class="panel">
+            <h2 style="margin-bottom:6px">Send an enquiry</h2>
+            <p style="margin-bottom:20px">Fill this in and I'll get back to you with batch details and fees.</p>
+
+            <!-- ============================================================
+                 SETUP: replace action="..." with your Formspree endpoint:
+                   https://formspree.io/f/XXXXXXXX
+                 Until you do, this form auto-hands the details to WhatsApp.
+                 ============================================================ -->
+            <form id="leadForm" class="form" action="https://formspree.io/f/XXXXXXXX" method="POST">
+              <div class="row-2">
+                <div class="field">
+                  <label for="name">Name <span class="req">*</span></label>
+                  <input class="input" id="name" name="name" type="text" required placeholder="Your full name" autocomplete="name" />
+                </div>
+                <div class="field">
+                  <label for="phone">Phone / WhatsApp <span class="req">*</span></label>
+                  <input class="input" id="phone" name="phone" type="tel" required placeholder="+91 …" autocomplete="tel" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="email">Email <span class="req">*</span></label>
+                <input class="input" id="email" name="email" type="email" required placeholder="you@example.com" autocomplete="email" />
+              </div>
+              <div class="field">
+                <label for="course">Which course?</label>
+                <select class="input" id="course" name="course">
+                  <option>AI-Powered Automation (Flagship)</option>
+                  <option>Playwright Foundations</option>
+                  <option>Corporate / College batch</option>
+                  <option>Not sure yet — please advise</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="message">Message</label>
+                <textarea class="textarea" id="message" name="message" placeholder="Tell me about your background and what you'd like to achieve…"></textarea>
+              </div>
+              <input type="hidden" name="_subject" value="New course enquiry — Learn with Palla" />
+              <div class="form-status" id="formStatus" role="status" aria-live="polite"></div>
+              <button class="btn btn-primary btn-lg" type="submit">Send message</button>
+              <p class="form-note">By sending, you agree to be contacted about your enquiry. No spam — ever.</p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="foot-grid">
+        <div class="foot-about">
+          <a class="brand" href="index.html">
+            <span class="brand-mark">&lt;/&gt;</span>
+            <span class="brand-name">Learn<span class="grad">with</span>Palla</span>
+          </a>
+          <p>AI-powered test automation training with TypeScript, Playwright &amp; agents — for engineers and students who want job-ready skills.</p>
+          <div class="foot-social">
+            <a href="https://in.linkedin.com/in/palla-raghavendran" target="_blank" rel="noopener" aria-label="LinkedIn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 11-.02 5 2.5 2.5 0 01.02-5zM3 9h4v12H3zM10 9h3.8v1.7h.05c.53-1 1.83-2.05 3.76-2.05C21.4 8.65 22 11 22 14.1V21h-4v-6.1c0-1.45-.03-3.3-2-3.3-2 0-2.3 1.57-2.3 3.2V21h-4z"/></svg>
+            </a>
+            <a href="https://wa.me/919581341999" target="_blank" rel="noopener" aria-label="WhatsApp">
+              <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 3C9 3 3.5 8.5 3.5 15.5c0 2.4.7 4.7 1.9 6.7L3 29l7-1.8c1.9 1 4 1.6 6 1.6 7 0 12.5-5.5 12.5-12.5S23 3 16 3z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h4>Explore</h4>
+          <div class="foot-links">
+            <a href="index.html">Home</a>
+            <a href="courses.html">Courses</a>
+            <a href="curriculum.html">Curriculum</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+          </div>
+        </div>
+        <div>
+          <h4>Courses</h4>
+          <div class="foot-links">
+            <a href="curriculum.html">45-Day Plan</a>
+            <a href="courses.html">AI-Powered Automation</a>
+            <a href="contact.html">Corporate / Batch</a>
+          </div>
+        </div>
+        <div>
+          <h4>Get in touch</h4>
+          <div class="foot-links">
+            <a href="https://wa.me/919581341999" target="_blank" rel="noopener">Chat on WhatsApp</a>
+            <a href="https://in.linkedin.com/in/palla-raghavendran" target="_blank" rel="noopener">LinkedIn</a>
+          </div>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© <span id="year">2026</span> Learn with Palla. All rights reserved.</span>
+        <span class="mono">// built for engineers, by an engineer</span>
+      </div>
+    </div>
+  </footer>
+
+  <a class="wa-float" target="_blank" rel="noopener" aria-label="Chat on WhatsApp"
+     href="https://wa.me/919581341999?text=Hi%20Palla%2C%20I%27m%20interested%20in%20your%20course.">
+    <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 3C9 3 3.5 8.5 3.5 15.5c0 2.4.7 4.7 1.9 6.7L3 29l7-1.8c1.9 1 4 1.6 6 1.6 7 0 12.5-5.5 12.5-12.5S23 3 16 3zm0 22.7c-1.8 0-3.6-.5-5.1-1.4l-.4-.2-4.1 1.1 1.1-4-.3-.4a10 10 0 01-1.6-5.4C5.5 9.9 10.2 5.2 16 5.2s10.5 4.7 10.5 10.3S21.8 25.7 16 25.7zm5.8-7.7c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.3-.7.1c-1.9-1-3.2-1.7-4.4-3.9-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-1 .9-1.3 2.1-1.3 3.6 0 2.1 1.6 4.2 1.8 4.5.2.3 3.1 4.8 7.6 6.5 2.8 1.1 3.5.9 4.2.8.9-.1 1.9-.8 2.2-1.6.3-.8.3-1.4.2-1.6-.1-.2-.3-.3-.6-.4z"/></svg>
+  </a>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

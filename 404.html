@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 — Page not found | Learn with Palla</title>
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#0a0e14" />
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <main class="section" style="min-height:80vh;display:grid;place-items:center;text-align:center">
+    <div class="container" style="max-width:640px">
+      <div class="code-window" aria-hidden="true" style="text-align:left;margin-bottom:32px">
+        <div class="code-bar">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="file"><b>404.spec.ts</b></span>
+        </div>
+        <div class="code-body">
+<pre><span class="cl">1</span><span class="k">await</span> <span class="f">expect</span><span class="p">(</span><span class="v">page</span><span class="p">).</span><span class="f">toHaveURL</span><span class="p">(</span><span class="v">requested</span><span class="p">);</span>
+<span class="cl">2</span><span class="c">// ✘ Error: page not found</span>
+<span class="cl">3</span><span class="c">// → redirecting you home…</span><span class="caret"></span>
+</pre>
+        </div>
+      </div>
+      <h1 style="font-size:clamp(3rem,12vw,6rem)" class="grad">404</h1>
+      <p class="lead" style="margin:10px auto 28px">This locator didn't resolve. The page you're looking for doesn't exist or has moved.</p>
+      <div class="hero-cta" style="justify-content:center">
+        <a class="btn btn-primary btn-lg" href="index.html">← Back to home</a>
+        <a class="btn btn-ghost btn-lg" href="courses.html">View courses</a>
+      </div>
+    </div>
+  </main>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
