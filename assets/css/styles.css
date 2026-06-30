@@ -162,6 +162,23 @@ p  { color: var(--muted); }
 .hero-login span { color: var(--muted); font-size: .95rem; }
 @media (max-width: 460px) { .hero-login .btn { width: 100%; } }
 
+/* Signed-in nav user (avatar + log out) */
+.nav-user { display: inline-flex; align-items: center; gap: 10px; }
+.nav-user-link { display: inline-flex; align-items: center; gap: 8px; }
+.nav-ava {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--border-2); object-fit: cover; flex: none;
+}
+.nav-ava-fallback {
+  display: grid; place-items: center;
+  background: var(--grad); color: #04120c; font-weight: 750; font-size: .9rem;
+}
+.nav-user-name {
+  font-weight: 600; font-size: .92rem; max-width: 130px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.nav-logout { padding: 7px 13px; font-size: .85rem; }
+
 /* ---------- Header / Nav ---------- */
 .site-header {
   position: sticky; top: 0; z-index: 50;

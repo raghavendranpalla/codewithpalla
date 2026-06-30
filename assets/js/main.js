@@ -150,4 +150,80 @@
     var initial = (window.location.hash || "").replace("#", "");
     selectTrack(initial === "selenium" ? "selenium" : "playwright");
   }
+
+  /* ---- Nav auth state: show avatar + Log out when signed in ----
+     The portal saves the signed-in profile to localStorage("lwp_user").
+     On every page, if a user is signed in we replace the nav
+     "Sign in" button with their Google profile picture + Log out. */
+  (function navAuth() {
+    var user = null;
+    try { user = JSON.parse(localStorage.getItem("lwp_user")); } catch (e) {}
+    if (!user || !user.email) return; // not signed in — keep Sign in button
+
+    function logOut() {
+      try {
+        localStorage.removeItem("lwp_user");
+        localStorage.removeItem("lwp_batch");
+      } catch (e) {}
+      if (window.google && google.accounts && google.accounts.id) {
+        try { google.accounts.id.disableAutoSelect(); } catch (e) {}
+      }
+      // Go to home after logging out from any page.
+      window.location.href = "index.html";
+    }
+
+    /* --- Nav: replace the Sign in button --- */
+    var navBtn = document.querySelector(".nav-links .btn-google");
+    if (navBtn) {
+      var wrap = document.createElement("div");
+      wrap.className = "nav-user";
+
+      var link = document.createElement("a");
+      link.href = "portal.html";
+      link.className = "nav-user-link";
+      link.title = user.email;
+
+      if (user.picture) {
+        var img = document.createElement("img");
+        img.className = "nav-ava";
+        img.src = user.picture;
+        img.alt = "";
+        img.referrerPolicy = "no-referrer";
+        link.appendChild(img);
+      } else {
+        var fb = document.createElement("span");
+        fb.className = "nav-ava nav-ava-fallback";
+        fb.textContent = (user.name || user.email || "?").charAt(0).toUpperCase();
+        link.appendChild(fb);
+      }
+      var nm = document.createElement("span");
+      nm.className = "nav-user-name";
+      nm.textContent = user.name || user.email;
+      link.appendChild(nm);
+
+      var out = document.createElement("button");
+      out.type = "button";
+      out.className = "btn btn-sm btn-ghost nav-logout";
+      out.textContent = "Log out";
+      out.addEventListener("click", logOut);
+
+      wrap.appendChild(link);
+      wrap.appendChild(out);
+      navBtn.replaceWith(wrap);
+    }
+
+    /* --- Homepage hero: swap "Already enrolled? Sign in" for a welcome --- */
+    var heroLogin = document.querySelector(".hero-login");
+    if (heroLogin) {
+      heroLogin.innerHTML = "";
+      var hi = document.createElement("span");
+      hi.textContent = "Welcome back, " + (user.name || user.email) + "!";
+      var go = document.createElement("a");
+      go.className = "btn btn-sm btn-primary";
+      go.href = "portal.html";
+      go.textContent = "Open your portal →";
+      heroLogin.appendChild(hi);
+      heroLogin.appendChild(go);
+    }
+  })();
 })();
