@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Portal — Learn with Palla</title>
+  <meta name="description" content="Student portal for Learn with Palla. Sign in with Google and enter your batch code to access live class links and recordings." />
+  <meta name="theme-color" content="#0a0e14" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="canonical" href="https://learnwithpalla.com/portal.html" />
+
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+
+  <!-- Google Identity Services (free) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    /* ---- Portal-specific (scoped to this page) ---- */
+    .portal-wrap { max-width: 640px; margin: 0 auto; }
+    .portal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 38px 34px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .portal-card h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); line-height: 1.2; margin-bottom: 10px; }
+    .portal-card p.lead { color: var(--muted); margin: 0 auto 26px; max-width: 46ch; }
+    .portal-icon {
+      width: 64px; height: 64px; margin: 0 auto 20px;
+      display: grid; place-items: center;
+      border-radius: 18px;
+      background: var(--grad-soft);
+      border: 1px solid var(--border-2);
+      font-size: 30px;
+    }
+    #gbtn { display: flex; justify-content: center; margin: 8px 0 4px; }
+    .portal-row {
+      display: flex; align-items: center; gap: 12px;
+      justify-content: center; flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+    .portal-row .avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid var(--border-2);
+    }
+    .portal-row .who { font-weight: 600; }
+    .code-field {
+      display: flex; gap: 10px; margin: 18px auto 6px; max-width: 420px;
+    }
+    .code-field input {
+      flex: 1; min-width: 0;
+      background: var(--bg-2);
+      border: 1px solid var(--border-2);
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 13px 15px;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .code-field input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+    .portal-cta { width: 100%; justify-content: center; margin-top: 12px; }
+    .portal-batch-name {
+      font-weight: 700; font-size: 1.1rem;
+      padding: 12px 16px; margin-bottom: 18px;
+      border-radius: var(--radius-sm);
+      background: var(--grad-soft);
+      border: 1px solid var(--border-2);
+    }
+    .portal-sub { margin: 26px 0 12px; font-size: 1rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .portal-list { text-align: left; display: grid; gap: 8px; }
+    .portal-list a {
+      display: block; padding: 12px 14px;
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text);
+      transition: border-color .15s, transform .15s;
+    }
+    .portal-list a:hover { border-color: var(--primary); transform: translateX(2px); }
+    .portal-foot { margin-top: 22px; }
+    .link-btn { background: none; border: none; color: var(--faint); text-decoration: underline; font-size: .9rem; }
+    .link-btn:hover { color: var(--primary); }
+    .setup-notice {
+      background: rgba(251,191,36,.08);
+      border: 1px solid rgba(251,191,36,.35);
+      color: var(--amber);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px; margin-bottom: 22px;
+      font-size: .9rem; text-align: left;
+    }
+    .form-status { margin-top: 8px; font-size: .92rem; min-height: 1.2em; }
+    .form-status.err { color: var(--pink); }
+    .form-status.ok { color: var(--primary); }
+  </style>
+</head>
+<body>
+  <!-- ===== Header ===== -->
+  <header class="site-header" id="siteHeader">
+    <div class="container nav">
+      <a class="brand" href="index.html" aria-label="Learn with Palla home">
+        <span class="brand-mark">&lt;/&gt;</span>
+        <span class="brand-name">Learn<span class="grad">with</span>Palla</span>
+      </a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="courses.html">Courses</a>
+        <a href="curriculum.html">Curriculum</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="portal.html" class="active">Portal</a>
+        <a class="btn btn-primary btn-sm" href="contact.html">Enroll Now</a>
+      </nav>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <div class="portal-wrap">
+
+          <!-- STATE 1: signed out -->
+          <div id="signinBox" class="portal-card reveal">
+            <div id="setupNotice" class="setup-notice" hidden>
+              ⚙️ Setup needed: add your Google Client ID in <code>assets/js/portal.js</code> before sign-in will work.
+            </div>
+            <div class="portal-icon">🔐</div>
+            <h1>Student <span class="grad">Portal</span></h1>
+            <p class="lead">Sign in with your Google account, then enter your batch code to access your live class link and recordings.</p>
+            <div id="gbtn"></div>
+            <p class="form-status" style="color:var(--faint);margin-top:14px">We only read your name &amp; email to identify you. Nothing is posted on your behalf.</p>
+          </div>
+
+          <!-- STATE 2: signed in, needs batch code -->
+          <div id="gateBox" class="portal-card reveal" hidden>
+            <div class="portal-row">
+              <img id="avatar" class="avatar" alt="" hidden />
+              <span class="who" id="who">Signed in</span>
+            </div>
+            <div class="portal-icon">🎟️</div>
+            <h1>Enter your <span class="grad">batch code</span></h1>
+            <p class="lead">Palla shares this code with your batch. Enter it once to unlock your class content on this device.</p>
+            <div class="code-field">
+              <input id="batchCode" type="text" inputmode="text" autocomplete="off"
+                     placeholder="e.g. PW-JUN26" aria-label="Batch code" />
+              <button id="unlockBtn" class="btn btn-primary">Unlock</button>
+            </div>
+            <p id="codeMsg" class="form-status"></p>
+            <div class="portal-foot">
+              <button id="signoutBtn" class="link-btn">Sign out</button>
+            </div>
+          </div>
+
+          <!-- STATE 3: unlocked content -->
+          <div id="contentBox" class="portal-card reveal" hidden>
+            <div class="portal-row">
+              <img id="avatar2" class="avatar" alt="" hidden />
+            </div>
+            <div id="batchContent"><!-- filled by portal.js --></div>
+            <div class="portal-foot">
+              <button id="signoutBtn2" class="link-btn">Sign out</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="foot-bottom">
+        <span>© <span id="year">2026</span> Learn with Palla. All rights reserved.</span>
+        <span class="mono">// student portal</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/portal.js"></script>
+</body>
+</html>

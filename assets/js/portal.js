@@ -1,0 +1,295 @@
+/* =========================================================
+   Learn with Palla — Student Portal
+   Google Sign-In (free) + per-batch access codes.
+
+   HOW IT WORKS
+   1. Anyone can sign in with their Google / Gmail account.
+   2. After signing in, the student enters their BATCH CODE.
+   3. The correct code unlocks ONLY that batch's content
+      (live class link + recordings from your Google Drive).
+
+   SECURITY NOTE (read once):
+   This is a static site, so the batch codes live in this file
+   and a determined technical user could read them. That's fine
+   as a friendly gate. For REAL protection of recordings, share
+   each Google Drive folder ONLY with that batch's Gmail
+   addresses (or "Anyone with the link"); Drive then enforces
+   access even if a portal link leaks.
+   ========================================================= */
+(function () {
+  "use strict";
+
+  /* =======================================================
+     1) CONFIG — EDIT THIS SECTION
+     ======================================================= */
+  var CONFIG = {
+    // --- Your Google OAuth Client ID (free to create) ---
+    // Get it from Google Cloud Console (see SETUP steps Palla was given).
+    // It looks like: 1234567890-abc123.apps.googleusercontent.com
+    clientId: "302634236502-gkdpddkai6ved64502qohp1c95ilttcj.apps.googleusercontent.com",
+
+    // --- Your batches ---
+    // Add one object per batch. Give each a code you hand out to
+    // students. `classUrl` = the live class link (Zoom / Meet / etc).
+    // `drive` = your Google Drive folder of recordings/resources.
+    // `resources` = optional extra links shown as a list.
+    batches: [
+      {
+        id: "pw-jun26",
+        name: "Playwright + TypeScript — June 2026",
+        code: "PW-JUN26",
+        classUrl: "https://meet.google.com/your-live-class-link",
+        drive: "https://drive.google.com/drive/folders/PASTE_DRIVE_FOLDER_ID",
+        resources: [
+          { label: "Day 1 — Recording", url: "https://drive.google.com/file/d/RECORDING_ID/view" },
+          { label: "Course notes (PDF)", url: "https://drive.google.com/file/d/NOTES_ID/view" }
+        ]
+      },
+      {
+        id: "sel-jun26",
+        name: "Selenium + Java — June 2026",
+        code: "SEL-JUN26",
+        classUrl: "https://meet.google.com/your-live-class-link",
+        drive: "https://drive.google.com/drive/folders/PASTE_DRIVE_FOLDER_ID",
+        resources: []
+      }
+    ]
+  };
+
+  /* =======================================================
+     2) LOGIC — usually no need to edit below
+     ======================================================= */
+  var LS_USER = "lwp_user";
+  var LS_BATCH = "lwp_batch";
+  var LS_LOG = "lwp_signins"; // local record of who signed in (this browser)
+
+  var els = {
+    notice:    document.getElementById("setupNotice"),
+    signinBox: document.getElementById("signinBox"),
+    gbtn:      document.getElementById("gbtn"),
+    gateBox:   document.getElementById("gateBox"),
+    contentBox:document.getElementById("contentBox"),
+    who:       document.getElementById("who"),
+    avatar:    document.getElementById("avatar"),
+    codeInput: document.getElementById("batchCode"),
+    codeBtn:   document.getElementById("unlockBtn"),
+    codeMsg:   document.getElementById("codeMsg"),
+    content:   document.getElementById("batchContent"),
+    signout:   document.getElementById("signoutBtn"),
+    signout2:  document.getElementById("signoutBtn2")
+  };
+
+  function get(key) {
+    try { return JSON.parse(localStorage.getItem(key)); } catch (e) { return null; }
+  }
+  function set(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+  }
+  function del(key) {
+    try { localStorage.removeItem(key); } catch (e) {}
+  }
+
+  // Decode a Google ID token (JWT) to read the verified profile.
+  function decodeJwt(token) {
+    try {
+      var part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+      var json = decodeURIComponent(
+        atob(part).split("").map(function (c) {
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join("")
+      );
+      return JSON.parse(json);
+    } catch (e) { return null; }
+  }
+
+  function isConfigured() {
+    return CONFIG.clientId &&
+      CONFIG.clientId.indexOf("PASTE_YOUR_GOOGLE_CLIENT_ID") === -1;
+  }
+
+  function findBatch(id) {
+    for (var i = 0; i < CONFIG.batches.length; i++) {
+      if (CONFIG.batches[i].id === id) return CONFIG.batches[i];
+    }
+    return null;
+  }
+
+  function show(el) { if (el) el.hidden = false; }
+  function hide(el) { if (el) el.hidden = true; }
+
+  /* ---- Render the content for an unlocked batch ---- */
+  function renderContent(batch, user) {
+    if (!els.content) return;
+    var html = "";
+    html += '<div class="portal-batch-name">' + escapeHtml(batch.name) + "</div>";
+
+    if (batch.classUrl) {
+      html +=
+        '<a class="btn btn-primary btn-lg portal-cta" target="_blank" rel="noopener" href="' +
+        escapeAttr(batch.classUrl) + '">▶ Join the live class</a>';
+    }
+    if (batch.drive) {
+      html +=
+        '<a class="btn btn-ghost btn-lg portal-cta" target="_blank" rel="noopener" href="' +
+        escapeAttr(batch.drive) + '">📁 Open recordings &amp; resources (Drive)</a>';
+    }
+
+    if (batch.resources && batch.resources.length) {
+      html += '<h3 class="portal-sub">Recordings &amp; materials</h3>';
+      html += '<ul class="portal-list">';
+      batch.resources.forEach(function (r) {
+        html +=
+          '<li><a target="_blank" rel="noopener" href="' + escapeAttr(r.url) + '">' +
+          "▸ " + escapeHtml(r.label) + "</a></li>";
+      });
+      html += "</ul>";
+    }
+
+    els.content.innerHTML = html;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function escapeAttr(s) { return escapeHtml(s); }
+
+  /* ---- State machine: decide what to show ---- */
+  function render() {
+    var user = get(LS_USER);
+    var batchId = get(LS_BATCH);
+
+    if (!isConfigured()) {
+      show(els.notice);
+    }
+
+    if (!user) {
+      // Not signed in
+      show(els.signinBox);
+      hide(els.gateBox);
+      hide(els.contentBox);
+      return;
+    }
+
+    // Signed in — show profile bits
+    if (els.who) els.who.textContent = (user.name || user.email || "Signed in");
+    if (els.avatar && user.picture) {
+      els.avatar.src = user.picture;
+      els.avatar.hidden = false;
+    }
+
+    var batch = batchId ? findBatch(batchId) : null;
+    if (batch) {
+      // Unlocked
+      hide(els.signinBox);
+      hide(els.gateBox);
+      show(els.contentBox);
+      renderContent(batch, user);
+    } else {
+      // Signed in but no batch unlocked yet
+      hide(els.signinBox);
+      show(els.gateBox);
+      hide(els.contentBox);
+    }
+  }
+
+  /* ---- Called by Google after a successful sign-in ---- */
+  function onCredential(response) {
+    var profile = decodeJwt(response.credential);
+    if (!profile || !profile.email) {
+      alert("Sorry, sign-in failed. Please try again.");
+      return;
+    }
+    var user = {
+      email: profile.email,
+      name: profile.name || "",
+      picture: profile.picture || "",
+      at: profile.iat || 0
+    };
+    set(LS_USER, user);
+
+    // Keep a local record of sign-ins (this browser only).
+    var log = get(LS_LOG) || [];
+    log.push({ email: user.email, name: user.name, ts: profile.iat || 0 });
+    set(LS_LOG, log);
+
+    render();
+  }
+
+  /* ---- Batch code unlock ---- */
+  function tryUnlock() {
+    var entered = (els.codeInput && els.codeInput.value || "").trim().toUpperCase();
+    if (!entered) {
+      setCodeMsg("Please enter your batch code.", "err");
+      return;
+    }
+    var match = null;
+    for (var i = 0; i < CONFIG.batches.length; i++) {
+      if (String(CONFIG.batches[i].code).toUpperCase() === entered) {
+        match = CONFIG.batches[i];
+        break;
+      }
+    }
+    if (!match) {
+      setCodeMsg("That code didn't match any batch. Check with Palla on WhatsApp.", "err");
+      return;
+    }
+    set(LS_BATCH, match.id);
+    setCodeMsg("", "");
+    render();
+  }
+
+  function setCodeMsg(msg, kind) {
+    if (!els.codeMsg) return;
+    els.codeMsg.textContent = msg;
+    els.codeMsg.className = "form-status " + (msg ? "show " : "") + (kind || "");
+  }
+
+  /* ---- Sign out ---- */
+  function signOut() {
+    del(LS_USER);
+    del(LS_BATCH);
+    if (window.google && google.accounts && google.accounts.id) {
+      try { google.accounts.id.disableAutoSelect(); } catch (e) {}
+    }
+    render();
+  }
+
+  /* ---- Wire up buttons ---- */
+  if (els.codeBtn) els.codeBtn.addEventListener("click", tryUnlock);
+  if (els.codeInput) {
+    els.codeInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); tryUnlock(); }
+    });
+  }
+  if (els.signout) els.signout.addEventListener("click", signOut);
+  if (els.signout2) els.signout2.addEventListener("click", signOut);
+
+  /* ---- Initialize Google Identity Services when it loads ---- */
+  window.onGoogleLibraryLoad = function () {
+    if (!isConfigured()) return; // can't init without a real client id
+    try {
+      google.accounts.id.initialize({
+        client_id: CONFIG.clientId,
+        callback: onCredential,
+        auto_select: false
+      });
+      if (els.gbtn) {
+        google.accounts.id.renderButton(els.gbtn, {
+          type: "standard",
+          theme: "filled_black",
+          size: "large",
+          shape: "pill",
+          text: "signin_with",
+          logo_alignment: "left"
+        });
+      }
+    } catch (e) {
+      console.error("Google sign-in init failed:", e);
+    }
+  };
+
+  // First paint (restores a previous session from localStorage).
+  render();
+})();
