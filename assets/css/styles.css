@@ -179,6 +179,16 @@ p  { color: var(--muted); }
 }
 .nav-logout { padding: 7px 13px; font-size: .85rem; }
 
+/* Small Google icon in the header — only shown on mobile */
+.nav-mobile-auth { display: none; }
+.nav-mobile-auth .gicon { width: 20px; height: 20px; }
+.nav-mobile-auth img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.nav-mobile-auth .nav-ava-fallback {
+  width: 100%; height: 100%; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--grad); color: #04120c; font-weight: 750; font-size: .95rem;
+}
+
 /* ---------- Header / Nav ---------- */
 .site-header {
   position: sticky; top: 0; z-index: 50;
@@ -477,6 +487,15 @@ p  { color: var(--muted); }
   .nav-user-name { max-width: 55vw; font-size: 1rem; }
   .nav-logout { flex: none; }
   .nav-toggle { display: block; }
+  /* Small Google icon always visible in the mobile header */
+  .nav-mobile-auth {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: 50%;
+    background: #fff; border: 1px solid #dadce0;
+    box-shadow: 0 4px 14px -6px rgba(0,0,0,.5);
+    margin-left: auto; margin-right: 6px; flex: none;
+  }
+  .nav-mobile-auth.is-user { background: transparent; border-color: var(--border-2); padding: 0; }
   .stats { grid-template-columns: repeat(2, 1fr); }
   .grid-3, .grid-2 { grid-template-columns: 1fr; }
   .row-2 { grid-template-columns: 1fr; }

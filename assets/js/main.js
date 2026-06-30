@@ -212,6 +212,26 @@
       navBtn.replaceWith(wrap);
     }
 
+    /* --- Mobile header icon: show the avatar when signed in --- */
+    var mob = document.getElementById("mobileAuth");
+    if (mob) {
+      mob.innerHTML = "";
+      mob.classList.add("is-user");
+      mob.title = user.email;
+      if (user.picture) {
+        var mimg = document.createElement("img");
+        mimg.src = user.picture;
+        mimg.alt = "";
+        mimg.referrerPolicy = "no-referrer";
+        mob.appendChild(mimg);
+      } else {
+        var mfb = document.createElement("span");
+        mfb.className = "nav-ava-fallback";
+        mfb.textContent = (user.name || user.email || "?").charAt(0).toUpperCase();
+        mob.appendChild(mfb);
+      }
+    }
+
     /* --- Homepage hero: swap "Already enrolled? Sign in" for a welcome --- */
     var heroLogin = document.querySelector(".hero-login");
     if (heroLogin) {
