@@ -56,14 +56,19 @@
           // "student2@gmail.com",
         ],
         classUrl: "",  // optional live class link
-        drive: "",     // optional whole Drive folder
-        resources: [
-          // type "video" → plays in-page on click; "pdf" → embedded viewer
-          // + download; anything else → a plain link. Paste any normal
-          // Google Drive share link; it's auto-converted to an embed and
-          // the direct /view link is never shown on the page.
-          { type: "video", label: "Day 1 — NodeJS & VS Installation (Part 1)", poster: "assets/img/thumb-day1-part1.svg", url: "https://drive.google.com/file/d/1f7TmoEMP4TpCr5e5xNU_gQL7E1cKqv0J/view?usp=sharing" },
-          { type: "video", label: "Day 1 — NodeJS & VS Installation (Part 2)", poster: "assets/img/thumb-day1-part2.svg", url: "https://drive.google.com/file/d/1S4sJ6lSO_4i1npmK-dLWWzBXaThf3dju/view?usp=sharing" }
+        // Content is organised by day. Each day has a title, a short
+        // description, and its resources. For videos, `vid` is the
+        // ENCRYPTED Drive id (so the link is not visible in the DOM) and
+        // `poster` is the thumbnail shown before play.
+        days: [
+          {
+            title: "Day 1 — Node.js & VS Code Installation",
+            description: "We set up the development environment you'll use for the whole course. You'll install Node.js (the JavaScript runtime that powers Playwright and your tooling) and verify it from the terminal, then install Visual Studio Code and configure it for automation work. Watch both parts in order — by the end you'll have a working setup ready to write your first test.",
+            resources: [
+              { type: "video", label: "Part 1 — Installing Node.js", poster: "assets/img/thumb-day1-part1.svg", vid: "XRFHdQMAISgGZ3dCc0ADCUIIbzswAzQaZGYDU3lHGkc6" },
+              { type: "video", label: "Part 2 — Installing & configuring VS Code", poster: "assets/img/thumb-day1-part2.svg", vid: "XSREUiRZCDYZDBdbAVxGATxdRSI4Mx8UC0JmWFQFCB0F" }
+            ]
+          }
         ]
       }
     ]
@@ -164,6 +169,52 @@
     return id ? "https://drive.google.com/thumbnail?id=" + id + "&sz=w1280" : "";
   }
 
+  // Lightweight obfuscation so Drive IDs are NOT readable in View-Source /
+  // the DOM. NOTE: this only raises the bar — a determined user with dev
+  // tools can still reach the embed once it plays. Real protection is the
+  // Drive file's sharing settings (restrict to the batch's emails).
+  var OBF_KEY = "lwp!nodeVS#2026";
+  function deob(token) {
+    try {
+      var bin = atob(token), out = "";
+      for (var i = 0; i < bin.length; i++) {
+        out += String.fromCharCode(bin.charCodeAt(i) ^ OBF_KEY.charCodeAt(i % OBF_KEY.length));
+      }
+      return out;
+    } catch (e) { return ""; }
+  }
+
+  /* ---- Render one list of resources (videos / pdf / links) ---- */
+  function renderResources(list) {
+    var html = "";
+    list.forEach(function (r) {
+      var type = r.type || "link";
+      if (type === "video") {
+        html += '<div class="media-block">';
+        if (r.label) html += '<h3 class="portal-sub">' + escapeHtml(r.label) + "</h3>";
+        // Encrypted token (r.vid) preferred; never put the Drive URL in the DOM.
+        var attr = r.vid
+          ? 'data-venc="' + escapeAttr(r.vid) + '"'
+          : 'data-src="' + escapeAttr(drivePreview(r.url)) + '"';
+        html += '<div class="video-embed video-cover" ' + attr +
+          ' role="button" tabindex="0" aria-label="Play ' + escapeAttr(r.label || "video") + '">';
+        var thumb = r.poster || driveThumb(r.url);
+        if (thumb) html += '<img class="video-thumb" src="' + escapeAttr(thumb) + '" alt="" loading="lazy" referrerpolicy="no-referrer" />';
+        html += '<span class="video-play"></span>';
+        html += "</div></div>";
+      } else if (type === "pdf") {
+        html += '<div class="media-block">';
+        if (r.label) html += '<h3 class="portal-sub">' + escapeHtml(r.label) + "</h3>";
+        html += '<div class="pdf-embed"><iframe src="' + escapeAttr(drivePreview(r.url)) + '"></iframe></div>';
+        html += "</div>";
+      } else {
+        html += '<a class="portal-link-item" target="_blank" rel="noopener" href="' +
+          escapeAttr(r.url) + '">▸ ' + escapeHtml(r.label) + "</a>";
+      }
+    });
+    return html;
+  }
+
   /* ---- Render the content for an unlocked batch ---- */
   function renderContent(batch, user) {
     if (!els.content) return;
@@ -176,36 +227,16 @@
         escapeAttr(batch.classUrl) + '">▶ Join the live class</a>';
     }
 
-    if (batch.resources && batch.resources.length) {
-      batch.resources.forEach(function (r) {
-        var type = r.type || "link";
-        if (type === "video") {
-          html += '<div class="media-block">';
-          if (r.label) html += '<h3 class="portal-sub">' + escapeHtml(r.label) + "</h3>";
-          html += '<div class="video-embed video-cover" data-src="' + escapeAttr(drivePreview(r.url)) +
-            '" role="button" tabindex="0" aria-label="Play ' + escapeAttr(r.label || "video") + '">';
-          var thumb = r.poster || driveThumb(r.url);
-          if (thumb) html += '<img class="video-thumb" src="' + escapeAttr(thumb) + '" alt="" loading="lazy" referrerpolicy="no-referrer" />';
-          html += '<span class="video-play"></span>';
-          html += "</div></div>";
-        } else if (type === "pdf") {
-          html += '<div class="media-block">';
-          if (r.label) html += '<h3 class="portal-sub">' + escapeHtml(r.label) + "</h3>";
-          html += '<div class="pdf-embed"><iframe src="' + escapeAttr(drivePreview(r.url)) + '"></iframe></div>';
-          html += '<a class="btn btn-ghost btn-sm portal-cta" target="_blank" rel="noopener" href="' +
-            escapeAttr(r.url) + '">⬇ Open / download PDF</a>';
-          html += "</div>";
-        } else {
-          html += '<a class="portal-link-item" target="_blank" rel="noopener" href="' +
-            escapeAttr(r.url) + '">▸ ' + escapeHtml(r.label) + "</a>";
-        }
+    if (batch.days && batch.days.length) {
+      batch.days.forEach(function (d) {
+        html += '<section class="portal-day">';
+        if (d.title) html += '<h2 class="day-title">' + escapeHtml(d.title) + "</h2>";
+        if (d.description) html += '<p class="day-desc">' + escapeHtml(d.description) + "</p>";
+        if (d.resources && d.resources.length) html += renderResources(d.resources);
+        html += "</section>";
       });
-    }
-
-    if (batch.drive) {
-      html +=
-        '<a class="btn btn-ghost btn-lg portal-cta" target="_blank" rel="noopener" href="' +
-        escapeAttr(batch.drive) + '">📁 Open all recordings &amp; resources (Drive)</a>';
+    } else if (batch.resources && batch.resources.length) {
+      html += renderResources(batch.resources);
     }
 
     els.content.innerHTML = html;
@@ -364,7 +395,11 @@
 
   /* ---- Click a video thumbnail to load + play it in place ---- */
   function playVideo(cover) {
-    var src = cover.getAttribute("data-src");
+    // Build the embed URL only now (on click). Prefer the encrypted token.
+    var enc = cover.getAttribute("data-venc");
+    var src = enc
+      ? "https://drive.google.com/file/d/" + deob(enc) + "/preview"
+      : cover.getAttribute("data-src");
     if (!src) return;
     var iframe = document.createElement("iframe");
     iframe.src = src;
