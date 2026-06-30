@@ -51,8 +51,8 @@
         name: "June 2026 Batch",
         code: "JUNE-2026",
         emails: [
-          // Add the batch students' Gmail addresses here, e.g.
-          // "student1@gmail.com",
+          "raghavendranpalla@gmail.com",
+          // Add more batch students' Gmail addresses below, e.g.
           // "student2@gmail.com",
         ],
         classUrl: "",  // optional live class link
