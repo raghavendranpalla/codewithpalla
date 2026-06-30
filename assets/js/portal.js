@@ -240,25 +240,36 @@
     set(LS_LOG, log);
 
     notifyLogin(user);
-    render();
+
+    // Refresh once so the nav (avatar + Log out) and content update
+    // everywhere. This only runs on a fresh sign-in, so no loop.
+    window.location.reload();
   }
 
   /* ---- Notify the admin (email + Sheet) via Google Apps Script ---- */
   function notifyLogin(user) {
     if (!CONFIG.notifyUrl) return;
     var batch = findBatchByEmail(user.email);
+    var payload = JSON.stringify({
+      email: user.email,
+      name: user.name || "",
+      batch: batch ? batch.name : "(no batch)",
+      page: location.href
+    });
     try {
-      fetch(CONFIG.notifyUrl, {
-        method: "POST",
-        mode: "no-cors", // fire-and-forget; avoids CORS preflight
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({
-          email: user.email,
-          name: user.name || "",
-          batch: batch ? batch.name : "(no batch)",
-          page: location.href
-        })
-      });
+      // sendBeacon survives the page reload below; fetch is a fallback.
+      if (navigator.sendBeacon) {
+        var blob = new Blob([payload], { type: "text/plain;charset=utf-8" });
+        navigator.sendBeacon(CONFIG.notifyUrl, blob);
+      } else {
+        fetch(CONFIG.notifyUrl, {
+          method: "POST",
+          mode: "no-cors",
+          keepalive: true,
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: payload
+        });
+      }
     } catch (e) { /* ignore — notification is best-effort */ }
   }
 
