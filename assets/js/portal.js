@@ -143,14 +143,28 @@
     return null;
   }
 
+  // Normalise an email for comparison. Gmail ignores dots and +tags and
+  // treats googlemail.com as gmail.com — so all those variants match.
+  function normEmail(email) {
+    var e = String(email || "").trim().toLowerCase();
+    var at = e.indexOf("@");
+    if (at < 0) return e;
+    var local = e.slice(0, at), domain = e.slice(at + 1);
+    if (domain === "gmail.com" || domain === "googlemail.com") {
+      local = local.split("+")[0].replace(/\./g, "");
+      domain = "gmail.com";
+    }
+    return local + "@" + domain;
+  }
+
   // Match a signed-in email to a batch by its `emails` allow-list.
   function findBatchByEmail(email) {
     if (!email) return null;
-    var e = String(email).trim().toLowerCase();
+    var e = normEmail(email);
     for (var i = 0; i < CONFIG.batches.length; i++) {
       var list = CONFIG.batches[i].emails || [];
       for (var j = 0; j < list.length; j++) {
-        if (String(list[j]).trim().toLowerCase() === e) return CONFIG.batches[i];
+        if (normEmail(list[j]) === e) return CONFIG.batches[i];
       }
     }
     return null;
