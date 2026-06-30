@@ -97,6 +97,13 @@
     .form-status { margin-top: 8px; font-size: .92rem; min-height: 1.2em; }
     .form-status.err { color: var(--pink); }
     .form-status.ok { color: var(--primary); }
+
+    @media (max-width: 480px) {
+      .portal-card { padding: 28px 20px; }
+      .code-field { flex-direction: column; }
+      .code-field .btn { width: 100%; }
+      .portal-row { gap: 8px; }
+    }
   </style>
 </head>
 <body>
