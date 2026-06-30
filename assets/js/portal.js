@@ -60,9 +60,9 @@
         resources: [
           // type "video" → plays in-page on click; "pdf" → embedded viewer
           // + download; anything else → a plain link. Paste any normal
-          // Google Drive share link; it's auto-converted to an embed.
-          { type: "video", label: "Day 1 — Class recording", url: "https://drive.google.com/file/d/PASTE_VIDEO_ID/view" },
-          { type: "pdf",   label: "Day 1 — Guide (PDF)",      url: "https://drive.google.com/file/d/PASTE_PDF_ID/view" }
+          // Google Drive share link; it's auto-converted to an embed and
+          // the direct /view link is never shown on the page.
+          { type: "video", label: "Day 1 — NodeJS & VS Installation (Part 1)", url: "https://drive.google.com/file/d/1f7TmoEMP4TpCr5e5xNU_gQL7E1cKqv0J/view?usp=sharing" }
         ]
       }
     ]
