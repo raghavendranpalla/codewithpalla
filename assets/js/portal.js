@@ -58,8 +58,11 @@
         classUrl: "",  // optional live class link
         drive: "",     // optional whole Drive folder
         resources: [
-          { label: "Day 1 — Class recording (video)", url: "https://drive.google.com/file/d/PASTE_VIDEO_ID/view" },
-          { label: "Day 1 — Guide (PDF, download)",   url: "https://drive.google.com/file/d/PASTE_PDF_ID/view" }
+          // type "video" → plays in-page on click; "pdf" → embedded viewer
+          // + download; anything else → a plain link. Paste any normal
+          // Google Drive share link; it's auto-converted to an embed.
+          { type: "video", label: "Day 1 — Class recording", url: "https://drive.google.com/file/d/PASTE_VIDEO_ID/view" },
+          { type: "pdf",   label: "Day 1 — Guide (PDF)",      url: "https://drive.google.com/file/d/PASTE_PDF_ID/view" }
         ]
       }
     ]
@@ -140,6 +143,26 @@
   function show(el) { if (el) el.hidden = false; }
   function hide(el) { if (el) el.hidden = true; }
 
+  // Pull the file ID out of any Google Drive share link.
+  function driveId(url) {
+    if (!url) return "";
+    var s = String(url);
+    var m = s.match(/\/d\/([-\w]+)/) || s.match(/[?&]id=([-\w]+)/);
+    if (m) return m[1];
+    m = s.match(/([-\w]{25,})/);
+    return m ? m[1] : "";
+  }
+  // Build the embeddable /preview URL (plays video / shows PDF in-page).
+  function drivePreview(url) {
+    var id = driveId(url);
+    return id ? "https://drive.google.com/file/d/" + id + "/preview" : url;
+  }
+  // Poster thumbnail image for a Drive video.
+  function driveThumb(url) {
+    var id = driveId(url);
+    return id ? "https://drive.google.com/thumbnail?id=" + id + "&sz=w1280" : "";
+  }
+
   /* ---- Render the content for an unlocked batch ---- */
   function renderContent(batch, user) {
     if (!els.content) return;
@@ -151,21 +174,37 @@
         '<a class="btn btn-primary btn-lg portal-cta" target="_blank" rel="noopener" href="' +
         escapeAttr(batch.classUrl) + '">▶ Join the live class</a>';
     }
+
+    if (batch.resources && batch.resources.length) {
+      batch.resources.forEach(function (r) {
+        var type = r.type || "link";
+        if (type === "video") {
+          html += '<div class="media-block">';
+          if (r.label) html += '<h3 class="portal-sub">' + escapeHtml(r.label) + "</h3>";
+          html += '<div class="video-embed video-cover" data-src="' + escapeAttr(drivePreview(r.url)) +
+            '" role="button" tabindex="0" aria-label="Play ' + escapeAttr(r.label || "video") + '">';
+          var thumb = driveThumb(r.url);
+          if (thumb) html += '<img class="video-thumb" src="' + escapeAttr(thumb) + '" alt="" loading="lazy" referrerpolicy="no-referrer" />';
+          html += '<span class="video-play"></span>';
+          html += "</div></div>";
+        } else if (type === "pdf") {
+          html += '<div class="media-block">';
+          if (r.label) html += '<h3 class="portal-sub">' + escapeHtml(r.label) + "</h3>";
+          html += '<div class="pdf-embed"><iframe src="' + escapeAttr(drivePreview(r.url)) + '"></iframe></div>';
+          html += '<a class="btn btn-ghost btn-sm portal-cta" target="_blank" rel="noopener" href="' +
+            escapeAttr(r.url) + '">⬇ Open / download PDF</a>';
+          html += "</div>";
+        } else {
+          html += '<a class="portal-link-item" target="_blank" rel="noopener" href="' +
+            escapeAttr(r.url) + '">▸ ' + escapeHtml(r.label) + "</a>";
+        }
+      });
+    }
+
     if (batch.drive) {
       html +=
         '<a class="btn btn-ghost btn-lg portal-cta" target="_blank" rel="noopener" href="' +
-        escapeAttr(batch.drive) + '">📁 Open recordings &amp; resources (Drive)</a>';
-    }
-
-    if (batch.resources && batch.resources.length) {
-      html += '<h3 class="portal-sub">Recordings &amp; materials</h3>';
-      html += '<ul class="portal-list">';
-      batch.resources.forEach(function (r) {
-        html +=
-          '<li><a target="_blank" rel="noopener" href="' + escapeAttr(r.url) + '">' +
-          "▸ " + escapeHtml(r.label) + "</a></li>";
-      });
-      html += "</ul>";
+        escapeAttr(batch.drive) + '">📁 Open all recordings &amp; resources (Drive)</a>';
     }
 
     els.content.innerHTML = html;
@@ -321,6 +360,31 @@
   }
   if (els.signout) els.signout.addEventListener("click", signOut);
   if (els.signout2) els.signout2.addEventListener("click", signOut);
+
+  /* ---- Click a video thumbnail to load + play it in place ---- */
+  function playVideo(cover) {
+    var src = cover.getAttribute("data-src");
+    if (!src) return;
+    var iframe = document.createElement("iframe");
+    iframe.src = src;
+    iframe.setAttribute("allow", "autoplay; encrypted-media; fullscreen");
+    iframe.setAttribute("allowfullscreen", "");
+    cover.innerHTML = "";
+    cover.appendChild(iframe);
+    cover.classList.remove("video-cover");
+  }
+  if (els.content) {
+    els.content.addEventListener("click", function (e) {
+      var cover = e.target.closest && e.target.closest(".video-cover");
+      if (cover) { e.preventDefault(); playVideo(cover); }
+    });
+    els.content.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        var cover = e.target.closest && e.target.closest(".video-cover");
+        if (cover) { e.preventDefault(); playVideo(cover); }
+      }
+    });
+  }
 
   /* ---- Initialize Google Identity Services when it loads ---- */
   window.onGoogleLibraryLoad = function () {
