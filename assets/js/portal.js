@@ -28,6 +28,12 @@
     // It looks like: 1234567890-abc123.apps.googleusercontent.com
     clientId: "302634236502-gkdpddkai6ved64502qohp1c95ilttcj.apps.googleusercontent.com",
 
+    // --- Login notifications (optional, free) ---
+    // Paste your Google Apps Script web-app URL here to get an email +
+    // a Google Sheet log every time someone signs in. Leave blank to
+    // turn notifications off. (Setup steps were provided separately.)
+    notifyUrl: "",
+
     // --- Your batches ---
     // A student is matched to a batch by their Google email.
     // Put each student's Gmail in `emails`. When they sign in, if
@@ -233,7 +239,27 @@
     log.push({ email: user.email, name: user.name, ts: profile.iat || 0 });
     set(LS_LOG, log);
 
+    notifyLogin(user);
     render();
+  }
+
+  /* ---- Notify the admin (email + Sheet) via Google Apps Script ---- */
+  function notifyLogin(user) {
+    if (!CONFIG.notifyUrl) return;
+    var batch = findBatchByEmail(user.email);
+    try {
+      fetch(CONFIG.notifyUrl, {
+        method: "POST",
+        mode: "no-cors", // fire-and-forget; avoids CORS preflight
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          email: user.email,
+          name: user.name || "",
+          batch: batch ? batch.name : "(no batch)",
+          page: location.href
+        })
+      });
+    } catch (e) { /* ignore — notification is best-effort */ }
   }
 
   /* ---- Batch code unlock ---- */
