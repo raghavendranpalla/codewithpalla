@@ -62,7 +62,8 @@
           // + download; anything else → a plain link. Paste any normal
           // Google Drive share link; it's auto-converted to an embed and
           // the direct /view link is never shown on the page.
-          { type: "video", label: "Day 1 — NodeJS & VS Installation (Part 1)", url: "https://drive.google.com/file/d/1f7TmoEMP4TpCr5e5xNU_gQL7E1cKqv0J/view?usp=sharing" }
+          { type: "video", label: "Day 1 — NodeJS & VS Installation (Part 1)", poster: "assets/img/thumb-day1-part1.svg", url: "https://drive.google.com/file/d/1f7TmoEMP4TpCr5e5xNU_gQL7E1cKqv0J/view?usp=sharing" },
+          { type: "video", label: "Day 1 — NodeJS & VS Installation (Part 2)", poster: "assets/img/thumb-day1-part2.svg", url: "https://drive.google.com/file/d/1S4sJ6lSO_4i1npmK-dLWWzBXaThf3dju/view?usp=sharing" }
         ]
       }
     ]
@@ -183,7 +184,7 @@
           if (r.label) html += '<h3 class="portal-sub">' + escapeHtml(r.label) + "</h3>";
           html += '<div class="video-embed video-cover" data-src="' + escapeAttr(drivePreview(r.url)) +
             '" role="button" tabindex="0" aria-label="Play ' + escapeAttr(r.label || "video") + '">';
-          var thumb = driveThumb(r.url);
+          var thumb = r.poster || driveThumb(r.url);
           if (thumb) html += '<img class="video-thumb" src="' + escapeAttr(thumb) + '" alt="" loading="lazy" referrerpolicy="no-referrer" />';
           html += '<span class="video-play"></span>';
           html += "</div></div>";
