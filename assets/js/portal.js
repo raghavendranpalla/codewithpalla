@@ -29,29 +29,32 @@
     clientId: "302634236502-gkdpddkai6ved64502qohp1c95ilttcj.apps.googleusercontent.com",
 
     // --- Your batches ---
-    // Add one object per batch. Give each a code you hand out to
-    // students. `classUrl` = the live class link (Zoom / Meet / etc).
-    // `drive` = your Google Drive folder of recordings/resources.
-    // `resources` = optional extra links shown as a list.
+    // A student is matched to a batch by their Google email.
+    // Put each student's Gmail in `emails`. When they sign in, if
+    // their email is on the list they AUTOMATICALLY see this batch's
+    // content (no code needed). `code` is an optional backup so you
+    // can also let someone in by code if they're not on the list yet.
+    //
+    //   emails    = lowercase Gmail addresses of this batch's students
+    //   classUrl  = live class link (Zoom / Meet) — optional
+    //   drive     = Google Drive folder of all recordings — optional
+    //   resources = the per-day links (videos, downloadable PDFs)
     batches: [
       {
-        id: "pw-jun26",
-        name: "Playwright + TypeScript — June 2026",
-        code: "PW-JUN26",
-        classUrl: "https://meet.google.com/your-live-class-link",
-        drive: "https://drive.google.com/drive/folders/PASTE_DRIVE_FOLDER_ID",
+        id: "jun26",
+        name: "June 2026 Batch",
+        code: "JUNE-2026",
+        emails: [
+          // Add the batch students' Gmail addresses here, e.g.
+          // "student1@gmail.com",
+          // "student2@gmail.com",
+        ],
+        classUrl: "",  // optional live class link
+        drive: "",     // optional whole Drive folder
         resources: [
-          { label: "Day 1 — Recording", url: "https://drive.google.com/file/d/RECORDING_ID/view" },
-          { label: "Course notes (PDF)", url: "https://drive.google.com/file/d/NOTES_ID/view" }
+          { label: "Day 1 — Class recording (video)", url: "https://drive.google.com/file/d/PASTE_VIDEO_ID/view" },
+          { label: "Day 1 — Guide (PDF, download)",   url: "https://drive.google.com/file/d/PASTE_PDF_ID/view" }
         ]
-      },
-      {
-        id: "sel-jun26",
-        name: "Selenium + Java — June 2026",
-        code: "SEL-JUN26",
-        classUrl: "https://meet.google.com/your-live-class-link",
-        drive: "https://drive.google.com/drive/folders/PASTE_DRIVE_FOLDER_ID",
-        resources: []
       }
     ]
   };
@@ -70,6 +73,7 @@
     gateBox:   document.getElementById("gateBox"),
     contentBox:document.getElementById("contentBox"),
     who:       document.getElementById("who"),
+    whoEmail:  document.getElementById("whoEmail"),
     avatar:    document.getElementById("avatar"),
     codeInput: document.getElementById("batchCode"),
     codeBtn:   document.getElementById("unlockBtn"),
@@ -110,6 +114,19 @@
   function findBatch(id) {
     for (var i = 0; i < CONFIG.batches.length; i++) {
       if (CONFIG.batches[i].id === id) return CONFIG.batches[i];
+    }
+    return null;
+  }
+
+  // Match a signed-in email to a batch by its `emails` allow-list.
+  function findBatchByEmail(email) {
+    if (!email) return null;
+    var e = String(email).trim().toLowerCase();
+    for (var i = 0; i < CONFIG.batches.length; i++) {
+      var list = CONFIG.batches[i].emails || [];
+      for (var j = 0; j < list.length; j++) {
+        if (String(list[j]).trim().toLowerCase() === e) return CONFIG.batches[i];
+      }
     }
     return null;
   }
@@ -174,12 +191,14 @@
 
     // Signed in — show profile bits
     if (els.who) els.who.textContent = (user.name || user.email || "Signed in");
+    if (els.whoEmail) els.whoEmail.textContent = (user.email || "your account");
     if (els.avatar && user.picture) {
       els.avatar.src = user.picture;
       els.avatar.hidden = false;
     }
 
-    var batch = batchId ? findBatch(batchId) : null;
+    // Email match takes priority; fall back to a code-unlocked batch.
+    var batch = findBatchByEmail(user.email) || (batchId ? findBatch(batchId) : null);
     if (batch) {
       // Unlocked
       hide(els.signinBox);
