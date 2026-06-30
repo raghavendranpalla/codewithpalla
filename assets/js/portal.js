@@ -52,8 +52,18 @@
         code: "JUNE-2026",
         emails: [
           "raghavendranpalla@gmail.com",
-          // Add more batch students' Gmail addresses below, e.g.
-          // "student2@gmail.com",
+          "bunnya42@gmail.com",
+          "nalamatisyamsai@gmail.com",
+          "subbupalla555@gmail.com",
+          "suresh.kb78@gmail.com",
+          "surendraneelam5@gmail.com",
+          "kirankayala@gmail.com",
+          "keerthi.vasanta@gmail.com",
+          "ponnada.upendrasai@gmail.com",
+          "sreecharansdet95@gmail.com",
+          "lalitha.yarramsetty@gmail.com",
+          "kranthikollapati369@gmail.com",
+          "rojapavitra1308@gmail.com",
         ],
         classUrl: "",  // optional live class link
         // Content is organised by day. Each day has a title, a short
