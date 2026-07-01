@@ -593,7 +593,8 @@
       var lessonBtn = e.target.closest(".cur-lesson");
       if (lessonBtn) {
         e.preventDefault();
-        selectLesson(parseInt(lessonBtn.getAttribute("data-idx"), 10), true);
+        // Show the lesson's thumbnail + play button; it plays on click.
+        selectLesson(parseInt(lessonBtn.getAttribute("data-idx"), 10), false);
         // On narrow screens the player is above the list — bring it into view.
         if (window.innerWidth < 900) {
           var p = document.getElementById("coursePlayer");
