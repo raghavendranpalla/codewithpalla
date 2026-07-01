@@ -217,62 +217,196 @@
     } catch (e) { return ""; }
   }
 
-  /* ---- Render one list of resources (videos / pdf / links) ---- */
-  function renderResources(list) {
-    var html = "";
-    list.forEach(function (r) {
-      var type = r.type || "link";
-      if (type === "video") {
-        html += '<div class="media-block">';
-        if (r.label) html += '<h3 class="portal-sub">' + escapeHtml(r.label) + "</h3>";
-        // Encrypted token (r.vid) preferred; never put the Drive URL in the DOM.
-        var attr = r.vid
-          ? 'data-venc="' + escapeAttr(r.vid) + '"'
-          : 'data-src="' + escapeAttr(drivePreview(r.url)) + '"';
-        html += '<div class="video-embed video-cover" ' + attr +
-          ' role="button" tabindex="0" aria-label="Play ' + escapeAttr(r.label || "video") + '">';
-        var thumb = r.poster || driveThumb(r.url);
-        if (thumb) html += '<img class="video-thumb" src="' + escapeAttr(thumb) + '" alt="" loading="lazy" referrerpolicy="no-referrer" />';
-        html += '<span class="video-play"></span>';
-        html += "</div></div>";
-      } else if (type === "pdf") {
-        html += '<div class="media-block">';
-        if (r.label) html += '<h3 class="portal-sub">' + escapeHtml(r.label) + "</h3>";
-        html += '<div class="pdf-embed"><iframe src="' + escapeAttr(drivePreview(r.url)) + '"></iframe></div>';
-        html += "</div>";
-      } else {
-        html += '<a class="portal-link-item" target="_blank" rel="noopener" href="' +
-          escapeAttr(r.url) + '">▸ ' + escapeHtml(r.label) + "</a>";
-      }
-    });
-    return html;
+  /* =======================================================
+     Course player (Udemy-style): big player on the left,
+     collapsible Day -> lessons curriculum on the right.
+     `course.lessons` is a FLAT list of every resource so a
+     sidebar click maps straight to a lesson by index.
+     ======================================================= */
+  var course = { lessons: [], current: -1 };
+
+  function mkLesson(r, dayTitle, dayDesc) {
+    return {
+      type: r.type || "video",
+      label: r.label || "",
+      vid: r.vid || "",
+      url: r.url || "",
+      poster: r.poster || "",
+      dayTitle: dayTitle,
+      dayDesc: dayDesc
+    };
+  }
+
+  // Small round icon shown next to each lesson in the sidebar.
+  function lessonIcon(type) {
+    if (type === "pdf") {
+      return '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 2h8l4 4v16H6z" opacity=".9"/></svg>';
+    }
+    if (type && type !== "video") {
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1"/><path d="M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1"/></svg>';
+    }
+    return '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
   }
 
   /* ---- Render the content for an unlocked batch ---- */
   function renderContent(batch, user) {
     if (!els.content) return;
-    var html = "";
-    html += '<div class="portal-batch-name">' + escapeHtml(batch.name) + "</div>";
+    els.contentBox.classList.add("is-course");
+
+    // 1) Flatten every resource into course.lessons, grouped by day.
+    course.lessons = [];
+    var groups = [];   // { title, desc, items: [{lesson, idx}] }
+    if (batch.days && batch.days.length) {
+      batch.days.forEach(function (d, di) {
+        var title = d.title || ("Day " + (di + 1));
+        var g = { title: title, items: [] };
+        (d.resources || []).forEach(function (r) {
+          var idx = course.lessons.length;
+          course.lessons.push(mkLesson(r, title, d.description || ""));
+          g.items.push({ idx: idx });
+        });
+        groups.push(g);
+      });
+    } else if (batch.resources && batch.resources.length) {
+      var g0 = { title: batch.name, items: [] };
+      batch.resources.forEach(function (r) {
+        var idx = course.lessons.length;
+        course.lessons.push(mkLesson(r, batch.name, ""));
+        g0.items.push({ idx: idx });
+      });
+      groups.push(g0);
+    }
+
+    var total = course.lessons.length;
+
+    // 2) Build the two-column layout.
+    var html = '<div class="portal-batch-name">' + escapeHtml(batch.name) + "</div>";
 
     if (batch.classUrl) {
       html +=
-        '<a class="btn btn-primary btn-lg portal-cta" target="_blank" rel="noopener" href="' +
+        '<a class="btn btn-primary portal-cta course-live" target="_blank" rel="noopener" href="' +
         escapeAttr(batch.classUrl) + '">▶ Join the live class</a>';
     }
 
-    if (batch.days && batch.days.length) {
-      batch.days.forEach(function (d) {
-        html += '<section class="portal-day">';
-        if (d.title) html += '<h2 class="day-title">' + escapeHtml(d.title) + "</h2>";
-        if (d.description) html += '<p class="day-desc">' + escapeHtml(d.description) + "</p>";
-        if (d.resources && d.resources.length) html += renderResources(d.resources);
-        html += "</section>";
-      });
-    } else if (batch.resources && batch.resources.length) {
-      html += renderResources(batch.resources);
+    if (!total) {
+      html += '<p class="day-desc">Your recordings will appear here soon.</p>';
+      els.content.innerHTML = html;
+      return;
     }
 
+    html += '<div class="course-layout">';
+
+    // --- Main column: player + info panel ---
+    html += '<div class="course-main">' +
+      '<div class="course-player video-embed" id="coursePlayer"></div>' +
+      '<div class="course-info" id="courseInfo"></div>' +
+    '</div>';
+
+    // --- Sidebar: curriculum ---
+    html += '<aside class="course-sidebar">' +
+      '<div class="cur-head"><span class="cur-head-title">Course content</span>' +
+      '<span class="cur-head-meta">' + total + (total === 1 ? " lesson" : " lessons") + '</span></div>' +
+      '<div class="cur-scroll">';
+
+    groups.forEach(function (g, gi) {
+      var open = gi === 0;
+      var n = g.items.length;
+      html += '<section class="cur-day' + (open ? " open" : "") + '">' +
+        '<button class="cur-day-head" type="button" aria-expanded="' + open + '">' +
+          '<span class="cur-day-name">' + escapeHtml(g.title) + '</span>' +
+          '<span class="cur-day-sub">' + n + (n === 1 ? " lesson" : " lessons") +
+          '<span class="cur-chev" aria-hidden="true"></span></span>' +
+        '</button>' +
+        '<div class="cur-lessons">';
+      g.items.forEach(function (it) {
+        var L = course.lessons[it.idx];
+        html += '<button class="cur-lesson" type="button" data-idx="' + it.idx + '">' +
+          '<span class="cur-lesson-ico">' + lessonIcon(L.type) + '</span>' +
+          '<span class="cur-lesson-text">' + escapeHtml(L.label || ("Lesson " + (it.idx + 1))) + '</span>' +
+        '</button>';
+      });
+      html += '</div></section>';
+    });
+
+    html += '</div></aside></div>';
+
     els.content.innerHTML = html;
+
+    // 3) Load the first lesson into the player (poster only — no autoplay).
+    selectLesson(0, false);
+  }
+
+  /* ---- Load a lesson (by flat index) into the main player ---- */
+  function selectLesson(idx, autoplay) {
+    var L = course.lessons[idx];
+    if (!L) return;
+
+    // Plain links just open in a new tab; keep the current player as-is.
+    if (L.type && L.type !== "video" && L.type !== "pdf") {
+      if (L.url) window.open(L.url, "_blank", "noopener");
+      return;
+    }
+
+    course.current = idx;
+    var player = document.getElementById("coursePlayer");
+    var info = document.getElementById("courseInfo");
+    if (!player) return;
+
+    if (L.type === "pdf") {
+      player.className = "course-player video-embed";
+      player.removeAttribute("data-venc");
+      player.removeAttribute("data-src");
+      player.removeAttribute("role");
+      player.removeAttribute("tabindex");
+      player.innerHTML = '<iframe src="' + escapeAttr(drivePreview(L.url)) +
+        '" allowfullscreen></iframe>';
+    } else {
+      // Video: show branded poster + play button; build embed only on play.
+      player.className = "course-player video-embed video-cover";
+      if (L.vid) { player.setAttribute("data-venc", L.vid); player.removeAttribute("data-src"); }
+      else { player.setAttribute("data-src", drivePreview(L.url)); player.removeAttribute("data-venc"); }
+      player.setAttribute("role", "button");
+      player.setAttribute("tabindex", "0");
+      player.setAttribute("aria-label", "Play " + (L.label || "video"));
+      var thumb = L.poster || driveThumb(L.url);
+      player.innerHTML =
+        (thumb ? '<img class="video-thumb" src="' + escapeAttr(thumb) + '" alt="" referrerpolicy="no-referrer" />' : "") +
+        '<span class="video-play"></span>';
+      if (autoplay) playVideo(player);
+    }
+
+    // Info panel below the player.
+    if (info) {
+      info.innerHTML =
+        '<div class="course-day-tag">' + escapeHtml(L.dayTitle) + '</div>' +
+        '<h1 class="course-lesson-title">' + escapeHtml(L.label || "Lesson") + '</h1>' +
+        (L.dayDesc ? '<p class="course-desc">' + escapeHtml(L.dayDesc) + '</p>' : "");
+    }
+
+    // Highlight the active lesson + make sure its day is expanded.
+    var btns = els.content.querySelectorAll(".cur-lesson");
+    var active = null;
+    for (var i = 0; i < btns.length; i++) {
+      var on = parseInt(btns[i].getAttribute("data-idx"), 10) === idx;
+      btns[i].classList.toggle("active", on);
+      if (on) active = btns[i];
+    }
+    if (active) {
+      var day = active.closest(".cur-day");
+      if (day && !day.classList.contains("open")) {
+        day.classList.add("open");
+        var head = day.querySelector(".cur-day-head");
+        if (head) head.setAttribute("aria-expanded", "true");
+      }
+    }
+  }
+
+  /* ---- Expand / collapse a day in the sidebar ---- */
+  function toggleDay(head) {
+    var sec = head.closest(".cur-day");
+    if (!sec) return;
+    var open = sec.classList.toggle("open");
+    head.setAttribute("aria-expanded", open ? "true" : "false");
   }
 
   function escapeHtml(s) {
@@ -286,12 +420,20 @@
   function render() {
     var user = get(LS_USER);
     var batchId = get(LS_BATCH);
+    var wrap = els.contentBox ? els.contentBox.closest(".portal-wrap") : null;
 
     if (!isConfigured()) {
       show(els.notice);
     }
 
+    // Only the unlocked course view uses the wide two-column layout.
+    function narrow() {
+      if (wrap) wrap.classList.remove("portal-wrap-wide");
+      if (els.contentBox) els.contentBox.classList.remove("is-course");
+    }
+
     if (!user) {
+      narrow();
       // Not signed in
       show(els.signinBox);
       hide(els.gateBox);
@@ -314,9 +456,11 @@
       hide(els.signinBox);
       hide(els.gateBox);
       show(els.contentBox);
+      if (wrap) wrap.classList.add("portal-wrap-wide");
       renderContent(batch, user);
     } else {
       // Signed in but no batch unlocked yet
+      narrow();
       hide(els.signinBox);
       show(els.gateBox);
       hide(els.contentBox);
@@ -444,13 +588,34 @@
   }
   if (els.content) {
     els.content.addEventListener("click", function (e) {
-      var cover = e.target.closest && e.target.closest(".video-cover");
+      if (!e.target.closest) return;
+      // Sidebar: pick a lesson (loads + plays it in the main player).
+      var lessonBtn = e.target.closest(".cur-lesson");
+      if (lessonBtn) {
+        e.preventDefault();
+        selectLesson(parseInt(lessonBtn.getAttribute("data-idx"), 10), true);
+        // On narrow screens the player is above the list — bring it into view.
+        if (window.innerWidth < 900) {
+          var p = document.getElementById("coursePlayer");
+          if (p) p.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        return;
+      }
+      // Sidebar: expand / collapse a day.
+      var dayHead = e.target.closest(".cur-day-head");
+      if (dayHead) { e.preventDefault(); toggleDay(dayHead); return; }
+      // Big poster in the main player.
+      var cover = e.target.closest(".video-cover");
       if (cover) { e.preventDefault(); playVideo(cover); }
     });
     els.content.addEventListener("keydown", function (e) {
       if (e.key === "Enter" || e.key === " ") {
         var cover = e.target.closest && e.target.closest(".video-cover");
-        if (cover) { e.preventDefault(); playVideo(cover); }
+        // Buttons (lessons / day headers) fire their own click on Enter/Space.
+        if (cover && !e.target.closest(".cur-lesson,.cur-day-head")) {
+          e.preventDefault();
+          playVideo(cover);
+        }
       }
     });
   }
