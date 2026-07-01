@@ -33,6 +33,16 @@ aws s3 sync "$ROOT" "s3://$BUCKET" \
   --exclude "tools/*" \
   --delete
 
+echo "==> Fixing SVG content-type (guessers sometimes mislabel .svg)..."
+# Browsers won't render an <img> SVG unless served as image/svg+xml.
+aws s3 cp "s3://$BUCKET" "s3://$BUCKET" \
+  --recursive \
+  --exclude "*" --include "*.svg" \
+  --content-type "image/svg+xml" \
+  --cache-control "public,max-age=31536000,immutable" \
+  --metadata-directive REPLACE \
+  --region "$REGION"
+
 if [ -n "$DIST_ID" ]; then
   echo "==> Invalidating CloudFront cache..."
   aws cloudfront create-invalidation --distribution-id "$DIST_ID" --paths "/*" >/dev/null

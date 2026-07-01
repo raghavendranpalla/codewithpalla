@@ -46,6 +46,17 @@ aws s3 sync "$root" "s3://$Bucket" `
   @excludes `
   --delete
 
+Write-Host "==> Fixing SVG content-type (Windows mislabels .svg as octet-stream)..." -ForegroundColor Cyan
+# Browsers won't render an <img> SVG unless it's served as image/svg+xml.
+# Rewrite every .svg already in the bucket, in place, with the right MIME.
+aws s3 cp "s3://$Bucket" "s3://$Bucket" `
+  --recursive `
+  --exclude "*" --include "*.svg" `
+  --content-type "image/svg+xml" `
+  --cache-control "public,max-age=31536000,immutable" `
+  --metadata-directive REPLACE `
+  --region $Region
+
 if ($DistributionId -ne "") {
   Write-Host "==> Invalidating CloudFront cache..." -ForegroundColor Cyan
   aws cloudfront create-invalidation --distribution-id $DistributionId --paths "/*" | Out-Null
