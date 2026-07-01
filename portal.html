@@ -167,8 +167,7 @@
       gap: 22px;
       align-items: start;
     }
-    /* Keep the video + info pinned; only the page/sidebar scrolls */
-    .course-main { min-width: 0; position: sticky; top: 88px; align-self: start; }
+    .course-main { min-width: 0; }
 
     .course-live { display: inline-flex; width: auto; margin: 0 0 18px; }
 
@@ -203,14 +202,18 @@
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       overflow: hidden;
+      display: flex; flex-direction: column;
     }
     .cur-head {
+      flex: none;
       display: flex; align-items: center; justify-content: space-between;
       padding: 15px 18px; border-bottom: 1px solid var(--border);
       background: var(--bg-2);
     }
     .cur-head-title { font-weight: 700; font-size: 1rem; }
     .cur-head-meta { color: var(--faint); font-size: .82rem; font-family: var(--font-mono); }
+    /* Only this list scrolls — the video and the page stay put */
+    .cur-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
 
     .cur-day { border-bottom: 1px solid var(--border); }
     .cur-day:last-child { border-bottom: 0; }
@@ -255,10 +258,27 @@
     .cur-lesson-ico svg { width: 12px; height: 12px; }
     .cur-lesson-text { font-size: .9rem; }
 
+    /* Desktop: lock the course view to the viewport so the page itself
+       doesn't scroll — the video stays static and only the lesson list
+       scrolls internally (Udemy-style player). */
+    @media (min-width: 901px) {
+      body.course-mode { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+      body.course-mode .site-header { flex: none; }
+      body.course-mode .site-footer { display: none; }
+      body.course-mode main { flex: 1 1 auto; min-height: 0; display: flex; }
+      body.course-mode main > .section { flex: 1 1 auto; min-height: 0; display: flex; padding: 18px 0; }
+      body.course-mode .section > .container { flex: 1 1 auto; min-height: 0; display: flex; }
+      body.course-mode .container > .portal-wrap { flex: 1 1 auto; min-height: 0; display: flex; }
+      body.course-mode #contentBox.is-course { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+      body.course-mode .course-layout { flex: 1 1 auto; min-height: 0; }
+      body.course-mode .course-main { overflow-y: auto; }
+      body.course-mode .course-sidebar { max-height: 100%; }
+    }
+
     @media (max-width: 900px) {
       .portal-wrap-wide { max-width: 640px; }
       .course-layout { grid-template-columns: 1fr; }
-      .course-main { position: static; }
+      .course-sidebar { display: block; }
     }
   </style>
 </head>
@@ -354,6 +374,6 @@
   </footer>
 
   <script src="assets/js/main.js?v=3"></script>
-  <script src="assets/js/portal.js?v=13"></script>
+  <script src="assets/js/portal.js?v=14"></script>
 </body>
 </html>

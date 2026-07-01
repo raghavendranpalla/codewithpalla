@@ -430,6 +430,7 @@
     function narrow() {
       if (wrap) wrap.classList.remove("portal-wrap-wide");
       if (els.contentBox) els.contentBox.classList.remove("is-course");
+      document.body.classList.remove("course-mode");
     }
 
     if (!user) {
@@ -457,6 +458,7 @@
       hide(els.gateBox);
       show(els.contentBox);
       if (wrap) wrap.classList.add("portal-wrap-wide");
+      document.body.classList.add("course-mode");
       renderContent(batch, user);
     } else {
       // Signed in but no batch unlocked yet
