@@ -64,6 +64,7 @@
           "lalitha.yarramsetty@gmail.com",
           "kranthikollapati369@gmail.com",
           "rojapavitra1308@gmail.com",
+          "narsing.mrao@gmail.com",
         ],
         classUrl: "",  // optional live class link
         // Content is organised by day. Each day has a title, a short
@@ -77,6 +78,14 @@
             resources: [
               { type: "video", label: "Part 1 — Installing Node.js", poster: "assets/img/thumb-day1-part1.svg", vid: "XRFHdQMAISgGZ3dCc0ADCUIIbzswAzQaZGYDU3lHGkc6" },
               { type: "video", label: "Part 2 — Installing & configuring VS Code", poster: "assets/img/thumb-day1-part2.svg", vid: "XSREUiRZCDYZDBdbAVxGATxdRSI4Mx8UC0JmWFQFCB0F" }
+            ]
+          },
+          {
+            title: "Day 2 — JavaScript Comments & Variables",
+            description: "Your first steps writing JavaScript. In Part 1 you'll learn how to write comments — single-line and multi-line — to document and organise your code. In Part 2 you'll learn variables: how to declare them with let and const, name them well, and store the data your tests will work with. Watch both parts in order.",
+            resources: [
+              { type: "video", label: "Part 1 — JavaScript Comments", poster: "assets/img/thumb-day2-part1.svg", vid: "XUcWY1gbUCYVPFFjA0JpKBkTdSVWMRxvP0VcVXVXCS44" },
+              { type: "video", label: "Part 2 — JavaScript Variables", poster: "assets/img/thumb-day2-part2.svg", vid: "XQUzVgsLUlA9NVJLdHRDCAIDRwULBhM/B0lnAVNRLjU8" }
             ]
           }
         ]
