@@ -65,6 +65,7 @@
           "kranthikollapati369@gmail.com",
           "rojapavitra1308@gmail.com",
           "narsing.mrao@gmail.com",
+          "vasanthigopisetti4912@gmail.com",
         ],
         classUrl: "",  // optional live class link
         // Content is organised by day. Each day has a title, a short
