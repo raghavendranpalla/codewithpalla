@@ -110,6 +110,43 @@
               { type: "video", label: "Part 1 — Template Literals & Truthy/Falsy Values", poster: "assets/img/thumb-day4-part1.svg", vid: "XUcAFUMlDTYeI1NDb2JCByMIFTg3MAgYPBNAb3MDPxUD" },
               { type: "pdf", label: "Study & Practice Guide (PDF)", vid: "XRszQ188JQMVY1cHY0tPPgQZFicANS4SHw5mfFlZAREp" }
             ]
+          },
+          {
+            title: "Test 1 — Days 2-4 Revision",
+            description: "Your first test! 12 exam-style questions covering everything from Days 2-4: comments, variables, data types, variable scoping, template literals and truthy/falsy values. Answer every question, hit Submit, and you'll see your score instantly with the correct answers marked. Retake it as many times as you like — your best score is saved on this device.",
+            resources: [
+              {
+                type: "quiz",
+                label: "Test 1 — JavaScript Basics (12 questions)",
+                quizId: "t1-js-basics",
+                questions: [
+                  { q: "Which of these is a correct single-line comment in JavaScript?",
+                    opts: ["// this is a comment", "# this is a comment", "<!-- this is a comment -->", "** this is a comment **"], a: 0 },
+                  { q: "What happens when this runs?  const city = \"Hyderabad\"; city = \"Delhi\";",
+                    opts: ["It prints Delhi", "The value quietly stays Hyderabad", "city becomes undefined", "It throws: TypeError — assignment to constant variable"], a: 3 },
+                  { q: "Which variable name is INVALID in JavaScript?",
+                    opts: ["first_name", "1stPlace", "$total", "user2"], a: 1 },
+                  { q: "Which keyword should you AVOID in new code because it ignores block scope?",
+                    opts: ["var", "let", "const", "function"], a: 0 },
+                  { q: "What does  typeof \"45\"  return?",
+                    opts: ["\"number\"", "\"string\"", "\"object\"", "\"boolean\""], a: 1 },
+                  { q: "What does  typeof null  return? (the famous JS quirk)",
+                    opts: ["\"null\"", "\"undefined\"", "\"object\"", "\"boolean\""], a: 2 },
+                  { q: "A variable that is declared but never given a value holds:",
+                    opts: ["null", "0", "undefined", "\"\" (an empty string)"], a: 2 },
+                  { q: "After  if (true) { let x = 5; }  what does  console.log(x)  do?",
+                    opts: ["Prints 5", "Prints undefined", "Prints null", "ReferenceError — x is not defined"], a: 3 },
+                  { q: "With  const name = \"Palla\"  — which line correctly builds \"Hi Palla\" using a template literal?",
+                    opts: ["'Hi ${name}'  (single quotes)", "\"Hi ${name}\"  (double quotes)", "`Hi ${name}`  (backticks)", "`Hi {name}`  (backticks, but no $)"], a: 2 },
+                  { q: "How many falsy values does JavaScript have (the list from class)?",
+                    opts: ["4", "5", "6", "8"], a: 2 },
+                  { q: "Which of these values is TRUTHY?",
+                    opts: ["\"\" (empty string)", "0", "NaN", "[] (empty array)"], a: 3 },
+                  { q: "What does this print?  if (NaN) { console.log(\"yes\"); } else { console.log(\"no\"); }",
+                    opts: ["yes", "no", "It throws an error", "Nothing — the code is invalid"], a: 1 }
+                ]
+              }
+            ]
           }
         ]
       }
@@ -255,6 +292,8 @@
       vid: r.vid || "",
       url: r.url || "",
       poster: r.poster || "",
+      quizId: r.quizId || "",
+      questions: r.questions || null,
       dayTitle: dayTitle,
       dayDesc: dayDesc
     };
@@ -264,6 +303,9 @@
   function lessonIcon(type) {
     if (type === "pdf") {
       return '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 2h8l4 4v16H6z" opacity=".9"/></svg>';
+    }
+    if (type === "quiz") {
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 12.5l2 2 4-5"/></svg>';
     }
     if (type && type !== "video") {
       return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1"/><path d="M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1"/></svg>';
@@ -365,7 +407,7 @@
     if (!L) return;
 
     // Plain links just open in a new tab; keep the current player as-is.
-    if (L.type && L.type !== "video" && L.type !== "pdf") {
+    if (L.type && L.type !== "video" && L.type !== "pdf" && L.type !== "quiz") {
       if (L.url) window.open(L.url, "_blank", "noopener");
       return;
     }
@@ -387,6 +429,14 @@
         : drivePreview(L.url);
       player.innerHTML = '<iframe src="' + escapeAttr(pdfSrc) +
         '" allowfullscreen></iframe>';
+    } else if (L.type === "quiz") {
+      // Exam-style test: rendered in place of the player, graded on submit.
+      player.className = "course-player quiz-mode";
+      player.removeAttribute("data-venc");
+      player.removeAttribute("data-src");
+      player.removeAttribute("role");
+      player.removeAttribute("tabindex");
+      player.innerHTML = buildQuiz(L);
     } else {
       // Video: show branded poster + play button; build embed only on play.
       player.className = "course-player video-embed video-cover";
@@ -434,6 +484,97 @@
         if (head) head.setAttribute("aria-expanded", "true");
       }
     }
+  }
+
+  /* =======================================================
+     Quiz (exam-style test): all questions at once, graded on
+     submit; best score per quiz is kept in localStorage.
+     ======================================================= */
+  var LS_QUIZ = "lwp_quiz_scores";
+
+  function quizStats(quizId) {
+    var all = get(LS_QUIZ) || {};
+    return all[quizId] || null;
+  }
+  function saveQuizScore(quizId, score, total) {
+    var all = get(LS_QUIZ) || {};
+    var prev = all[quizId] || {};
+    all[quizId] = { last: score, best: Math.max(score, prev.best || 0), total: total };
+    set(LS_QUIZ, all);
+  }
+
+  function buildQuiz(L) {
+    var qs = L.questions || [];
+    var stats = quizStats(L.quizId);
+    var html = '<div class="quiz-wrap">' +
+      '<div class="quiz-head">' +
+        '<span class="quiz-title">' + escapeHtml(L.label || "Test") + '</span>' +
+        '<span class="quiz-meta">' + qs.length + " questions · no time limit" +
+        (stats ? " · your best: " + stats.best + "/" + stats.total : "") + '</span>' +
+      '</div>' +
+      '<div id="quizResult" class="quiz-result" hidden></div>';
+    qs.forEach(function (q, qi) {
+      html += '<fieldset class="quiz-q" data-q="' + qi + '">' +
+        '<legend>' + (qi + 1) + ". " + escapeHtml(q.q) + '</legend>';
+      q.opts.forEach(function (opt, oi) {
+        html += '<label class="quiz-opt"><input type="radio" name="q' + qi +
+          '" value="' + oi + '"><span>' + escapeHtml(opt) + '</span></label>';
+      });
+      html += '<div class="quiz-fb" hidden></div></fieldset>';
+    });
+    html += '<div class="quiz-actions">' +
+      '<button id="quizSubmit" class="btn btn-primary" type="button">Submit test</button>' +
+      '</div></div>';
+    return html;
+  }
+
+  function gradeQuiz() {
+    var L = course.lessons[course.current];
+    if (!L || L.type !== "quiz") return;
+    var box = document.getElementById("coursePlayer");
+    var result = document.getElementById("quizResult");
+    if (!box || !result) return;
+    var qs = L.questions || [];
+
+    // Exam rule: every question must be answered before submitting.
+    var missing = [];
+    qs.forEach(function (q, qi) {
+      if (!box.querySelector('input[name="q' + qi + '"]:checked')) missing.push(qi + 1);
+    });
+    if (missing.length) {
+      result.hidden = false;
+      result.className = "quiz-result warn";
+      result.textContent = "Please answer every question before submitting. Missing: " +
+        missing.join(", ");
+      return;
+    }
+
+    var score = 0;
+    qs.forEach(function (q, qi) {
+      var picked = parseInt(box.querySelector('input[name="q' + qi + '"]:checked').value, 10);
+      var fs = box.querySelector('.quiz-q[data-q="' + qi + '"]');
+      var fb = fs.querySelector(".quiz-fb");
+      var ok = picked === q.a;
+      if (ok) score++;
+      fs.classList.add(ok ? "is-right" : "is-wrong");
+      fb.hidden = false;
+      fb.textContent = ok ? "✓ Correct" : "✗ Correct answer: " + q.opts[q.a];
+      var inputs = fs.querySelectorAll("input");
+      for (var i = 0; i < inputs.length; i++) inputs[i].disabled = true;
+    });
+
+    var pct = Math.round((score / qs.length) * 100);
+    saveQuizScore(L.quizId, score, qs.length);
+    result.hidden = false;
+    result.className = "quiz-result " + (pct >= 70 ? "pass" : "fail");
+    result.innerHTML = "<strong>Your score: " + score + " / " + qs.length +
+      " (" + pct + "%)</strong> — " +
+      (pct >= 70
+        ? "great job! You have these topics down."
+        : "revise the Day 2-4 videos and study guides, then retake the test.");
+    var btn = document.getElementById("quizSubmit");
+    if (btn) { btn.id = "quizRetake"; btn.textContent = "Retake test"; }
+    result.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   /* ---- Expand / collapse a day in the sidebar ---- */
@@ -642,6 +783,13 @@
       // Sidebar: expand / collapse a day.
       var dayHead = e.target.closest(".cur-day-head");
       if (dayHead) { e.preventDefault(); toggleDay(dayHead); return; }
+      // Quiz: grade on submit, rebuild on retake.
+      if (e.target.closest("#quizSubmit")) { e.preventDefault(); gradeQuiz(); return; }
+      if (e.target.closest("#quizRetake")) {
+        e.preventDefault();
+        selectLesson(course.current, false);
+        return;
+      }
       // Big poster in the main player.
       var cover = e.target.closest(".video-cover");
       if (cover) { e.preventDefault(); playVideo(cover); }
