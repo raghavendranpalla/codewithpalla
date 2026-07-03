@@ -99,6 +99,13 @@
               { type: "video", label: "Part 1 — JavaScript Data Types", poster: "assets/img/thumb-day3-part1.svg", vid: "XT4KahpXPRYAIA5jZWMHWRwiWxgFUxckYWcEUx8bGE4z" },
               { type: "video", label: "Part 2 — Variable Scoping", poster: "assets/img/thumb-day3-part2.svg", vid: "XSVDViweJiZlZRVHUmhOVRVAdDwwVDExEBMHAUpAFj8H" }
             ]
+          },
+          {
+            title: "Day 4 — Template Literals & Truthy/Falsy Values",
+            description: "Two tools you'll use in almost every test. First, template literals — building strings with backticks and ${} interpolation, so your logs and locators read naturally instead of messy concatenation. Then truthy and falsy values: which values JavaScript treats as true or false inside a condition, the six falsy values to memorise, and how this powers clean if-checks in your automation code.",
+            resources: [
+              { type: "video", label: "Part 1 — Template Literals & Truthy/Falsy Values", poster: "assets/img/thumb-day4-part1.svg", vid: "XUcAFUMlDTYeI1NDb2JCByMIFTg3MAgYPBNAb3MDPxUD" }
+            ]
           }
         ]
       }
