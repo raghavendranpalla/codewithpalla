@@ -81,7 +81,8 @@
             description: "We set up the development environment you'll use for the whole course. You'll install Node.js (the JavaScript runtime that powers Playwright and your tooling) and verify it from the terminal, then install Visual Studio Code and configure it for automation work. Watch both parts in order — by the end you'll have a working setup ready to write your first test.",
             resources: [
               { type: "video", label: "Part 1 — Installing Node.js", poster: "assets/img/thumb-day1-part1.svg", vid: "XRFHdQMAISgGZ3dCc0ADCUIIbzswAzQaZGYDU3lHGkc6" },
-              { type: "video", label: "Part 2 — Installing & configuring VS Code", poster: "assets/img/thumb-day1-part2.svg", vid: "XSREUiRZCDYZDBdbAVxGATxdRSI4Mx8UC0JmWFQFCB0F" }
+              { type: "video", label: "Part 2 — Installing & configuring VS Code", poster: "assets/img/thumb-day1-part2.svg", vid: "XSREUiRZCDYZDBdbAVxGATxdRSI4Mx8UC0JmWFQFCB0F" },
+              { type: "pdf", label: "Study & Practice Guide (PDF)", url: "assets/docs/day1-study-practice-guide.pdf" }
             ]
           },
           {
@@ -89,7 +90,8 @@
             description: "Your first steps writing JavaScript. In Part 1 you'll learn how to write comments — single-line and multi-line — to document and organise your code. In Part 2 you'll learn variables: how to declare them with let and const, name them well, and store the data your tests will work with. Watch both parts in order.",
             resources: [
               { type: "video", label: "Part 1 — JavaScript Comments", poster: "assets/img/thumb-day2-part1.svg", vid: "XUcWY1gbUCYVPFFjA0JpKBkTdSVWMRxvP0VcVXVXCS44" },
-              { type: "video", label: "Part 2 — JavaScript Variables", poster: "assets/img/thumb-day2-part2.svg", vid: "XQUzVgsLUlA9NVJLdHRDCAIDRwULBhM/B0lnAVNRLjU8" }
+              { type: "video", label: "Part 2 — JavaScript Variables", poster: "assets/img/thumb-day2-part2.svg", vid: "XQUzVgsLUlA9NVJLdHRDCAIDRwULBhM/B0lnAVNRLjU8" },
+              { type: "pdf", label: "Study & Practice Guide (PDF)", url: "assets/docs/day2-study-practice-guide.pdf" }
             ]
           },
           {
@@ -97,14 +99,16 @@
             description: "Two concepts every test you write will rely on. In Part 1 you'll learn JavaScript's data types — strings, numbers, booleans, undefined, null and objects — and how to check them with typeof. In Part 2 you'll learn variable scoping: global, function and block scope, and why let/const behave differently from var. Watch both parts in order.",
             resources: [
               { type: "video", label: "Part 1 — JavaScript Data Types", poster: "assets/img/thumb-day3-part1.svg", vid: "XT4KahpXPRYAIA5jZWMHWRwiWxgFUxckYWcEUx8bGE4z" },
-              { type: "video", label: "Part 2 — Variable Scoping", poster: "assets/img/thumb-day3-part2.svg", vid: "XSVDViweJiZlZRVHUmhOVRVAdDwwVDExEBMHAUpAFj8H" }
+              { type: "video", label: "Part 2 — Variable Scoping", poster: "assets/img/thumb-day3-part2.svg", vid: "XSVDViweJiZlZRVHUmhOVRVAdDwwVDExEBMHAUpAFj8H" },
+              { type: "pdf", label: "Study & Practice Guide (PDF)", url: "assets/docs/day3-study-practice-guide.pdf" }
             ]
           },
           {
             title: "Day 4 — Template Literals & Truthy/Falsy Values",
             description: "Two tools you'll use in almost every test. First, template literals — building strings with backticks and ${} interpolation, so your logs and locators read naturally instead of messy concatenation. Then truthy and falsy values: which values JavaScript treats as true or false inside a condition, the six falsy values to memorise, and how this powers clean if-checks in your automation code.",
             resources: [
-              { type: "video", label: "Part 1 — Template Literals & Truthy/Falsy Values", poster: "assets/img/thumb-day4-part1.svg", vid: "XUcAFUMlDTYeI1NDb2JCByMIFTg3MAgYPBNAb3MDPxUD" }
+              { type: "video", label: "Part 1 — Template Literals & Truthy/Falsy Values", poster: "assets/img/thumb-day4-part1.svg", vid: "XUcAFUMlDTYeI1NDb2JCByMIFTg3MAgYPBNAb3MDPxUD" },
+              { type: "pdf", label: "Study & Practice Guide (PDF)", url: "assets/docs/day4-study-practice-guide.pdf" }
             ]
           }
         ]
@@ -399,7 +403,11 @@
       info.innerHTML =
         '<div class="course-day-tag">' + escapeHtml(L.dayTitle) + '</div>' +
         '<h1 class="course-lesson-title">' + escapeHtml(L.label || "Lesson") + '</h1>' +
-        (L.dayDesc ? '<p class="course-desc">' + escapeHtml(L.dayDesc) + '</p>' : "");
+        (L.dayDesc ? '<p class="course-desc">' + escapeHtml(L.dayDesc) + '</p>' : "") +
+        (L.type === "pdf" && L.url
+          ? '<a class="btn btn-primary course-download" style="margin-top:14px" href="' +
+            escapeAttr(L.url) + '" download>&#8595; Download the PDF guide</a>'
+          : "");
     }
 
     // Highlight the active lesson + make sure its day is expanded.
