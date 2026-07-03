@@ -54,6 +54,17 @@ Live at https://learnwithpalla.com (GitHub Pages, repo `raghavendranpalla/codewi
 5. Bump `?v=N`, commit, push.
 6. Remind Palla to share the new Drive files with all batch student emails.
 
+### Adding a test (quiz)
+
+- Add a `days[]` entry with a `{type:"quiz", label, quizId, questions}`
+  resource. Each question is `{q, opts:[4 strings], a:<correct index>}`.
+  The portal renders it exam-style in the player area, grades on submit,
+  shows per-question feedback and keeps the best score per device
+  (localStorage `lwp_quiz_scores`). Spread correct answers across A-D.
+- Note: answers are visible in view-source — fine for practice tests,
+  not for anything that counts.
+- Bump `?v=N`, commit, push. No Drive sharing needed for quizzes.
+
 ## Marketing site
 
 - Pages: index / courses / curriculum / about / contact (+ 404). Dark theme,
