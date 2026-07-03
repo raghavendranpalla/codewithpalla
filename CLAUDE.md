@@ -43,8 +43,13 @@ Live at https://learnwithpalla.com (GitHub Pages, repo `raghavendranpalla/codewi
    headless Edge (`msedge --headless --screenshot`) to verify before pushing.
 3. Add the day to `CONFIG.batches[].days[]` with `{type:"video", label,
    poster, vid}` entries (`vid` = obfuscated token).
-4. Bump `?v=N`, commit, push.
-5. Remind Palla to share the new Drive files with all batch student emails.
+4. Add the day's Study & Practice Guide PDF: append its content to `DAYS`
+   in `tools/generate_study_guides.py`, run the script (outputs to
+   `assets/docs/dayN-study-practice-guide.pdf`), and add a
+   `{type:"pdf", label:"Study & Practice Guide (PDF)", url}` resource to
+   the day. The player previews it inline and shows a download button.
+5. Bump `?v=N`, commit, push.
+6. Remind Palla to share the new Drive files with all batch student emails.
 
 ## Marketing site
 
