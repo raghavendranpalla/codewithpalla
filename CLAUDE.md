@@ -45,9 +45,12 @@ Live at https://learnwithpalla.com (GitHub Pages, repo `raghavendranpalla/codewi
    poster, vid}` entries (`vid` = obfuscated token).
 4. Add the day's Study & Practice Guide PDF: append its content to `DAYS`
    in `tools/generate_study_guides.py`, run the script (outputs to
-   `assets/docs/dayN-study-practice-guide.pdf`), and add a
-   `{type:"pdf", label:"Study & Practice Guide (PDF)", url}` resource to
-   the day. The player previews it inline and shows a download button.
+   `assets/docs/dayN-study-practice-guide.pdf`), then have Palla upload the
+   PDF to Google Drive and send back the link. Obfuscate its Drive id (same
+   XOR+base64 as videos) and add a `{type:"pdf", label:"Study & Practice
+   Guide (PDF)", vid}` resource to the day. Do NOT commit the PDF — it is
+   Drive-gated, not site-hosted. The player previews it inline and shows a
+   download button.
 5. Bump `?v=N`, commit, push.
 6. Remind Palla to share the new Drive files with all batch student emails.
 

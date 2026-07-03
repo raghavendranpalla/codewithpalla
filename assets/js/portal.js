@@ -82,7 +82,7 @@
             resources: [
               { type: "video", label: "Part 1 — Installing Node.js", poster: "assets/img/thumb-day1-part1.svg", vid: "XRFHdQMAISgGZ3dCc0ADCUIIbzswAzQaZGYDU3lHGkc6" },
               { type: "video", label: "Part 2 — Installing & configuring VS Code", poster: "assets/img/thumb-day1-part2.svg", vid: "XSREUiRZCDYZDBdbAVxGATxdRSI4Mx8UC0JmWFQFCB0F" },
-              { type: "pdf", label: "Study & Practice Guide (PDF)", url: "assets/docs/day1-study-practice-guide.pdf" }
+              { type: "pdf", label: "Study & Practice Guide (PDF)", vid: "XSIUERsrMyQYNlUEV0VFCxgVYxotMAwuAFdmREVsQREq" }
             ]
           },
           {
@@ -91,7 +91,7 @@
             resources: [
               { type: "video", label: "Part 1 — JavaScript Comments", poster: "assets/img/thumb-day2-part1.svg", vid: "XUcWY1gbUCYVPFFjA0JpKBkTdSVWMRxvP0VcVXVXCS44" },
               { type: "video", label: "Part 2 — JavaScript Variables", poster: "assets/img/thumb-day2-part2.svg", vid: "XQUzVgsLUlA9NVJLdHRDCAIDRwULBhM/B0lnAVNRLjU8" },
-              { type: "pdf", label: "Study & Practice Guide (PDF)", url: "assets/docs/day2-study-practice-guide.pdf" }
+              { type: "pdf", label: "Study & Practice Guide (PDF)", vid: "XUIEQh4BFhM+MhJ9cktvXCEyQAkcLFUnKmtGB3VzDjk8" }
             ]
           },
           {
@@ -100,7 +100,7 @@
             resources: [
               { type: "video", label: "Part 1 — JavaScript Data Types", poster: "assets/img/thumb-day3-part1.svg", vid: "XT4KahpXPRYAIA5jZWMHWRwiWxgFUxckYWcEUx8bGE4z" },
               { type: "video", label: "Part 2 — Variable Scoping", poster: "assets/img/thumb-day3-part2.svg", vid: "XSVDViweJiZlZRVHUmhOVRVAdDwwVDExEBMHAUpAFj8H" },
-              { type: "pdf", label: "Study & Practice Guide (PDF)", url: "assets/docs/day3-study-practice-guide.pdf" }
+              { type: "pdf", label: "Study & Practice Guide (PDF)", vid: "XTMvUAIeHT8/I0ADc0V1KxYdTFoCHCw/NmV3QmZhGSE+" }
             ]
           },
           {
@@ -108,7 +108,7 @@
             description: "Two tools you'll use in almost every test. First, template literals — building strings with backticks and ${} interpolation, so your logs and locators read naturally instead of messy concatenation. Then truthy and falsy values: which values JavaScript treats as true or false inside a condition, the six falsy values to memorise, and how this powers clean if-checks in your automation code.",
             resources: [
               { type: "video", label: "Part 1 — Template Literals & Truthy/Falsy Values", poster: "assets/img/thumb-day4-part1.svg", vid: "XUcAFUMlDTYeI1NDb2JCByMIFTg3MAgYPBNAb3MDPxUD" },
-              { type: "pdf", label: "Study & Practice Guide (PDF)", url: "assets/docs/day4-study-practice-guide.pdf" }
+              { type: "pdf", label: "Study & Practice Guide (PDF)", vid: "XRszQ188JQMVY1cHY0tPPgQZFicANS4SHw5mfFlZAREp" }
             ]
           }
         ]
@@ -381,7 +381,11 @@
       player.removeAttribute("data-src");
       player.removeAttribute("role");
       player.removeAttribute("tabindex");
-      player.innerHTML = '<iframe src="' + escapeAttr(drivePreview(L.url)) +
+      // Prefer the encrypted token (like videos); fall back to a plain url.
+      var pdfSrc = L.vid
+        ? "https://drive.google.com/file/d/" + deob(L.vid) + "/preview"
+        : drivePreview(L.url);
+      player.innerHTML = '<iframe src="' + escapeAttr(pdfSrc) +
         '" allowfullscreen></iframe>';
     } else {
       // Video: show branded poster + play button; build embed only on play.
@@ -404,9 +408,13 @@
         '<div class="course-day-tag">' + escapeHtml(L.dayTitle) + '</div>' +
         '<h1 class="course-lesson-title">' + escapeHtml(L.label || "Lesson") + '</h1>' +
         (L.dayDesc ? '<p class="course-desc">' + escapeHtml(L.dayDesc) + '</p>' : "") +
-        (L.type === "pdf" && L.url
+        (L.type === "pdf" && (L.vid || L.url)
           ? '<a class="btn btn-primary course-download" style="margin-top:14px" href="' +
-            escapeAttr(L.url) + '" download>&#8595; Download the PDF guide</a>'
+            escapeAttr(L.vid
+              ? "https://drive.google.com/uc?export=download&id=" + deob(L.vid)
+              : L.url) +
+            (L.vid ? '" target="_blank" rel="noopener"' : '" download') +
+            '>&#8595; Download the PDF guide</a>'
           : "");
     }
 

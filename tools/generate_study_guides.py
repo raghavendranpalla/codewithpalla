@@ -4,6 +4,9 @@ Pure-Python (reportlab) — no native deps. Re-run any time a day's content
 changes:  python tools/generate_study_guides.py
 
 Output: assets/docs/day<N>-study-practice-guide.pdf (one per day below).
+NOTE: the output PDFs are NOT committed / served from the site. Palla uploads
+them to Google Drive (shared with the batch emails, like the videos) and the
+portal references them via obfuscated Drive-id tokens in portal.js.
 """
 import os
 from reportlab.lib.pagesizes import A4
