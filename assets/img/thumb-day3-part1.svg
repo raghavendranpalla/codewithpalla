@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" role="img" aria-label="Day 3 - JavaScript Data Types, Part 1">
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7df1e"/>
+      <stop offset=".5" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#818cf8"/>
+    </linearGradient>
+    <radialGradient id="glowL" cx="12%" cy="-5%" r="55%">
+      <stop offset="0" stop-color="#f7df1e" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#f7df1e" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowR" cx="96%" cy="2%" r="55%">
+      <stop offset="0" stop-color="#818cf8" stop-opacity=".24"/>
+      <stop offset="1" stop-color="#818cf8" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#ffffff" stroke-opacity=".035" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="720" fill="#0a0e14"/>
+  <rect width="1280" height="720" fill="url(#grid)"/>
+  <rect width="1280" height="720" fill="url(#glowL)"/>
+  <rect width="1280" height="720" fill="url(#glowR)"/>
+
+  <text x="96" y="150" font-family="'Segoe UI',Inter,Arial,sans-serif" font-size="26" letter-spacing="7" font-weight="700" fill="#22d3ee">DAY 3 · LEARN WITH PALLA</text>
+
+  <text x="92" y="290" font-family="'Segoe UI',Inter,Arial,sans-serif" font-size="84" font-weight="800" fill="#e6edf3">JavaScript</text>
+  <text x="96" y="390" font-family="'Segoe UI',Inter,Arial,sans-serif" font-size="84" font-weight="800" fill="url(#grad)">Data Types</text>
+
+  <rect x="96" y="436" rx="14" width="196" height="60" fill="#22d3ee" fill-opacity=".14" stroke="#22d3ee" stroke-opacity=".55" stroke-width="1.5"/>
+  <text x="128" y="476" font-family="'JetBrains Mono',Consolas,monospace" font-size="30" font-weight="700" fill="#22d3ee">PART 1</text>
+
+  <text x="96" y="560" font-family="'JetBrains Mono',Consolas,monospace" font-size="30" fill="#7e8da2"><tspan fill="#dcdcaa">typeof</tspan> <tspan fill="#ce9178">"Palla"</tspan>  <tspan fill="#6a9955">// string</tspan></text>
+  <text x="96" y="600" font-family="'JetBrains Mono',Consolas,monospace" font-size="30" fill="#7e8da2"><tspan fill="#dcdcaa">typeof</tspan> <tspan fill="#b5cea8">45</tspan>       <tspan fill="#6a9955">// number</tspan></text>
+
+  <text x="96" y="670" font-family="'JetBrains Mono',Consolas,monospace" font-size="24" fill="#7e8da2">&lt;/&gt; learnwithpalla.com</text>
+
+  <!-- Diagram: typeof hub with data-type branches -->
+  <g font-family="'JetBrains Mono',Consolas,monospace" font-size="26" font-weight="700" text-anchor="middle">
+    <!-- connector lines -->
+    <g stroke-width="2.5" fill="none" stroke-opacity=".65">
+      <path d="M985 360 L 985 178" stroke="#ce9178"/>
+      <path d="M985 360 L 1158 268" stroke="#b5cea8"/>
+      <path d="M985 360 L 812 268" stroke="#569cd6"/>
+      <path d="M985 360 L 812 452" stroke="#c586c0"/>
+      <path d="M985 360 L 1158 452" stroke="#e06c75"/>
+      <path d="M985 360 L 985 542" stroke="#f7df1e"/>
+    </g>
+
+    <!-- hub -->
+    <circle cx="985" cy="360" r="74" fill="#f7df1e"/>
+    <text x="985" y="371" font-size="30" fill="#0a0e14">typeof</text>
+
+    <!-- string -->
+    <rect x="895" y="140" rx="19" width="180" height="56" fill="#ce9178" fill-opacity=".16" stroke="#ce9178" stroke-width="1.6"/>
+    <text x="985" y="177" fill="#ce9178">"string"</text>
+
+    <!-- number -->
+    <rect x="1078" y="238" rx="19" width="160" height="56" fill="#b5cea8" fill-opacity=".16" stroke="#b5cea8" stroke-width="1.6"/>
+    <text x="1158" y="275" fill="#b5cea8">number</text>
+
+    <!-- boolean -->
+    <rect x="726" y="238" rx="19" width="172" height="56" fill="#569cd6" fill-opacity=".16" stroke="#569cd6" stroke-width="1.6"/>
+    <text x="812" y="275" fill="#569cd6">boolean</text>
+
+    <!-- undefined -->
+    <rect x="712" y="426" rx="19" width="200" height="56" fill="#c586c0" fill-opacity=".16" stroke="#c586c0" stroke-width="1.6"/>
+    <text x="812" y="463" fill="#c586c0">undefined</text>
+
+    <!-- null -->
+    <rect x="1088" y="426" rx="19" width="140" height="56" fill="#e06c75" fill-opacity=".16" stroke="#e06c75" stroke-width="1.6"/>
+    <text x="1158" y="463" fill="#e06c75">null</text>
+
+    <!-- object -->
+    <rect x="899" y="522" rx="19" width="172" height="56" fill="#f7df1e" fill-opacity=".16" stroke="#f7df1e" stroke-width="1.6"/>
+    <text x="985" y="559" fill="#f7df1e">object</text>
+  </g>
+</svg>

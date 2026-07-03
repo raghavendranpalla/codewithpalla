@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" role="img" aria-label="Day 3 - JavaScript Variable Scoping, Part 2">
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7df1e"/>
+      <stop offset=".5" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#818cf8"/>
+    </linearGradient>
+    <radialGradient id="glowL" cx="12%" cy="-5%" r="55%">
+      <stop offset="0" stop-color="#f7df1e" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#f7df1e" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowR" cx="96%" cy="2%" r="55%">
+      <stop offset="0" stop-color="#818cf8" stop-opacity=".24"/>
+      <stop offset="1" stop-color="#818cf8" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#ffffff" stroke-opacity=".035" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="720" fill="#0a0e14"/>
+  <rect width="1280" height="720" fill="url(#grid)"/>
+  <rect width="1280" height="720" fill="url(#glowL)"/>
+  <rect width="1280" height="720" fill="url(#glowR)"/>
+
+  <text x="96" y="150" font-family="'Segoe UI',Inter,Arial,sans-serif" font-size="26" letter-spacing="7" font-weight="700" fill="#22d3ee">DAY 3 · LEARN WITH PALLA</text>
+
+  <text x="92" y="290" font-family="'Segoe UI',Inter,Arial,sans-serif" font-size="84" font-weight="800" fill="#e6edf3">Variable</text>
+  <text x="96" y="390" font-family="'Segoe UI',Inter,Arial,sans-serif" font-size="84" font-weight="800" fill="url(#grad)">Scoping</text>
+
+  <rect x="96" y="436" rx="14" width="196" height="60" fill="#22d3ee" fill-opacity=".14" stroke="#22d3ee" stroke-opacity=".55" stroke-width="1.5"/>
+  <text x="128" y="476" font-family="'JetBrains Mono',Consolas,monospace" font-size="30" font-weight="700" fill="#22d3ee">PART 2</text>
+
+  <text x="96" y="560" font-family="'JetBrains Mono',Consolas,monospace" font-size="30" fill="#7e8da2">{ <tspan fill="#c586c0">let</tspan> x = <tspan fill="#b5cea8">1</tspan>; }</text>
+  <text x="96" y="600" font-family="'JetBrains Mono',Consolas,monospace" font-size="30" fill="#7e8da2">log(x) <tspan fill="#e06c75">// not defined</tspan></text>
+
+  <text x="96" y="670" font-family="'JetBrains Mono',Consolas,monospace" font-size="24" fill="#7e8da2">&lt;/&gt; learnwithpalla.com</text>
+
+  <!-- Diagram: nested scope boxes -->
+  <g font-family="'JetBrains Mono',Consolas,monospace">
+    <!-- Global scope -->
+    <rect x="700" y="140" rx="22" width="500" height="450" fill="#818cf8" fill-opacity=".10" stroke="#818cf8" stroke-width="2" stroke-dasharray="10 7"/>
+    <text x="732" y="192" font-size="28" font-weight="700" fill="#818cf8">GLOBAL SCOPE</text>
+    <text x="732" y="230" font-size="24" fill="#7e8da2"><tspan fill="#569cd6">var</tspan> site</text>
+
+    <!-- Function scope -->
+    <rect x="742" y="256" rx="18" width="416" height="298" fill="#22d3ee" fill-opacity=".10" stroke="#22d3ee" stroke-width="2"/>
+    <text x="774" y="306" font-size="28" font-weight="700" fill="#22d3ee">FUNCTION SCOPE</text>
+    <text x="774" y="344" font-size="24" fill="#7e8da2"><tspan fill="#c586c0">let</tspan> course</text>
+
+    <!-- Block scope -->
+    <rect x="784" y="372" rx="14" width="332" height="146" fill="#f7df1e" fill-opacity=".12" stroke="#f7df1e" stroke-width="2"/>
+    <text x="816" y="420" font-size="28" font-weight="700" fill="#f7df1e">BLOCK SCOPE</text>
+    <text x="816" y="458" font-size="24" fill="#7e8da2"><tspan fill="#569cd6">const</tspan> step { }</text>
+  </g>
+</svg>

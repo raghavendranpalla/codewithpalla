@@ -91,6 +91,14 @@
               { type: "video", label: "Part 1 — JavaScript Comments", poster: "assets/img/thumb-day2-part1.svg", vid: "XUcWY1gbUCYVPFFjA0JpKBkTdSVWMRxvP0VcVXVXCS44" },
               { type: "video", label: "Part 2 — JavaScript Variables", poster: "assets/img/thumb-day2-part2.svg", vid: "XQUzVgsLUlA9NVJLdHRDCAIDRwULBhM/B0lnAVNRLjU8" }
             ]
+          },
+          {
+            title: "Day 3 — Data Types & Variable Scoping",
+            description: "Two concepts every test you write will rely on. In Part 1 you'll learn JavaScript's data types — strings, numbers, booleans, undefined, null and objects — and how to check them with typeof. In Part 2 you'll learn variable scoping: global, function and block scope, and why let/const behave differently from var. Watch both parts in order.",
+            resources: [
+              { type: "video", label: "Part 1 — JavaScript Data Types", poster: "assets/img/thumb-day3-part1.svg", vid: "XT4KahpXPRYAIA5jZWMHWRwiWxgFUxckYWcEUx8bGE4z" },
+              { type: "video", label: "Part 2 — Variable Scoping", poster: "assets/img/thumb-day3-part2.svg", vid: "XSVDViweJiZlZRVHUmhOVRVAdDwwVDExEBMHAUpAFj8H" }
+            ]
           }
         ]
       }
