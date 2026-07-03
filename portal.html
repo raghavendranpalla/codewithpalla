@@ -258,24 +258,15 @@
     .cur-lesson-ico svg { width: 12px; height: 12px; }
     .cur-lesson-text { font-size: .9rem; }
 
-    /* Desktop: lock the course view to the viewport so the page itself
-       doesn't scroll — the video stays static and only the lesson list
-       scrolls internally (Udemy-style player). */
+    /* Desktop: the page scrolls normally. The curriculum sidebar sticks
+       just below the site header, capped to the viewport, and its lesson
+       list (.cur-scroll) scrolls internally when it overflows. */
     @media (min-width: 901px) {
-      body.course-mode { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-      body.course-mode .site-header { flex: none; }
-      body.course-mode .site-footer { display: none; }
-      body.course-mode main { flex: 1 1 auto; min-height: 0; display: flex; }
-      body.course-mode main > .section { flex: 1 1 auto; min-height: 0; display: flex; padding: 18px 0; }
-      body.course-mode .section > .container { flex: 1 1 auto; min-height: 0; display: flex; }
-      body.course-mode .container > .portal-wrap { flex: 1 1 auto; min-height: 0; display: flex; }
-      body.course-mode #contentBox.is-course { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-      /* #batchContent sits between the card and the layout — it must pass
-         the height constraint down, or the sidebar can never scroll. */
-      body.course-mode #contentBox.is-course #batchContent { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-      body.course-mode .course-layout { flex: 1 1 auto; min-height: 0; grid-template-rows: minmax(0, 1fr); }
-      body.course-mode .course-main { overflow-y: auto; }
-      body.course-mode .course-sidebar { max-height: 100%; }
+      .course-sidebar {
+        position: sticky;
+        top: 86px;
+        max-height: calc(100vh - 106px);
+      }
     }
 
     @media (max-width: 900px) {
