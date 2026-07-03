@@ -270,7 +270,10 @@
       body.course-mode .section > .container { flex: 1 1 auto; min-height: 0; display: flex; }
       body.course-mode .container > .portal-wrap { flex: 1 1 auto; min-height: 0; display: flex; }
       body.course-mode #contentBox.is-course { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-      body.course-mode .course-layout { flex: 1 1 auto; min-height: 0; }
+      /* #batchContent sits between the card and the layout — it must pass
+         the height constraint down, or the sidebar can never scroll. */
+      body.course-mode #contentBox.is-course #batchContent { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+      body.course-mode .course-layout { flex: 1 1 auto; min-height: 0; grid-template-rows: minmax(0, 1fr); }
       body.course-mode .course-main { overflow-y: auto; }
       body.course-mode .course-sidebar { max-height: 100%; }
     }
