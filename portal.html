@@ -213,7 +213,26 @@
     .cur-head-title { font-weight: 700; font-size: 1rem; }
     .cur-head-meta { color: var(--faint); font-size: .82rem; font-family: var(--font-mono); }
     /* Only this list scrolls — the video and the page stay put */
-    .cur-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+    .cur-scroll {
+      flex: 1 1 auto; min-height: 0; overflow-y: auto;
+      /* Firefox: slim, always-visible scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: rgba(52,211,153,.55) rgba(255,255,255,.06);
+    }
+    /* Chrome / Edge / Safari: slim branded scrollbar so students can see
+       the lesson list scrolls */
+    .cur-scroll::-webkit-scrollbar { width: 10px; }
+    .cur-scroll::-webkit-scrollbar-track {
+      background: rgba(255,255,255,.06);
+      border-left: 1px solid var(--border);
+    }
+    .cur-scroll::-webkit-scrollbar-thumb {
+      background: rgba(52,211,153,.55);
+      border-radius: 999px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+    .cur-scroll::-webkit-scrollbar-thumb:hover { background: var(--primary); background-clip: padding-box; }
 
     .cur-day { border-bottom: 1px solid var(--border); }
     .cur-day:last-child { border-bottom: 0; }
