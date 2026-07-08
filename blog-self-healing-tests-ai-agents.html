@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Self-Healing Tests: How AI Agents Fix Broken Locators (and Where They Can't) — Learn with Palla</title>
+  <meta name="description" content="How AI-powered self-healing test automation actually works: the detect–reread–repair loop, when it saves hours of maintenance, and the failure modes you must guard against." />
+  <meta name="theme-color" content="#0a0e14" />
+  <link rel="canonical" href="https://learnwithpalla.com/blog-self-healing-tests-ai-agents.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Self-healing tests: how AI agents fix broken locators (and where they can't)" />
+  <meta property="og:description" content="Half of test maintenance is repairing selectors after the UI changed. AI agents can now do most of that repair loop." />
+  <meta property="og:url" content="https://learnwithpalla.com/blog-self-healing-tests-ai-agents.html" />
+  <meta name="twitter:card" content="summary" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Self-healing tests: how AI agents fix broken locators (and where they can't)",
+    "author": { "@type": "Person", "name": "Palla Raghavendran", "url": "https://learnwithpalla.com/about.html" },
+    "datePublished": "2026-06-28",
+    "dateModified": "2026-06-28",
+    "publisher": { "@type": "Organization", "name": "Learn with Palla", "url": "https://learnwithpalla.com/" },
+    "mainEntityOfPage": "https://learnwithpalla.com/blog-self-healing-tests-ai-agents.html"
+  }
+  </script>
+
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css?v=3" />
+  <link rel="stylesheet" href="assets/css/blog.css?v=1" />
+</head>
+<body>
+  <!-- ===== Header ===== -->
+  <header class="site-header" id="siteHeader">
+    <div class="container nav">
+      <a class="brand" href="index.html" aria-label="Learn with Palla home">
+        <span class="brand-mark">&lt;/&gt;</span>
+        <span class="brand-name">Learn<span class="grad">with</span>Palla</span>
+      </a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="courses.html">Courses</a>
+        <a href="curriculum.html">Curriculum</a>
+        <a href="blog.html" class="active">Blog</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a class="btn btn-sm btn-google" href="portal.html"><svg class="gicon" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Sign in</a>
+      </nav>
+      <a class="nav-mobile-auth" href="portal.html" id="mobileAuth" aria-label="Sign in with Google"><svg class="gicon" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg></a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <article class="post container">
+      <header class="post-head">
+        <span class="eyebrow">AI + Testing</span>
+        <h1>Self-healing tests: how AI agents fix broken locators (and where they can't)</h1>
+        <p class="post-meta">By Palla Raghavendran · 28 June 2026 · 8 min read</p>
+      </header>
+
+      <div class="post-body">
+        <p>Audit any mature UI automation suite and you'll find the same cost centre: <strong>test maintenance</strong>, and within it, one dominant failure type — the element is still on the page, the feature still works, but the locator no longer matches. A developer renamed a class, restructured a component, or changed "Buy now" to "Buy Now". The product didn't break; your test did. Teams routinely burn a day per sprint on exactly this, and it's the main reason automation efforts quietly die.</p>
+        <p>"Self-healing tests" is the promise that this entire category of maintenance disappears. In 2026, with LLM-based agents, the promise is finally mostly real — but you need to understand what the agent actually does, because "mostly" is doing some work in that sentence.</p>
+
+        <h2>The healing loop, step by step</h2>
+        <p>Strip away vendor branding and every self-healing system runs the same loop:</p>
+        <ol>
+          <li><strong>Detect the right kind of failure.</strong> A locator that finds nothing (or times out on an element that clearly should exist) is a healing candidate. An assertion failure is not — that might be a genuine bug, and "healing" it would be hiding it.</li>
+          <li><strong>Re-read the live page.</strong> The agent captures the current DOM or accessibility tree — the page as it is <em>now</em>, not as it was when the test was written.</li>
+          <li><strong>Match intent to the new structure.</strong> This is where LLMs changed the game. Older self-healing tools compared attribute similarity — id, class, position — and picked the closest node. An LLM matches <em>meaning</em>: it knows the test wanted the checkout button, reads the new page, and recognises that <code>Proceed to payment</code> now plays that role even though every attribute changed.</li>
+          <li><strong>Propose, verify, re-run.</strong> The agent suggests a replacement locator, the step is retried, and the test continues. Good setups log the heal; the best ones open a pull request updating the spec, so a human approves the change and the repair becomes permanent instead of silently re-applied every night.</li>
+        </ol>
+
+        <h2>A concrete example</h2>
+        <p>A spec written in March:</p>
+        <pre class="codeblock"><code>await page.getByRole('button', { name: 'Buy now' }).click();</code></pre>
+        <p>In June, a redesign ships: the button is now inside a new component and reads "Proceed to payment". The locator times out. The agent re-reads the accessibility tree, finds one button in the checkout region with purchase semantics, and proposes:</p>
+        <pre class="codeblock"><code>await page.getByRole('button', { name: 'Proceed to payment' }).click();</code></pre>
+        <p>The test re-runs and passes. Elapsed time: seconds, not a Jira ticket. Multiply by the forty specs that touched that button and you understand the excitement.</p>
+
+        <h2>Where self-healing fails — and the honest caveats</h2>
+        <ul>
+          <li><strong>It can heal a test into lying.</strong> The most dangerous failure mode: the button was genuinely removed by mistake, and an over-eager agent "heals" the test to click something else — turning a real bug into a green build. This is why assertion failures must never be healable, and why heals need human review.</li>
+          <li><strong>Ambiguity breaks it.</strong> Two similar buttons ("Save" and "Save as draft") after a redesign is a coin flip. Agents are confident coin-flippers.</li>
+          <li><strong>It can't heal missing intent.</strong> If the flow itself changed — checkout is now three steps instead of one — locator repair can't restructure the journey. That's re-authoring, and it needs either a human or a much more capable (and supervised) agent session.</li>
+          <li><strong>Cost and nondeterminism.</strong> Every heal is an LLM call inside your pipeline. Budget for it, cache what you can, and pin your prompts — a healing step that behaves differently every Tuesday is its own kind of flaky.</li>
+        </ul>
+
+        <h2>How to adopt it without getting burned</h2>
+        <ul>
+          <li><strong>Write healable locators first.</strong> Ironically, self-healing works best on suites that need it least: role-based, user-facing locators give the agent clear intent to work with. <code>div:nth-child(4)</code> gives it nothing.</li>
+          <li><strong>Heal in review mode before autopilot.</strong> Start with the agent proposing fixes as pull requests. Once you trust its judgment on your app, allow auto-heal for locator-not-found cases only.</li>
+          <li><strong>Track the heal log like a metric.</strong> Frequent heals in one area are a signal — either the dev team needs stable test ids there, or your locator strategy needs work. Healing is a painkiller; the log tells you where the disease is.</li>
+        </ul>
+
+        <blockquote><p>Self-healing doesn't remove the engineer from test maintenance. It changes the job from typing repairs to reviewing them — which is faster, but only safe if you understand what a correct repair looks like.</p></blockquote>
+
+        <h2>The skill behind the buzzword</h2>
+        <p>Every automation job posting now mentions AI. The candidates who stand out aren't the ones who say "I used a self-healing tool" — they're the ones who can explain the loop above, name its failure modes, and describe when they'd refuse to let the agent heal. That depth is teachable, and it's exactly what separates a tool user from an engineer.</p>
+
+        <div class="post-cta">
+          <p><strong>We build a self-healing workflow from scratch in my course</strong> — including the review gates that keep it honest. Live, hands-on, 45 days.</p>
+          <a class="btn btn-primary btn-sm" href="curriculum.html">See the 45-day plan →</a>
+        </div>
+      </div>
+
+      <footer class="post-foot">
+        <a href="blog.html">← All articles</a>
+        <span>Palla Raghavendran · SDET &amp; trainer</span>
+      </footer>
+    </article>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="foot-grid">
+        <div class="foot-about">
+          <a class="brand" href="index.html">
+            <span class="brand-mark">&lt;/&gt;</span>
+            <span class="brand-name">Learn<span class="grad">with</span>Palla</span>
+          </a>
+          <p>AI-powered test automation training with TypeScript, Playwright &amp; agents — for engineers and students who want job-ready skills.</p>
+          <div class="foot-social">
+            <a href="https://in.linkedin.com/in/palla-raghavendran" target="_blank" rel="noopener" aria-label="LinkedIn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 11-.02 5 2.5 2.5 0 01.02-5zM3 9h4v12H3zM10 9h3.8v1.7h.05c.53-1 1.83-2.05 3.76-2.05C21.4 8.65 22 11 22 14.1V21h-4v-6.1c0-1.45-.03-3.3-2-3.3-2 0-2.3 1.57-2.3 3.2V21h-4z"/></svg>
+            </a>
+            <a href="https://wa.me/919581341999" target="_blank" rel="noopener" aria-label="WhatsApp">
+              <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 3C9 3 3.5 8.5 3.5 15.5c0 2.4.7 4.7 1.9 6.7L3 29l7-1.8c1.9 1 4 1.6 6 1.6 7 0 12.5-5.5 12.5-12.5S23 3 16 3z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h4>Explore</h4>
+          <div class="foot-links">
+            <a href="index.html">Home</a>
+            <a href="courses.html">Courses</a>
+            <a href="curriculum.html">Curriculum</a>
+            <a href="blog.html">Blog</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+          </div>
+        </div>
+        <div>
+          <h4>Courses</h4>
+          <div class="foot-links">
+            <a href="curriculum.html">45-Day Plan</a>
+            <a href="courses.html">AI-Powered Automation</a>
+            <a href="contact.html">Corporate / Batch</a>
+          </div>
+        </div>
+        <div>
+          <h4>Get in touch</h4>
+          <div class="foot-links">
+            <a href="https://wa.me/919581341999" target="_blank" rel="noopener">Chat on WhatsApp</a>
+            <a href="https://in.linkedin.com/in/palla-raghavendran" target="_blank" rel="noopener">LinkedIn</a>
+          </div>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© <span id="year">2026</span> Learn with Palla · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+        <span class="mono">// built for engineers, by an engineer</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js?v=3"></script>
+</body>
+</html>

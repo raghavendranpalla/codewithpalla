@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting Started with Playwright MCP: Let Your AI Assistant Drive the Browser — Learn with Palla</title>
+  <meta name="description" content="What Playwright MCP is, how the Model Context Protocol lets AI assistants explore your web app, and a practical first workflow for generating real Playwright tests with an agent." />
+  <meta name="theme-color" content="#0a0e14" />
+  <link rel="canonical" href="https://learnwithpalla.com/blog-getting-started-playwright-mcp.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Getting started with Playwright MCP: let your AI assistant drive the browser" />
+  <meta property="og:description" content="MCP turns your AI assistant from a code generator into a hands-on tester that explores your app and writes specs from what it actually saw." />
+  <meta property="og:url" content="https://learnwithpalla.com/blog-getting-started-playwright-mcp.html" />
+  <meta name="twitter:card" content="summary" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Getting started with Playwright MCP: let your AI assistant drive the browser",
+    "author": { "@type": "Person", "name": "Palla Raghavendran", "url": "https://learnwithpalla.com/about.html" },
+    "datePublished": "2026-07-02",
+    "dateModified": "2026-07-02",
+    "publisher": { "@type": "Organization", "name": "Learn with Palla", "url": "https://learnwithpalla.com/" },
+    "mainEntityOfPage": "https://learnwithpalla.com/blog-getting-started-playwright-mcp.html"
+  }
+  </script>
+
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css?v=3" />
+  <link rel="stylesheet" href="assets/css/blog.css?v=1" />
+</head>
+<body>
+  <!-- ===== Header ===== -->
+  <header class="site-header" id="siteHeader">
+    <div class="container nav">
+      <a class="brand" href="index.html" aria-label="Learn with Palla home">
+        <span class="brand-mark">&lt;/&gt;</span>
+        <span class="brand-name">Learn<span class="grad">with</span>Palla</span>
+      </a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="courses.html">Courses</a>
+        <a href="curriculum.html">Curriculum</a>
+        <a href="blog.html" class="active">Blog</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a class="btn btn-sm btn-google" href="portal.html"><svg class="gicon" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Sign in</a>
+      </nav>
+      <a class="nav-mobile-auth" href="portal.html" id="mobileAuth" aria-label="Sign in with Google"><svg class="gicon" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg></a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <article class="post container">
+      <header class="post-head">
+        <span class="eyebrow">AI + Testing</span>
+        <h1>Getting started with Playwright MCP: let your AI assistant drive the browser</h1>
+        <p class="post-meta">By Palla Raghavendran · 2 July 2026 · 7 min read</p>
+      </header>
+
+      <div class="post-body">
+        <p>Ask an AI assistant to "write a Playwright test for my login page" and you'll get code that <em>looks</em> right — with locators the model invented, because it has never seen your login page. It's guessing from patterns. <strong>Playwright MCP fixes exactly this.</strong> It gives the assistant a real browser, so instead of hallucinating your app's structure, it opens the page, reads it, clicks through the flow and writes the test from what it actually observed.</p>
+
+        <h2>What MCP actually is</h2>
+        <p>The <strong>Model Context Protocol (MCP)</strong> is an open standard for connecting AI assistants to tools and data. An MCP <em>server</em> exposes capabilities — "navigate to a URL", "click this element", "read the page" — and any MCP-capable client (Claude, VS Code assistants, Cursor and others) can call them. The AI stops being a text generator and becomes an agent that acts.</p>
+        <p><strong>Playwright MCP</strong> is Microsoft's MCP server for browser automation. The key design decision: it exposes pages primarily through the <strong>accessibility tree</strong> — the same structured view screen readers use — rather than screenshots. That matters for two reasons:</p>
+        <ul>
+          <li>It's fast and deterministic: the agent sees "button, name: Sign in" instead of interpreting pixels.</li>
+          <li>It nudges generated tests toward <code>getByRole</code>-style locators — the resilient, user-facing locators you should be writing anyway.</li>
+        </ul>
+
+        <h2>Setup in two minutes</h2>
+        <p>You need Node.js 18+. In most MCP clients, registering the server is one config entry:</p>
+        <pre class="codeblock"><code>{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    }
+  }
+}</code></pre>
+        <p>In Claude Code it's a single command: <code>claude mcp add playwright -- npx @playwright/mcp@latest</code>. Restart the client and your assistant now has browser tools: navigate, click, type, take snapshots, read network activity.</p>
+
+        <h2>Your first agent-driven test</h2>
+        <p>Here's the workflow I teach in class, using any practice site you like:</p>
+        <ol>
+          <li><strong>Explore.</strong> Prompt: <em>"Open the site, explore the login flow as a new user would, and list what you find — fields, validations, error states."</em> Watch the agent navigate and report. This alone is a lesson in how it perceives the page.</li>
+          <li><strong>Plan.</strong> <em>"Based on what you saw, propose test cases for the login feature — happy path, wrong password, empty fields."</em> You review the plan like a lead reviews a junior's — add the cases it missed (it usually misses locked accounts and password managers).</li>
+          <li><strong>Generate.</strong> <em>"Write Playwright TypeScript specs for the approved cases, using role-based locators, in our page object structure."</em> Because the agent saw the real DOM, the locators refer to elements that exist.</li>
+          <li><strong>Run and iterate.</strong> Run the specs. If one fails, paste the error back — or let the agent run and fix them itself.</li>
+        </ol>
+
+        <h2>What it's genuinely good at (and not)</h2>
+        <p><strong>Good at:</strong> exploring unfamiliar apps quickly, drafting coverage for standard flows, converting a user story into runnable specs, and repairing tests after UI changes — it re-reads the page and updates locators in seconds.</p>
+        <p><strong>Not good at:</strong> knowing your business rules. It cannot know that a discount shouldn't apply twice, that a specific GST calculation matters, or which of your 40 flows carry revenue. It also happily writes assertions that pass but check the wrong thing — an assertion that the page "looks fine" is not a test.</p>
+        <blockquote><p>Treat the agent as a fast junior engineer with no product context. It does the typing; you own the test strategy, the review and the merge.</p></blockquote>
+
+        <h2>Two cautions before you point it at real systems</h2>
+        <ul>
+          <li><strong>Only automate apps you're authorised to test.</strong> An agent clicking through a production system can create orders, send emails and delete data with the same enthusiasm it explores a demo site. Use test environments.</li>
+          <li><strong>Review generated code before committing.</strong> Agents occasionally hard-code credentials they were given or leave debugging steps in specs. The pull-request review discipline applies to AI authors too.</li>
+        </ul>
+
+        <h2>Why this skill is worth your time</h2>
+        <p>Teams are quietly splitting into engineers who direct agents and engineers who compete with them. The first group writes the test strategy and reviews ten agent-drafted specs before lunch. Learning MCP-based workflows now — while most QA teams haven't — is one of the few genuine early-mover advantages left in this field.</p>
+
+        <div class="post-cta">
+          <p><strong>Want to build this workflow hands-on?</strong> Playwright MCP and AI test agents are a core part of my 45-day live course — you'll run this exact loop on a real project.</p>
+          <a class="btn btn-primary btn-sm" href="curriculum.html">See the 45-day plan →</a>
+        </div>
+      </div>
+
+      <footer class="post-foot">
+        <a href="blog.html">← All articles</a>
+        <span>Palla Raghavendran · SDET &amp; trainer</span>
+      </footer>
+    </article>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="foot-grid">
+        <div class="foot-about">
+          <a class="brand" href="index.html">
+            <span class="brand-mark">&lt;/&gt;</span>
+            <span class="brand-name">Learn<span class="grad">with</span>Palla</span>
+          </a>
+          <p>AI-powered test automation training with TypeScript, Playwright &amp; agents — for engineers and students who want job-ready skills.</p>
+          <div class="foot-social">
+            <a href="https://in.linkedin.com/in/palla-raghavendran" target="_blank" rel="noopener" aria-label="LinkedIn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 11-.02 5 2.5 2.5 0 01.02-5zM3 9h4v12H3zM10 9h3.8v1.7h.05c.53-1 1.83-2.05 3.76-2.05C21.4 8.65 22 11 22 14.1V21h-4v-6.1c0-1.45-.03-3.3-2-3.3-2 0-2.3 1.57-2.3 3.2V21h-4z"/></svg>
+            </a>
+            <a href="https://wa.me/919581341999" target="_blank" rel="noopener" aria-label="WhatsApp">
+              <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 3C9 3 3.5 8.5 3.5 15.5c0 2.4.7 4.7 1.9 6.7L3 29l7-1.8c1.9 1 4 1.6 6 1.6 7 0 12.5-5.5 12.5-12.5S23 3 16 3z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h4>Explore</h4>
+          <div class="foot-links">
+            <a href="index.html">Home</a>
+            <a href="courses.html">Courses</a>
+            <a href="curriculum.html">Curriculum</a>
+            <a href="blog.html">Blog</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+          </div>
+        </div>
+        <div>
+          <h4>Courses</h4>
+          <div class="foot-links">
+            <a href="curriculum.html">45-Day Plan</a>
+            <a href="courses.html">AI-Powered Automation</a>
+            <a href="contact.html">Corporate / Batch</a>
+          </div>
+        </div>
+        <div>
+          <h4>Get in touch</h4>
+          <div class="foot-links">
+            <a href="https://wa.me/919581341999" target="_blank" rel="noopener">Chat on WhatsApp</a>
+            <a href="https://in.linkedin.com/in/palla-raghavendran" target="_blank" rel="noopener">LinkedIn</a>
+          </div>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© <span id="year">2026</span> Learn with Palla · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+        <span class="mono">// built for engineers, by an engineer</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js?v=3"></script>
+</body>
+</html>

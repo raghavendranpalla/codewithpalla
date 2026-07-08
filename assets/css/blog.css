@@ -1,0 +1,118 @@
+/* =========================================================
+   Learn with Palla — blog listing + article pages
+   Loaded after styles.css on blog*.html, privacy, terms.
+   ========================================================= */
+
+/* ---------- Listing ---------- */
+.post-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 940px; margin: 0 auto; }
+.post-card {
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 26px;
+  transition: transform .2s ease, border-color .2s ease;
+}
+.post-card:hover { transform: translateY(-4px); border-color: var(--border-2); }
+.post-kicker {
+  font-family: var(--font-mono);
+  font-size: .76rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--primary); margin-bottom: 12px;
+}
+.post-card h2 { font-size: 1.25rem; margin-bottom: 10px; }
+.post-card h2 a:hover { color: var(--primary); }
+.post-card > p { font-size: .95rem; flex: 1; }
+.post-meta {
+  font-family: var(--font-mono);
+  font-size: .8rem; color: var(--faint);
+  margin-top: 18px;
+}
+
+/* ---------- Article ---------- */
+.post {
+  max-width: 760px; margin: 0 auto;
+  padding: 48px 0 20px;
+}
+.post-head { margin-bottom: 36px; }
+.post-head h1 { font-size: clamp(1.9rem, 4vw, 2.7rem); margin: 14px 0 16px; }
+.post-head .post-meta { margin-top: 0; }
+.post-head .lead { margin-top: 4px; }
+
+.post-body h2 { font-size: 1.45rem; margin: 42px 0 14px; }
+.post-body h3 { font-size: 1.12rem; margin: 30px 0 10px; }
+.post-body p { margin: 0 0 18px; color: var(--muted); font-size: 1.02rem; line-height: 1.75; }
+.post-body strong { color: var(--text); }
+.post-body a { color: var(--primary); }
+.post-body a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+.post-body ul, .post-body ol { margin: 0 0 18px; padding-left: 22px; }
+.post-body ul { list-style: disc; }
+.post-body ol { list-style: decimal; }
+.post-body li { color: var(--muted); margin-bottom: 8px; line-height: 1.7; }
+.post-body li::marker { color: var(--primary); }
+
+.post-body blockquote {
+  border-left: 3px solid var(--primary);
+  background: var(--surface);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 20px; margin: 0 0 18px;
+  color: var(--text);
+}
+.post-body blockquote p { margin: 0; color: var(--text); }
+
+.post-body .codeblock {
+  background: #0b1019;
+  border: 1px solid var(--border-2);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin: 0 0 18px;
+  font-family: var(--font-mono);
+  font-size: .86rem; line-height: 1.7;
+  color: #b7c5d3;
+  overflow-x: auto;
+  white-space: pre;
+}
+.post-body code {
+  font-family: var(--font-mono);
+  font-size: .88em;
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1px 6px;
+  color: var(--primary-2);
+}
+.post-body .codeblock code { background: none; border: 0; padding: 0; color: inherit; }
+
+.post-cta {
+  margin: 44px 0 10px;
+  border: 1px solid rgba(52,211,153,.3);
+  background: var(--grad-soft);
+  border-radius: var(--radius);
+  padding: 26px;
+}
+.post-cta p { margin: 0 0 16px; color: var(--text); }
+
+.post-foot {
+  border-top: 1px solid var(--border);
+  margin-top: 40px; padding-top: 18px;
+  display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+  font-family: var(--font-mono); font-size: .84rem; color: var(--faint);
+}
+.post-foot a { color: var(--primary); }
+
+/* ---------- Legal pages ---------- */
+.legal { max-width: 760px; margin: 0 auto; padding: 40px 0 20px; }
+.legal h1 { margin-bottom: 8px; }
+.legal .updated { font-family: var(--font-mono); font-size: .84rem; color: var(--faint); margin-bottom: 30px; }
+.legal h2 { font-size: 1.3rem; margin: 34px 0 12px; }
+.legal p, .legal li { color: var(--muted); line-height: 1.75; }
+.legal p { margin-bottom: 14px; }
+.legal ul { padding-left: 22px; list-style: disc; margin-bottom: 14px; }
+.legal li { margin-bottom: 7px; }
+.legal li::marker { color: var(--primary); }
+.legal a { color: var(--primary); }
+
+@media (max-width: 760px) {
+  .post-grid { grid-template-columns: 1fr; }
+  .post { padding-top: 32px; }
+}

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>From Manual Tester to Automation Engineer: A Realistic 45-Day Roadmap — Learn with Palla</title>
+  <meta name="description" content="A practical, phase-by-phase 45-day plan to move from manual testing to test automation with TypeScript and Playwright — including what to skip, what to build, and how to prepare for interviews." />
+  <meta name="theme-color" content="#0a0e14" />
+  <link rel="canonical" href="https://learnwithpalla.com/blog-manual-tester-to-automation-roadmap.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="From manual tester to automation engineer: a realistic 45-day roadmap" />
+  <meta property="og:description" content="You don't need six months. You need a sequence, 45 minutes a day, and the discipline to write code daily." />
+  <meta property="og:url" content="https://learnwithpalla.com/blog-manual-tester-to-automation-roadmap.html" />
+  <meta name="twitter:card" content="summary" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "From manual tester to automation engineer: a realistic 45-day roadmap",
+    "author": { "@type": "Person", "name": "Palla Raghavendran", "url": "https://learnwithpalla.com/about.html" },
+    "datePublished": "2026-07-08",
+    "dateModified": "2026-07-08",
+    "publisher": { "@type": "Organization", "name": "Learn with Palla", "url": "https://learnwithpalla.com/" },
+    "mainEntityOfPage": "https://learnwithpalla.com/blog-manual-tester-to-automation-roadmap.html"
+  }
+  </script>
+
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css?v=3" />
+  <link rel="stylesheet" href="assets/css/blog.css?v=1" />
+</head>
+<body>
+  <!-- ===== Header ===== -->
+  <header class="site-header" id="siteHeader">
+    <div class="container nav">
+      <a class="brand" href="index.html" aria-label="Learn with Palla home">
+        <span class="brand-mark">&lt;/&gt;</span>
+        <span class="brand-name">Learn<span class="grad">with</span>Palla</span>
+      </a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="courses.html">Courses</a>
+        <a href="curriculum.html">Curriculum</a>
+        <a href="blog.html" class="active">Blog</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a class="btn btn-sm btn-google" href="portal.html"><svg class="gicon" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Sign in</a>
+      </nav>
+      <a class="nav-mobile-auth" href="portal.html" id="mobileAuth" aria-label="Sign in with Google"><svg class="gicon" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg></a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <article class="post container">
+      <header class="post-head">
+        <span class="eyebrow">Career</span>
+        <h1>From manual tester to automation engineer: a realistic 45-day roadmap</h1>
+        <p class="post-meta">By Palla Raghavendran · 8 July 2026 · 8 min read</p>
+      </header>
+
+      <div class="post-body">
+        <p>Every week I get the same message from manual testers: <strong>"I have 3–7 years of experience, but every job posting wants automation. Where do I start?"</strong> The honest answer is that you don't need six months, a computer science degree, or a 60-hour video course you'll never finish. You need a sequence, 45 minutes a day, and the discipline to write code every single day — including the days you don't feel like it.</p>
+        <p>This is the roadmap I teach in my live batches, compressed into an article. It assumes zero programming background. If you already know some JavaScript, you can shave a week off the middle.</p>
+
+        <h2>Why 45 minutes a day beats weekend marathons</h2>
+        <p>Most people plan to learn automation on weekends. It rarely works, and the reason is simple: programming skill is built by <strong>frequent retrieval</strong>, not long exposure. Six hours on Sunday followed by six days of nothing means every Sunday starts with re-learning last Sunday. Forty-five focused minutes daily keeps the syntax, the patterns and the muscle memory warm — and it fits around a full-time testing job.</p>
+        <p>The other advantage: a small daily slot forces you to stop while you still know what comes next. You start the next session with momentum instead of a blank page.</p>
+
+        <h2>Days 1–2: setup, and the mental shift</h2>
+        <p>Install Node.js, VS Code and Git, create a GitHub account, and run your first <code>npx playwright test</code> on the sample project. That's the easy half. The harder half is a mindset change: from now on, you are not "a manual tester learning a tool". You are a developer whose product is test code. Developers version everything, so from day one, every line you write goes into a Git repository. That repo becomes your portfolio, and portfolios beat certificates in every interview I've ever conducted.</p>
+
+        <h2>Days 3–14: the language, not the framework</h2>
+        <p>This is where most self-learners go wrong — they jump straight to the automation tool and copy-paste code they can't read. Then the first time a test fails with a <code>TypeError</code>, they're stuck. Spend two weeks on JavaScript and TypeScript fundamentals, in this order:</p>
+        <ul>
+          <li><strong>Variables, types, functions and objects</strong> — the vocabulary of every test you'll ever write.</li>
+          <li><strong>Arrays and their methods</strong> — <code>map</code>, <code>filter</code>, <code>find</code>; test data lives in arrays.</li>
+          <li><strong>Async/await</strong> — non-negotiable. Every Playwright action is asynchronous, and 80% of beginner bugs are a missing <code>await</code>.</li>
+          <li><strong>TypeScript basics</strong> — types, interfaces and why the compiler catching your typo at 2 pm beats the CI pipeline catching it at 2 am.</li>
+        </ul>
+        <p>You do not need closures-and-prototypes mastery to start automating. You need to be able to read an error message and know which line to fix.</p>
+
+        <h2>Days 15–23: Playwright core</h2>
+        <p>Now the framework earns its place. Learn the test runner, fixtures like <code>page</code>, and then give locators the respect they deserve. Prefer user-facing locators — <code>getByRole</code>, <code>getByLabel</code>, <code>getByText</code> — over brittle CSS and XPath. A test that finds the button the way a user finds it survives redesigns; a test wired to <code>div:nth-child(4) &gt; span</code> does not.</p>
+        <p>Use <code>codegen</code> to record flows, but treat the recording as a first draft you refactor, never as finished code. By day 23 you should be automating logins, forms, dropdowns, file uploads and alerts on a practice site.</p>
+
+        <h2>Days 24–32: debugging and reliability — the professional gap</h2>
+        <p>Anyone can write a test that passes once. The skill gap between "did a course" and "employable" is what you do when it fails. Learn the Trace Viewer until reading a trace feels like reading a story: what the page looked like, what the test clicked, what the network returned. Then attack flakiness deliberately — auto-waiting, web-first assertions, proper isolation with fresh contexts — and run your suite cross-browser and in parallel.</p>
+        <blockquote><p>Interviewers rarely ask "can you write a test?" They ask "a test fails only in CI at 3 am — walk me through what you do." Days 24–32 are your answer.</p></blockquote>
+
+        <h2>Days 33–40: framework thinking</h2>
+        <p>Individual specs don't scale; structure does. Introduce Page Object Model, extract test data into fixtures and parameterised loops, and add API testing with Playwright's <code>request</code> context — seeding data through the API and asserting through the UI is the pattern real product teams use to keep suites fast. By day 40 your repository should look like something a team could actually adopt: clear folders, a config for multiple environments, an HTML report.</p>
+
+        <h2>Days 41–45: AI, CI/CD and graduation</h2>
+        <p>Wire the suite into GitHub Actions so every push runs your tests, then add the modern layer: AI agents and Playwright MCP. Let an agent explore your practice app and draft specs, then review its output like a senior reviews a junior's pull request. Knowing how to <em>direct and verify</em> AI-generated tests is quickly becoming the differentiator in interviews — teams don't need someone who fears the tools their developers already use.</p>
+
+        <h2>What to skip (for now)</h2>
+        <ul>
+          <li><strong>Multiple frameworks at once.</strong> Playwright or Selenium — pick one, get employed, learn the other later.</li>
+          <li><strong>Mobile automation.</strong> A common trap that doubles the learning surface before the fundamentals are solid.</li>
+          <li><strong>Chasing every AI tool on LinkedIn.</strong> One agent workflow, understood deeply, beats ten demos you can't reproduce.</li>
+        </ul>
+
+        <h2>The interview at the end</h2>
+        <p>After day 45 you'll have a Git history with 40+ days of commits, a framework repo, and a CI badge. Put the repo link at the top of your resume. When the interviewer asks about your experience, don't recite the syllabus — open the trace of a failing test and debug it in front of them. That's the moment manual-tester resumes turn into automation-engineer offers.</p>
+
+        <div class="post-cta">
+          <p><strong>Want this roadmap with a trainer, live?</strong> I run this exact 45-day plan as a live batch — 45 minutes a day, real projects, 15 Q&amp;A sessions.</p>
+          <a class="btn btn-primary btn-sm" href="curriculum.html">See the full day-by-day plan →</a>
+        </div>
+      </div>
+
+      <footer class="post-foot">
+        <a href="blog.html">← All articles</a>
+        <span>Palla Raghavendran · SDET &amp; trainer</span>
+      </footer>
+    </article>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="foot-grid">
+        <div class="foot-about">
+          <a class="brand" href="index.html">
+            <span class="brand-mark">&lt;/&gt;</span>
+            <span class="brand-name">Learn<span class="grad">with</span>Palla</span>
+          </a>
+          <p>AI-powered test automation training with TypeScript, Playwright &amp; agents — for engineers and students who want job-ready skills.</p>
+          <div class="foot-social">
+            <a href="https://in.linkedin.com/in/palla-raghavendran" target="_blank" rel="noopener" aria-label="LinkedIn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 11-.02 5 2.5 2.5 0 01.02-5zM3 9h4v12H3zM10 9h3.8v1.7h.05c.53-1 1.83-2.05 3.76-2.05C21.4 8.65 22 11 22 14.1V21h-4v-6.1c0-1.45-.03-3.3-2-3.3-2 0-2.3 1.57-2.3 3.2V21h-4z"/></svg>
+            </a>
+            <a href="https://wa.me/919581341999" target="_blank" rel="noopener" aria-label="WhatsApp">
+              <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 3C9 3 3.5 8.5 3.5 15.5c0 2.4.7 4.7 1.9 6.7L3 29l7-1.8c1.9 1 4 1.6 6 1.6 7 0 12.5-5.5 12.5-12.5S23 3 16 3z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h4>Explore</h4>
+          <div class="foot-links">
+            <a href="index.html">Home</a>
+            <a href="courses.html">Courses</a>
+            <a href="curriculum.html">Curriculum</a>
+            <a href="blog.html">Blog</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+          </div>
+        </div>
+        <div>
+          <h4>Courses</h4>
+          <div class="foot-links">
+            <a href="curriculum.html">45-Day Plan</a>
+            <a href="courses.html">AI-Powered Automation</a>
+            <a href="contact.html">Corporate / Batch</a>
+          </div>
+        </div>
+        <div>
+          <h4>Get in touch</h4>
+          <div class="foot-links">
+            <a href="https://wa.me/919581341999" target="_blank" rel="noopener">Chat on WhatsApp</a>
+            <a href="https://in.linkedin.com/in/palla-raghavendran" target="_blank" rel="noopener">LinkedIn</a>
+          </div>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© <span id="year">2026</span> Learn with Palla · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+        <span class="mono">// built for engineers, by an engineer</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js?v=3"></script>
+</body>
+</html>
