@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/styles.css?v=3" />
-  <link rel="stylesheet" href="assets/css/resume.css?v=1" />
+  <link rel="stylesheet" href="assets/css/resume.css?v=2" />
 </head>
 <body>
   <!-- ===== Header ===== -->
@@ -74,66 +74,100 @@
       <div class="rz-app">
         <!-- ===== Form ===== -->
         <form class="rz-form" id="rzForm" autocomplete="off" onsubmit="return false">
-          <div class="rz-group">
-            <h3>Basics</h3>
-            <div class="rz-2col">
-              <div><label for="rzName">Full name</label><input class="input" id="rzName" data-k="name" /></div>
-              <div><label for="rzTitle">Headline / role</label><input class="input" id="rzTitle" data-k="title" placeholder="e.g. QA Automation Engineer" /></div>
-            </div>
-            <div class="rz-2col">
-              <div><label for="rzEmail">Email</label><input class="input" id="rzEmail" data-k="email" /></div>
-              <div><label for="rzPhone">Phone</label><input class="input" id="rzPhone" data-k="phone" /></div>
-            </div>
-            <div class="rz-2col">
-              <div><label for="rzLoc">Location</label><input class="input" id="rzLoc" data-k="location" /></div>
-              <div><label for="rzLi">LinkedIn / website</label><input class="input" id="rzLi" data-k="linkedin" /></div>
-            </div>
-            <div>
-              <label for="rzPhoto">Photo (optional)</label>
-              <div class="rz-photo-row">
-                <input type="file" id="rzPhoto" accept="image/*" class="input" style="padding:8px" />
-                <img id="rzPhotoThumb" class="rz-photo-thumb" alt="" style="display:none" />
-                <button type="button" class="btn btn-sm btn-ghost" id="rzPhotoRemove" style="display:none">Remove</button>
+          <div class="rz-stepper" id="rzStepper" aria-label="Resume steps"></div>
+
+          <fieldset class="rz-step" data-step="1">
+            <div class="rz-group">
+              <h3>Step 1 · Basics</h3>
+              <div class="rz-2col">
+                <div><label for="rzName">Full name</label><input class="input" id="rzName" data-k="name" /></div>
+                <div><label for="rzTitle">Headline / role</label><input class="input" id="rzTitle" data-k="title" placeholder="e.g. QA Automation Engineer" /></div>
               </div>
-              <p class="rz-note">Tip: many companies prefer resumes without a photo — skip it if unsure.</p>
+              <div class="rz-2col">
+                <div><label for="rzEmail">Email</label><input class="input" id="rzEmail" data-k="email" /></div>
+                <div><label for="rzPhone">Phone</label><input class="input" id="rzPhone" data-k="phone" /></div>
+              </div>
+              <div class="rz-2col">
+                <div><label for="rzLoc">Location</label><input class="input" id="rzLoc" data-k="location" /></div>
+                <div><label for="rzLi">LinkedIn / website</label><input class="input" id="rzLi" data-k="linkedin" /></div>
+              </div>
+              <div>
+                <label for="rzPhoto">Photo (optional)</label>
+                <div class="rz-photo-row">
+                  <input type="file" id="rzPhoto" accept="image/*" class="input" style="padding:8px" />
+                  <img id="rzPhotoThumb" class="rz-photo-thumb" alt="" style="display:none" />
+                  <button type="button" class="btn btn-sm btn-ghost" id="rzPhotoRemove" style="display:none">Remove</button>
+                </div>
+              </div>
+            </div>
+            <p class="rz-tipbox"><b>ATS tip:</b> use a simple professional email, and write your city as "City, Country" — job portals filter by location. Skip the photo for strict ATS portals; recruiters in India rarely expect one.</p>
+          </fieldset>
+
+          <fieldset class="rz-step" data-step="2" hidden>
+            <div class="rz-group">
+              <h3>Step 2 · Professional summary</h3>
+              <textarea class="textarea" data-k="summary" placeholder="3–4 lines: who you are, your strongest skills, and what you're looking for."></textarea>
+            </div>
+            <p class="rz-tipbox"><b>ATS tip:</b> 3–4 lines with your role, years of experience and the top keywords from the job description (e.g. "Playwright", "API testing"). ATS software scores your resume by matching those exact words.</p>
+          </fieldset>
+
+          <fieldset class="rz-step" data-step="3" hidden>
+            <div class="rz-group">
+              <h3>Step 3 · Skills</h3>
+              <textarea class="textarea" style="min-height:60px" data-k="skills" placeholder="Comma-separated: Playwright, TypeScript, API Testing, …"></textarea>
+            </div>
+            <p class="rz-tipbox"><b>ATS tip:</b> mirror the exact words from the job posting — write "Playwright", not "PW"; "API Testing", not "backend checks". Only list skills you can defend in the interview.</p>
+          </fieldset>
+
+          <fieldset class="rz-step" data-step="4" hidden>
+            <div class="rz-group">
+              <h3>Step 4 · Work experience</h3>
+              <div id="expList"></div>
+              <button type="button" class="rz-add" id="addExp">＋ Add role</button>
+            </div>
+            <p class="rz-tipbox"><b>ATS tip:</b> start each bullet with an action verb and add a number — "Cut regression time from 3 days to 4 hours". Most recent role first. Freshers: add your course or internship project here as a role.</p>
+          </fieldset>
+
+          <fieldset class="rz-step" data-step="5" hidden>
+            <div class="rz-group">
+              <h3>Step 5 · Projects</h3>
+              <div id="projectsList"></div>
+              <button type="button" class="rz-add" id="addProj">＋ Add project</button>
+            </div>
+            <div class="rz-group">
+              <h3>Education</h3>
+              <div id="eduList"></div>
+              <button type="button" class="rz-add" id="addEdu">＋ Add education</button>
+            </div>
+            <p class="rz-tipbox"><b>ATS tip:</b> projects are a fresher's experience — include a GitHub link. Keep degree names standard (B.Tech, B.E., MCA) so parsers recognise them.</p>
+          </fieldset>
+
+          <fieldset class="rz-step" data-step="6" hidden>
+            <div class="rz-group">
+              <h3>Step 6 · Extras</h3>
+              <div><label>Certifications — one per line</label><textarea class="textarea" style="min-height:60px" data-k="certs"></textarea></div>
+              <div class="rz-2col">
+                <div><label>Languages</label><input class="input" data-k="languages" /></div>
+                <div><label>Interests / hobbies</label><input class="input" data-k="hobbies" /></div>
+              </div>
+            </div>
+            <p class="rz-tipbox"><b>ATS tip:</b> only list certifications you can show a certificate for. Keep interests to one short line — they're a conversation starter, not a scoring factor.</p>
+          </fieldset>
+
+          <div class="rz-ready" id="rzReady" hidden>
+            <div class="rz-ready-ico">✓</div>
+            <h3>Your resume is ready!</h3>
+            <p>Check the preview, pick your favourite template above, then download. Everything you typed is saved in this browser only — come back anytime to edit.</p>
+            <div class="rz-ready-btns">
+              <button type="button" class="btn btn-primary" id="btnPdf2">⬇ Download PDF</button>
+              <button type="button" class="btn btn-primary" id="btnWord2">⬇ Download Word</button>
             </div>
           </div>
 
-          <div class="rz-group">
-            <h3>Profile summary</h3>
-            <textarea class="textarea" data-k="summary" placeholder="3–4 lines: who you are, your strongest skills, and what you're looking for."></textarea>
-          </div>
-
-          <div class="rz-group">
-            <h3>Skills</h3>
-            <textarea class="textarea" style="min-height:60px" data-k="skills" placeholder="Comma-separated: Playwright, TypeScript, API Testing, …"></textarea>
-          </div>
-
-          <div class="rz-group">
-            <h3>Experience</h3>
-            <div id="expList"></div>
-            <button type="button" class="rz-add" id="addExp">＋ Add role</button>
-          </div>
-
-          <div class="rz-group">
-            <h3>Projects</h3>
-            <div id="projectsList"></div>
-            <button type="button" class="rz-add" id="addProj">＋ Add project</button>
-          </div>
-
-          <div class="rz-group">
-            <h3>Education</h3>
-            <div id="eduList"></div>
-            <button type="button" class="rz-add" id="addEdu">＋ Add education</button>
-          </div>
-
-          <div class="rz-group">
-            <h3>Extras</h3>
-            <div><label>Certifications — one per line</label><textarea class="textarea" style="min-height:60px" data-k="certs"></textarea></div>
-            <div class="rz-2col">
-              <div><label>Languages</label><input class="input" data-k="languages" /></div>
-              <div><label>Interests / hobbies</label><input class="input" data-k="hobbies" /></div>
-            </div>
+          <div class="rz-stepnav">
+            <button type="button" class="btn btn-ghost btn-sm" id="stepBack">← Back</button>
+            <span class="rz-stepinfo mono" id="stepInfo">Step 1 of 6</span>
+            <button type="button" class="btn btn-primary btn-sm" id="stepNext">Next →</button>
           </div>
         </form>
 
@@ -206,6 +240,6 @@
   </footer>
 
   <script src="assets/js/main.js?v=3"></script>
-  <script src="assets/js/resume.js?v=1"></script>
+  <script src="assets/js/resume.js?v=2"></script>
 </body>
 </html>

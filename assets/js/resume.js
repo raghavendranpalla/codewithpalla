@@ -407,8 +407,47 @@
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
   }
 
+  /* =========================================================
+     Wizard: fill in phases, finish with a ready-to-download resume
+     ========================================================= */
+  var STEP_LABELS = ["Basics", "Summary", "Skills", "Experience", "Projects & Edu", "Extras", "Finish"];
+  var TOTAL = 6, cur = 1;
+  var stepEls = form.querySelectorAll(".rz-step");
+  var readyEl = document.getElementById("rzReady");
+  var stepperEl = document.getElementById("rzStepper");
+  var backBtn = document.getElementById("stepBack");
+  var nextBtn = document.getElementById("stepNext");
+  var infoEl = document.getElementById("stepInfo");
+
+  STEP_LABELS.forEach(function (lbl, i) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "rz-schip";
+    b.innerHTML = '<span class="n">' + (i + 1) + "</span>" + lbl;
+    b.addEventListener("click", function () { showStep(i + 1); });
+    stepperEl.appendChild(b);
+  });
+
+  function showStep(n) {
+    cur = n;
+    stepEls.forEach(function (s) { s.hidden = +s.getAttribute("data-step") !== n; });
+    readyEl.hidden = n !== TOTAL + 1;
+    backBtn.disabled = n === 1;
+    nextBtn.hidden = n === TOTAL + 1;
+    nextBtn.textContent = n === TOTAL ? "Finish ✓" : "Next →";
+    infoEl.textContent = n === TOTAL + 1 ? "Done — download your resume" : "Step " + n + " of " + TOTAL;
+    stepperEl.querySelectorAll(".rz-schip").forEach(function (b, i) {
+      b.classList.toggle("active", i + 1 === n);
+      b.classList.toggle("done", i + 1 < n);
+    });
+  }
+  backBtn.addEventListener("click", function () { showStep(Math.max(1, cur - 1)); });
+  nextBtn.addEventListener("click", function () { showStep(Math.min(TOTAL + 1, cur + 1)); });
+  document.getElementById("btnPdf2").addEventListener("click", function () { window.print(); });
+  document.getElementById("btnWord2").addEventListener("click", downloadWord);
+
   /* ---------- init ---------- */
   bindSingles();
   renderList("exp"); renderList("edu"); renderList("projects");
   syncPhotoUI(); syncTplUI(); syncAtsUI(); renderPreview();
+  showStep(1);
 })();

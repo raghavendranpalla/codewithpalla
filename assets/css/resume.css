@@ -71,6 +71,55 @@
 }
 .rz-add:hover { border-color: var(--primary); }
 
+/* ---------- Wizard steps ---------- */
+.rz-step { border: 0; padding: 0; margin: 0; display: grid; gap: 16px; min-width: 0; }
+.rz-step[hidden] { display: none; }
+
+.rz-stepper { display: flex; flex-wrap: wrap; gap: 6px; }
+.rz-schip {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--border); border-radius: 999px;
+  background: var(--bg-2); color: var(--faint);
+  font-size: .74rem; font-weight: 650; font-family: var(--font-mono);
+  padding: 5px 11px; transition: border-color .2s, color .2s;
+}
+.rz-schip:hover { color: var(--text); }
+.rz-schip .n {
+  width: 16px; height: 16px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--surface-3); color: var(--muted); font-size: .66rem;
+}
+.rz-schip.active { border-color: var(--primary); color: var(--text); }
+.rz-schip.active .n { background: var(--primary); color: #04120c; }
+.rz-schip.done { color: var(--primary); }
+.rz-schip.done .n { background: rgba(52,211,153,.18); color: var(--primary); }
+
+.rz-tipbox {
+  border: 1px solid rgba(52,211,153,.28);
+  background: rgba(52,211,153,.06);
+  border-radius: 10px; padding: 11px 14px;
+  font-size: .82rem; color: var(--muted); line-height: 1.6;
+}
+.rz-tipbox b { color: var(--primary); }
+
+.rz-stepnav {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  border-top: 1px solid var(--border); padding-top: 16px;
+}
+.rz-stepinfo { font-size: .76rem; color: var(--faint); }
+#stepBack:disabled { opacity: .35; pointer-events: none; }
+
+.rz-ready { text-align: center; display: grid; gap: 12px; padding: 22px 8px 8px; }
+.rz-ready[hidden] { display: none; }
+.rz-ready-ico {
+  width: 58px; height: 58px; margin: 0 auto; border-radius: 50%;
+  background: rgba(52,211,153,.14); border: 1px solid var(--primary);
+  display: grid; place-items: center; font-size: 1.6rem; color: var(--primary);
+}
+.rz-ready h3 { font-size: 1.3rem; }
+.rz-ready p { font-size: .92rem; max-width: 42ch; margin: 0 auto; }
+.rz-ready-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+
 .rz-photo-row { display: flex; align-items: center; gap: 12px; }
 .rz-photo-thumb {
   width: 52px; height: 52px; border-radius: 50%; object-fit: cover;
