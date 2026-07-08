@@ -153,7 +153,8 @@
             description: "How JavaScript changes one type into another — and the traps hiding inside. In Part 1 you'll learn type conversion: explicit conversion with Number(), String() and Boolean(), and the implicit coercion JavaScript does on its own. In Part 2 you'll see what happens when null and undefined land inside numeric expressions — null becomes 0, undefined becomes NaN — and why that difference matters when test data is missing. Watch both parts in order.",
             resources: [
               { type: "video", label: "Part 1 — Type Conversion", poster: "assets/img/thumb-day5-part1.svg", vid: "XRgveyxfNV0BNUJ/ZFhEIjQdcF8dCx1vJG1LQHF+DRMk" },
-              { type: "video", label: "Part 2 — Numeric Expressions with null & undefined", poster: "assets/img/thumb-day5-part2.svg", vid: "XSUySS8tBVIwZER0XB9pOBhHci0WKDMTGWBbSlAPWRgh" }
+              { type: "video", label: "Part 2 — Numeric Expressions with null & undefined", poster: "assets/img/thumb-day5-part2.svg", vid: "XSUySS8tBVIwZER0XB9pOBhHci0WKDMTGWBbSlAPWRgh" },
+              { type: "pdf", label: "Study & Practice Guide (PDF)", vid: "XQ4ecAwDDBMwNVdCRGZGWwUGSANYJigDCkJ1cwJxIh89" }
             ]
           }
         ]
