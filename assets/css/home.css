@@ -6,11 +6,12 @@
    ========================================================= */
 
 :root {
-  --pass:   #3fb950;
-  --fail:   #f85149;
-  --run:    #d29922;
-  --term:   #0b1019;
-  --pass-dim: rgba(63,185,80,.12);
+  --pass:     #3fb950;            /* terminal green (dark canvas) */
+  --pass-ink: #15803d;            /* green for text on the light page */
+  --fail:     #f85149;
+  --run:      #d29922;
+  --term:     #0b1019;
+  --pass-dim: rgba(22,163,74,.09);
 }
 
 /* ---------- Hero ---------- */
@@ -20,23 +21,23 @@
 .hh-status {
   display: inline-flex; align-items: center; gap: 9px;
   font-size: .8rem; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--pass);
-  border: 1px solid rgba(63,185,80,.3);
+  color: var(--pass-ink);
+  border: 1px solid rgba(22,163,74,.35);
   background: var(--pass-dim);
   border-radius: 999px; padding: 7px 14px;
 }
 .hh-status .pulse {
   width: 8px; height: 8px; border-radius: 50%;
-  background: var(--pass); box-shadow: 0 0 10px var(--pass);
+  background: #16a34a; box-shadow: 0 0 10px rgba(22,163,74,.7);
   animation: hh-pulse 2s ease-in-out infinite;
 }
 @keyframes hh-pulse { 50% { opacity: .35; } }
 
 .home-hero h1 { margin: 22px 0 18px; }
 .home-hero h1 em {
-  font-style: normal; color: #fff;
+  font-style: normal; color: var(--text);
   text-decoration: underline;
-  text-decoration-color: var(--pass);
+  text-decoration-color: #16a34a;
   text-decoration-thickness: 4px;
   text-underline-offset: 7px;
 }
@@ -49,18 +50,18 @@
 .term {
   max-width: 860px; margin: 46px auto 0;
   background: var(--term);
-  border: 1px solid var(--border-2);
+  border: 1px solid #1e2a3a;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 24px 70px -30px rgba(0,0,0,.8),
-              0 30px 90px -40px rgba(63,185,80,.22);
+  box-shadow: 0 28px 70px -28px rgba(11,18,32,.45),
+              0 34px 90px -38px rgba(22,163,74,.3);
 }
 .term-bar {
   display: flex; align-items: center; gap: 10px;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #1e2a3a;
   background: rgba(255,255,255,.02);
-  font-size: .78rem; color: var(--faint);
+  font-size: .78rem; color: #7e8da2;
 }
 .term-bar .dots { display: flex; gap: 6px; }
 .term-bar .dots i { width: 11px; height: 11px; border-radius: 50%; display: block; }
@@ -87,7 +88,7 @@
 .bad  { color: var(--fail); font-weight: 700; }
 .warn { color: var(--run); }
 
-.tl-cmd  { color: var(--text); }
+.tl-cmd  { color: #e6edf3; }
 .tl-cmd .tp    { color: var(--pass); font-weight: 700; }
 .tl-cmd .tflag { color: #8ab4ff; }
 .tl-info { color: #8b98a9; }
@@ -141,15 +142,16 @@
   font-size: .88rem; color: var(--muted);
 }
 .report .rp-item { display: inline-flex; align-items: baseline; gap: 9px; white-space: nowrap; }
+.report .ok { color: var(--pass-ink); }
 
 /* ---------- File-path eyebrow ---------- */
 .spec-path {
   font-family: var(--font-mono);
   font-size: .82rem; letter-spacing: .02em;
-  color: var(--pass);
+  color: var(--pass-ink);
   margin-bottom: 14px;
 }
-.spec-path::before { content: "// "; color: #5f7186; }
+.spec-path::before { content: "// "; color: #94a3b8; }
 
 /* ---------- Suite listing (what you'll master) ---------- */
 .spec-list {
@@ -169,11 +171,11 @@
   transition: background .2s ease;
 }
 .spec-row:last-of-type { border-bottom: 0; }
-.spec-row:hover { background: rgba(63,185,80,.04); }
+.spec-row:hover { background: rgba(22,163,74,.045); }
 .spec-days {
   font-family: var(--font-mono);
   font-size: .8rem; font-weight: 700; letter-spacing: .04em;
-  color: var(--pass); white-space: nowrap;
+  color: var(--pass-ink); white-space: nowrap;
 }
 .spec-row h3 { font-size: 1.06rem; margin-bottom: 4px; }
 .spec-row p { font-size: .93rem; }
@@ -182,13 +184,13 @@
   display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap;
   font-family: var(--font-mono); font-size: .82rem; color: var(--faint);
 }
-.spec-foot a { color: var(--pass); font-weight: 600; }
+.spec-foot a { color: var(--pass-ink); font-weight: 600; }
 .spec-foot a:hover { text-decoration: underline; text-underline-offset: 4px; }
 
 /* ---------- Why Palla: pass-green checklist ---------- */
 .home-check li::before {
   background: var(--pass-dim);
-  color: var(--pass);
+  color: var(--pass-ink);
 }
 
 /* ---------- Track cards ---------- */
@@ -201,12 +203,12 @@
   display: flex; flex-direction: column;
   transition: transform .2s ease, border-color .2s ease;
 }
-.track-card:hover { transform: translateY(-4px); border-color: rgba(63,185,80,.45); }
+.track-card:hover { transform: translateY(-4px); border-color: rgba(22,163,74,.45); }
 .tc-tag {
   font-family: var(--font-mono);
   font-size: .76rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--pass);
-  border: 1px solid rgba(63,185,80,.28);
+  color: var(--pass-ink);
+  border: 1px solid rgba(22,163,74,.3);
   background: var(--pass-dim);
   border-radius: 7px; padding: 5px 10px;
   align-self: flex-start;
@@ -221,15 +223,15 @@
 }
 .track-card .btn { align-self: flex-start; margin-top: auto; }
 .track-card .btn-primary {
-  background: var(--pass);
-  box-shadow: 0 10px 26px -10px rgba(63,185,80,.55);
+  background: #16a34a;
+  box-shadow: 0 10px 26px -10px rgba(22,163,74,.5);
 }
-.track-card .btn-primary:hover { box-shadow: 0 14px 32px -10px rgba(63,185,80,.65); }
+.track-card .btn-primary:hover { box-shadow: 0 14px 32px -10px rgba(22,163,74,.6); }
 
 /* ---------- Testimonials ---------- */
 .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 .testi {
-  border-left: 2px solid var(--pass);
+  border-left: 2px solid #16a34a;
   background: var(--surface);
   border-top: 1px solid var(--border);
   border-right: 1px solid var(--border);
@@ -247,9 +249,9 @@
 
 /* ---------- CTA ---------- */
 .home-cta {
-  border: 1px solid rgba(63,185,80,.32);
+  border: 1px solid rgba(22,163,74,.3);
   background:
-    radial-gradient(560px 220px at 50% -30%, rgba(63,185,80,.14), transparent 70%),
+    radial-gradient(560px 220px at 50% -30%, rgba(22,163,74,.1), transparent 70%),
     var(--surface);
   border-radius: var(--radius-lg);
   padding: 54px 40px;
@@ -257,7 +259,7 @@
 }
 .hc-prompt {
   font-family: var(--font-mono);
-  font-size: .86rem; color: var(--pass);
+  font-size: .86rem; color: var(--pass-ink);
   margin-bottom: 16px;
 }
 .home-cta p { margin: 14px auto 26px; max-width: 56ch; }

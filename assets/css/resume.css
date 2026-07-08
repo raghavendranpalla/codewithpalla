@@ -28,7 +28,7 @@
 .rz-hero-art .hero-mini {
   position: absolute; width: 200px;
   border-radius: 10px;
-  box-shadow: 0 34px 70px -22px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.07);
+  box-shadow: 0 30px 60px -20px rgba(15,30,60,.35), 0 0 0 1px rgba(11,18,32,.06);
 }
 .rz-hero-art .hero-mini.hm1 { left: 2%;  top: 52px; transform: rotate(-8deg); animation: hm-float 7s ease-in-out infinite; }
 .rz-hero-art .hero-mini.hm2 { left: 31%; top: 0;    width: 232px; transform: rotate(2deg); z-index: 2; animation: hm-float 6s ease-in-out .8s infinite; }
@@ -71,6 +71,7 @@
   position: relative; display: block;
   aspect-ratio: 3 / 4; border-radius: 6px; overflow: hidden;
   background: #fff;
+  border: 1px solid #e2e8f0;
 }
 .tpl-mini::after {
   content: ""; position: absolute; inset: 0;
@@ -122,7 +123,7 @@
 .rz-3steps b {
   display: inline-grid; place-items: center;
   width: 22px; height: 22px; border-radius: 50%; margin-right: 8px;
-  background: var(--grad); color: #04120c; font-size: .78rem;
+  background: var(--grad); color: #fff; font-size: .78rem;
 }
 
 /* ---------- App layout ---------- */
@@ -152,9 +153,9 @@
 .rz-del {
   position: absolute; top: 8px; right: 8px;
   width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--border-2);
-  background: rgba(244,114,182,.08); color: #f7a8cf; font-size: .8rem; line-height: 1;
+  background: rgba(219,39,119,.06); color: #be185d; font-size: .8rem; line-height: 1;
 }
-.rz-del:hover { border-color: #f472b6; }
+.rz-del:hover { border-color: #db2777; }
 .rz-add {
   border: 1px dashed var(--border-2); background: rgba(52,211,153,.05);
   color: var(--primary); border-radius: 10px; padding: 10px; font-weight: 650; font-size: .88rem;
@@ -180,7 +181,7 @@
   background: var(--surface-3); color: var(--muted); font-size: .66rem;
 }
 .rz-schip.active { border-color: var(--primary); color: var(--text); }
-.rz-schip.active .n { background: var(--primary); color: #04120c; }
+.rz-schip.active .n { background: var(--primary); color: #fff; }
 .rz-schip.done { color: var(--primary); }
 .rz-schip.done .n { background: rgba(52,211,153,.18); color: var(--primary); }
 
@@ -248,7 +249,8 @@
   background: #fff; color: var(--pgTx);
   font-family: "Inter", Arial, sans-serif;
   font-size: 13px; line-height: 1.55;
-  box-shadow: 0 24px 60px -24px rgba(0,0,0,.75), 0 34px 90px -34px rgba(34,211,238,.28);
+  border: 1px solid #e6ebf2;
+  box-shadow: 0 24px 55px -24px rgba(15,30,60,.3), 0 34px 90px -34px rgba(8,145,178,.2);
   display: grid;
   print-color-adjust: exact; -webkit-print-color-adjust: exact;
 }
