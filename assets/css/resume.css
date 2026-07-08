@@ -239,7 +239,7 @@
 
 /* ---------- Print: only the resume, at real A4 size ---------- */
 @media print {
-  .site-header, .rz-hero, .tpl-row, .rz-toolbar, .rz-form, .rz-tip,
+  .site-header, .rz-hero, .tpl-row, .rz-toolbar, .rz-ats, .rz-form, .rz-tip,
   .site-footer, .wa-float { display: none !important; }
   body { background: #fff !important; }
   body::before, body::after { display: none !important; }
