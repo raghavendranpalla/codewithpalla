@@ -379,6 +379,102 @@ DAYS = [
                      '(empty string, undefined...) it greets "Guest" instead. '
                      'Hint: <font face="Courier">name || "Guest"</font>.',
     },
+    {
+        'num': 5,
+        'title': 'Type Conversion &amp; Maths with null/undefined',
+        'intro': 'Recap of the Day 5 videos: converting values between types on purpose '
+                 '(and how JavaScript converts them behind your back), plus the two '
+                 'special cases every tester must know — null becomes 0, undefined '
+                 'becomes NaN.',
+        'sections': [
+            ('Explicit type conversion', [
+                ('p', 'Explicit conversion is when <b>you</b> change the type, using the '
+                      'three built-in converter functions. This is the safe, readable way '
+                      '— say what you mean.'),
+                ('c', ['Number("45")     // 45      — string to number',
+                       'Number("45px")   // NaN     — not a clean number',
+                       'Number("")       // 0       — surprise! empty string is 0',
+                       '',
+                       'String(45)       // "45"    — number to string',
+                       'String(true)     // "true"',
+                       '',
+                       'Boolean("hi")    // true    — same rules as truthy/falsy (Day 4)',
+                       'Boolean(0)       // false']),
+                ('b', 'In automation this matters constantly: everything you read from a '
+                      'web page — input values, prices, counts — arrives as a <b>string</b>. '
+                      'Convert before you compare: '
+                      '<font face="Courier">Number(priceText) &gt; 100</font>.'),
+            ]),
+            ('Implicit conversion (coercion)', [
+                ('p', 'Implicit conversion is when <b>JavaScript</b> changes the type for '
+                      'you, based on the operator. The <b>+</b> operator is the troublemaker: '
+                      'if either side is a string, it glues (concatenates) instead of adding.'),
+                ('c', ['"45" + 1     // "451"  — + with a string concatenates!',
+                       '"45" - 1     // 44     — -, *, / convert to numbers',
+                       '"45" * 2     // 90',
+                       '"6" / "2"    // 3',
+                       '',
+                       '// the classic interview line:',
+                       '1 + "2" + 3  // "123"']),
+            ]),
+            ('null and undefined in maths', [
+                ('p', 'When null and undefined land in a numeric expression they behave '
+                      'completely differently — this is a favourite interview question and '
+                      'a real source of test bugs when data is missing.'),
+                ('c', ['10 + null        // 10   — null converts to 0',
+                       '10 * null        // 0',
+                       '',
+                       '10 + undefined   // NaN  — undefined converts to NaN',
+                       '10 * undefined   // NaN',
+                       '',
+                       'Number(null)       // 0',
+                       'Number(undefined)  // NaN',
+                       '',
+                       '// NaN poisons everything it touches:',
+                       'NaN === NaN        // false!  use Number.isNaN(x)']),
+                ('b', 'Rule of thumb: <b>null → 0</b>, <b>undefined → NaN</b> — and any '
+                      'calculation containing NaN stays NaN.'),
+            ]),
+        ],
+        'ref_head': ['Expression', 'Result — and why'],
+        'ref_rows': [
+            ['Number("45") / Number("")', '45 / 0 — strings convert cleanly; empty string is 0'],
+            ['Number("45px")', 'NaN — not a valid number'],
+            ['"45" + 1', '"451" — + with a string concatenates'],
+            ['"45" - 1', '44 — the other maths operators convert to numbers'],
+            ['10 + null', '10 — null becomes 0 in maths'],
+            ['10 + undefined', 'NaN — undefined becomes NaN'],
+            ['NaN === NaN', 'false — check with Number.isNaN(x) instead'],
+        ],
+        'practice': [
+            ('Predict each result, then verify in Node: '
+             '<font face="Courier">Number("100")</font>, '
+             '<font face="Courier">Number("100rs")</font>, '
+             '<font face="Courier">Number("")</font>, '
+             '<font face="Courier">String(2026)</font>, '
+             '<font face="Courier">Boolean("false")</font>.',
+             'Careful with the last one — "false" is a non-empty string.'),
+            ('Predict, then verify: <font face="Courier">"5" + 5</font>, '
+             '<font face="Courier">"5" - 5</font>, <font face="Courier">"5" * "2"</font>, '
+             '<font face="Courier">1 + "2" + 3</font>.', None),
+            ('Predict, then verify: <font face="Courier">7 + null</font>, '
+             '<font face="Courier">7 - null</font>, <font face="Courier">7 + undefined</font>, '
+             '<font face="Courier">null + undefined</font>.',
+             'Remember: null → 0, undefined → NaN.'),
+            ('A web page gives you <font face="Courier">const price = "1499"</font> (a string). '
+             'Write code that adds 18% tax and prints the total as a number.',
+             'Convert first with Number(price), then multiply by 1.18.'),
+            ('Write a function <font face="Courier">safeAdd(a, b)</font> that treats null OR '
+             'undefined arguments as 0, so <font face="Courier">safeAdd(10, undefined)</font> '
+             'returns 10 instead of NaN.',
+             'Convert each argument with (x || 0), or check Number.isNaN after converting.'),
+        ],
+        'challenge': 'Build <font face="Courier">toNumberReport(value)</font> that prints '
+                     '<font face="Courier">`${value} → ${Number(value)}`</font> for any input, '
+                     'then run it on: "42", "42abc", "", " ", true, false, null, undefined, '
+                     '[] and [7]. Two of the results will surprise you — write down which two '
+                     'and why.',
+    },
 ]
 
 
