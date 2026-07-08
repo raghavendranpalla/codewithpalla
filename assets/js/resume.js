@@ -211,20 +211,34 @@
     if (state.photo) photoThumb.src = state.photo;
   }
 
-  /* --- template picker --- */
+  /* --- template picker: gallery of mini previews --- */
   var tplRow = document.getElementById("tplRow");
   TPLS.forEach(function (t) {
     var b = document.createElement("button");
-    b.type = "button"; b.className = "tpl-btn"; b.setAttribute("data-tpl", t.id);
-    b.innerHTML = '<span class="tpl-dot" style="background:' + t.dot + '"></span>' +
-                  '<span class="tpl-dot" style="background:' + t.dot2 + '"></span>' + esc(t.name);
+    b.type = "button"; b.className = "tpl-card"; b.setAttribute("data-tpl", t.id);
+    b.title = t.name;
+    var miniClass = t.lay === "lay-side-l" ? "mini-side-l"
+                  : t.lay === "lay-side-r" ? "mini-side-r"
+                  : t.lay === "lay-band"   ? "mini-band" : "mini-plain";
+    var extras = "";
+    if (t.lay === "lay-band") extras = '<i class="mm-bandbar"></i>';
+    if (t.lay === "lay-side-l" || t.lay === "lay-side-r")
+      extras = '<i class="mm-side"></i><i class="mm-s s1"></i><i class="mm-s s2"></i><i class="mm-s s3"></i>';
+    b.innerHTML =
+      '<span class="tpl-mini ' + miniClass + '" style="--a:' + t.dot + ';--s:' + t.dot2 + '" aria-hidden="true">' +
+        extras +
+        '<i class="mm-name"></i><i class="mm-acc"></i>' +
+        '<i class="mm-l l1"></i><i class="mm-l l2"></i><i class="mm-l l3"></i>' +
+        '<i class="mm-acc2"></i><i class="mm-l l4"></i><i class="mm-l l5"></i>' +
+      "</span>" +
+      '<span class="tpl-name">' + esc(t.name) + "</span>";
     b.addEventListener("click", function () {
       state.template = t.id; save(); syncTplUI(); renderPreview();
     });
     tplRow.appendChild(b);
   });
   function syncTplUI() {
-    tplRow.querySelectorAll(".tpl-btn").forEach(function (b) {
+    tplRow.querySelectorAll(".tpl-card").forEach(function (b) {
       b.classList.toggle("active", b.getAttribute("data-tpl") === state.template);
     });
   }
