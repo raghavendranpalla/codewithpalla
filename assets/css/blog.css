@@ -62,7 +62,7 @@
 
 .post-body .codeblock {
   background: #0b1019;
-  border: 1px solid #1e2a3a;
+  border: 1px solid var(--border-2);
   border-radius: 12px;
   padding: 16px 18px;
   margin: 0 0 18px;
@@ -75,11 +75,11 @@
 .post-body code {
   font-family: var(--font-mono);
   font-size: .88em;
-  background: rgba(11,18,32,.05);
+  background: rgba(255,255,255,.06);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 1px 6px;
-  color: #0e7490;
+  color: var(--primary-2);
 }
 .post-body .codeblock code { background: none; border: 0; padding: 0; color: inherit; }
 
