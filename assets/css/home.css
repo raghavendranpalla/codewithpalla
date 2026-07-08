@@ -1,0 +1,275 @@
+/* =========================================================
+   Learn with Palla — homepage
+   "The page is a test run": pass-green / fail-red / running-amber
+   carry meaning; the gradient stays on the wordmark only.
+   Loaded after styles.css; index.html only.
+   ========================================================= */
+
+:root {
+  --pass:   #3fb950;
+  --fail:   #f85149;
+  --run:    #d29922;
+  --term:   #0b1019;
+  --pass-dim: rgba(63,185,80,.12);
+}
+
+/* ---------- Hero ---------- */
+.home-hero { padding: 74px 0 30px; }
+.hh-copy { max-width: 800px; margin: 0 auto; text-align: center; }
+
+.hh-status {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-size: .8rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--pass);
+  border: 1px solid rgba(63,185,80,.3);
+  background: var(--pass-dim);
+  border-radius: 999px; padding: 7px 14px;
+}
+.hh-status .pulse {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--pass); box-shadow: 0 0 10px var(--pass);
+  animation: hh-pulse 2s ease-in-out infinite;
+}
+@keyframes hh-pulse { 50% { opacity: .35; } }
+
+.home-hero h1 { margin: 22px 0 18px; }
+.home-hero h1 em {
+  font-style: normal; color: #fff;
+  text-decoration: underline;
+  text-decoration-color: var(--pass);
+  text-decoration-thickness: 4px;
+  text-underline-offset: 7px;
+}
+.hh-copy .lead { margin: 0 auto 30px; }
+.hh-copy .hero-cta { justify-content: center; }
+.hh-copy .hero-login { justify-content: center; }
+.hh-badges { margin-top: 20px; }
+
+/* ---------- Hero terminal (the signature) ---------- */
+.term {
+  max-width: 860px; margin: 46px auto 0;
+  background: var(--term);
+  border: 1px solid var(--border-2);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 70px -30px rgba(0,0,0,.8),
+              0 30px 90px -40px rgba(63,185,80,.22);
+}
+.term-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,.02);
+  font-size: .78rem; color: var(--faint);
+}
+.term-bar .dots { display: flex; gap: 6px; }
+.term-bar .dots i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+.term-bar .dots i:nth-child(1) { background: #ff5f57; }
+.term-bar .dots i:nth-child(2) { background: #febc2e; }
+.term-bar .dots i:nth-child(3) { background: #28c840; }
+.term-title { margin-left: 6px; }
+
+.term-body {
+  padding: 20px 22px 22px;
+  font-size: .87rem; line-height: 1.55;
+  overflow-x: auto;
+}
+.tl {
+  display: flex; align-items: baseline; gap: 10px;
+  white-space: nowrap; min-width: max-content;
+  padding: 2.5px 0;
+}
+.tl .mark { flex: 0 0 14px; text-align: center; }
+.tl .tt { margin-left: auto; padding-left: 26px; color: #5f7186; font-size: .78rem; }
+.tl .tmut { color: #5f7186; }
+
+.ok   { color: var(--pass); font-weight: 700; }
+.bad  { color: var(--fail); font-weight: 700; }
+.warn { color: var(--run); }
+
+.tl-cmd  { color: var(--text); }
+.tl-cmd .tp    { color: var(--pass); font-weight: 700; }
+.tl-cmd .tflag { color: #8ab4ff; }
+.tl-info { color: #8b98a9; }
+.tl-pass { color: #b7c5d3; }
+.tl-fail { color: var(--fail); opacity: .45; }
+.tl-heal { color: var(--run); }
+.tl-sum  { color: var(--pass); font-weight: 700; margin-top: 8px; }
+.tl-gap  { padding: 0; height: 10px; }
+
+.term .caret {
+  width: 8px; height: 1em; background: var(--pass);
+  align-self: center; margin-left: 2px;
+}
+
+/* Run sequence — lines are visible by default (no-JS, reduced motion);
+   the animation replays them as a live run for everyone else. */
+@media (prefers-reduced-motion: no-preference) {
+  .tl-anim { animation: tl-in .22s ease-out both; }
+  .t1  { animation-delay: .4s; }
+  .t2  { animation-delay: 1.1s; }
+  .t3  { animation-delay: 1.8s; }
+  .t4  { animation-delay: 2.3s; }
+  .t5  { animation-delay: 2.9s; }   /* ✘ fail */
+  .t6  { animation-delay: 3.8s; }   /* ↻ agent heals */
+  .t7  { animation-delay: 4.9s; }   /* ✓ healed */
+  .t8  { animation-delay: 5.4s; }
+  .t9  { animation-delay: 5.8s; }
+  .t10 { animation-delay: 6.2s; }
+  .t11 { animation-delay: 6.9s; }   /* summary */
+  .tl-fail.tl-anim { animation: tl-in-fail .22s ease-out both, tl-dim .35s ease 4.9s both; }
+}
+@keyframes tl-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes tl-in-fail {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes tl-dim { to { opacity: .45; } }
+
+/* ---------- Report band (stats as a test-report summary) ---------- */
+.report-band { padding: 40px 0 8px; }
+.report {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 12px 34px;
+  padding: 18px 26px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  font-size: .88rem; color: var(--muted);
+}
+.report .rp-item { display: inline-flex; align-items: baseline; gap: 9px; white-space: nowrap; }
+
+/* ---------- File-path eyebrow ---------- */
+.spec-path {
+  font-family: var(--font-mono);
+  font-size: .82rem; letter-spacing: .02em;
+  color: var(--pass);
+  margin-bottom: 14px;
+}
+.spec-path::before { content: "// "; color: #5f7186; }
+
+/* ---------- Suite listing (what you'll master) ---------- */
+.spec-list {
+  max-width: 880px; margin: 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  overflow: hidden;
+  list-style: none;
+  counter-reset: none;
+}
+.spec-row {
+  display: grid; grid-template-columns: 118px 1fr; gap: 20px;
+  align-items: baseline;
+  padding: 20px 26px;
+  border-bottom: 1px solid var(--border);
+  transition: background .2s ease;
+}
+.spec-row:last-of-type { border-bottom: 0; }
+.spec-row:hover { background: rgba(63,185,80,.04); }
+.spec-days {
+  font-family: var(--font-mono);
+  font-size: .8rem; font-weight: 700; letter-spacing: .04em;
+  color: var(--pass); white-space: nowrap;
+}
+.spec-row h3 { font-size: 1.06rem; margin-bottom: 4px; }
+.spec-row p { font-size: .93rem; }
+.spec-foot {
+  max-width: 880px; margin: 14px auto 0;
+  display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap;
+  font-family: var(--font-mono); font-size: .82rem; color: var(--faint);
+}
+.spec-foot a { color: var(--pass); font-weight: 600; }
+.spec-foot a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+/* ---------- Why Palla: pass-green checklist ---------- */
+.home-check li::before {
+  background: var(--pass-dim);
+  color: var(--pass);
+}
+
+/* ---------- Track cards ---------- */
+.track-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.track-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 26px;
+  display: flex; flex-direction: column;
+  transition: transform .2s ease, border-color .2s ease;
+}
+.track-card:hover { transform: translateY(-4px); border-color: rgba(63,185,80,.45); }
+.tc-tag {
+  font-family: var(--font-mono);
+  font-size: .76rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--pass);
+  border: 1px solid rgba(63,185,80,.28);
+  background: var(--pass-dim);
+  border-radius: 7px; padding: 5px 10px;
+  align-self: flex-start;
+  margin-bottom: 16px;
+}
+.track-card h3 { margin-bottom: 8px; }
+.track-card > p { font-size: .95rem; }
+.tc-meta {
+  font-family: var(--font-mono);
+  font-size: .84rem; color: var(--muted);
+  margin: 16px 0 18px;
+}
+.track-card .btn { align-self: flex-start; margin-top: auto; }
+.track-card .btn-primary {
+  background: var(--pass);
+  box-shadow: 0 10px 26px -10px rgba(63,185,80,.55);
+}
+.track-card .btn-primary:hover { box-shadow: 0 14px 32px -10px rgba(63,185,80,.65); }
+
+/* ---------- Testimonials ---------- */
+.testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.testi {
+  border-left: 2px solid var(--pass);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 24px 26px;
+  margin: 0;
+}
+.testi blockquote { margin: 0; color: var(--text); font-size: .99rem; }
+.testi figcaption {
+  margin-top: 16px;
+  font-family: var(--font-mono);
+  font-size: .82rem; color: var(--faint);
+}
+
+/* ---------- CTA ---------- */
+.home-cta {
+  border: 1px solid rgba(63,185,80,.32);
+  background:
+    radial-gradient(560px 220px at 50% -30%, rgba(63,185,80,.14), transparent 70%),
+    var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 54px 40px;
+  text-align: center;
+}
+.hc-prompt {
+  font-family: var(--font-mono);
+  font-size: .86rem; color: var(--pass);
+  margin-bottom: 16px;
+}
+.home-cta p { margin: 14px auto 26px; max-width: 56ch; }
+.home-cta .hero-cta { justify-content: center; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 760px) {
+  .home-hero { padding-top: 54px; }
+  .term { margin-top: 36px; }
+  .term-body { font-size: .78rem; padding: 16px 14px 18px; }
+  .report { gap: 10px 22px; font-size: .84rem; }
+  .spec-row { grid-template-columns: 1fr; gap: 6px; padding: 18px 20px; }
+  .track-grid, .testi-grid { grid-template-columns: 1fr; }
+  .home-cta { padding: 42px 22px; }
+}

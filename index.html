@@ -20,6 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/styles.css?v=3" />
+  <link rel="stylesheet" href="assets/css/home.css?v=1" />
 </head>
 <body>
   <!-- ===== Header ===== -->
@@ -45,20 +46,20 @@
   </header>
 
   <main>
-    <!-- ===== Hero ===== -->
-    <section class="hero">
-      <div class="container hero-grid">
-        <div class="reveal">
-          <span class="eyebrow">Playwright · Selenium · AI</span>
-          <h1>Become an <span class="grad">AI-powered</span><br />test automation engineer</h1>
-          <p class="lead">Live, hands-on training in modern automation — TypeScript, Playwright, Playwright MCP and AI agents that plan, write and self-heal your tests. Taught by a working SDET, built for real engineers and students.</p>
+    <!-- ===== Hero: the course as a test run ===== -->
+    <section class="home-hero">
+      <div class="container">
+        <div class="hh-copy reveal">
+          <p class="hh-status mono"><i class="pulse"></i> Now enrolling · live online batch</p>
+          <h1>Become an <em>AI-powered</em><br />test automation engineer</h1>
+          <p class="lead">Live, hands-on training in TypeScript, Playwright, Playwright MCP and AI agents that plan, write and heal your tests. 45 minutes a day for 45 days, taught by a working SDET.</p>
           <div class="hero-cta">
-            <a class="btn btn-primary btn-lg" href="contact.html">Enroll Now</a>
             <a class="btn btn-wa btn-lg" target="_blank" rel="noopener"
                href="https://wa.me/919581341999?text=Hi%20Palla%2C%20I%27m%20interested%20in%20your%20TypeScript%20%2B%20Playwright%20%2B%20AI%20course.%20Please%20share%20the%20details.">
               <svg viewBox="0 0 32 32" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M16 3C9 3 3.5 8.5 3.5 15.5c0 2.4.7 4.7 1.9 6.7L3 29l7-1.8c1.9 1 4 1.6 6 1.6 7 0 12.5-5.5 12.5-12.5S23 3 16 3zm0 22.7c-1.8 0-3.6-.5-5.1-1.4l-.4-.2-4.1 1.1 1.1-4-.3-.4a10 10 0 01-1.6-5.4C5.5 9.9 10.2 5.2 16 5.2s10.5 4.7 10.5 10.3S21.8 25.7 16 25.7zm5.8-7.7c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.3-.7.1c-1.9-1-3.2-1.7-4.4-3.9-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-1 .9-1.3 2.1-1.3 3.6 0 2.1 1.6 4.2 1.8 4.5.2.3 3.1 4.8 7.6 6.5 2.8 1.1 3.5.9 4.2.8.9-.1 1.9-.8 2.2-1.6.3-.8.3-1.4.2-1.6-.1-.2-.3-.3-.6-.4z"/></svg>
               Chat on WhatsApp
             </a>
+            <a class="btn btn-ghost btn-lg" href="curriculum.html">View the 45-day plan</a>
           </div>
           <div class="hero-login">
             <span>Already enrolled?</span>
@@ -72,41 +73,47 @@
               Sign in with Google
             </a>
           </div>
-          <div class="hero-meta">
-            <span><i class="dot"></i> 1:1 mentoring</span>
-            <span><i class="dot"></i> Real-world projects</span>
-            <span><i class="dot"></i> Job-ready skills</span>
-          </div>
-          <div style="margin-top:20px"><span class="bonus-badge">🎁 Bonus: 1 month Claude Pro free</span></div>
+          <div class="hh-badges"><span class="bonus-badge">🎁 Bonus: 1 month Claude Pro free</span></div>
         </div>
 
-        <div class="reveal">
-          <div class="code-window" aria-hidden="true">
-            <div class="code-bar">
-              <span class="dots"><i></i><i></i><i></i></span>
-              <span class="file"><b>login.spec.ts</b> — Playwright + AI</span>
-            </div>
-            <div class="code-body">
-<pre><span class="cl">1</span><span class="k">import</span> <span class="p">{</span> <span class="v">test</span><span class="p">,</span> <span class="v">expect</span> <span class="p">}</span> <span class="k">from</span> <span class="s">'@playwright/test'</span><span class="p">;</span>
-<span class="cl">2</span>
-<span class="cl">3</span><span class="c">// AI agent generated &amp; self-heals this locator</span>
-<span class="cl">4</span><span class="v">test</span><span class="p">(</span><span class="s">'user can log in'</span><span class="p">,</span> <span class="k">async</span> <span class="p">({</span> <span class="v">page</span> <span class="p">})</span> <span class="k">=&gt;</span> <span class="p">{</span>
-<span class="cl">5</span>  <span class="k">await</span> <span class="v">page</span><span class="p">.</span><span class="f">goto</span><span class="p">(</span><span class="s">'/login'</span><span class="p">);</span>
-<span class="cl">6</span>  <span class="k">await</span> <span class="v">page</span><span class="p">.</span><span class="f">getByLabel</span><span class="p">(</span><span class="s">'Email'</span><span class="p">).</span><span class="f">fill</span><span class="p">(</span><span class="v">user</span><span class="p">.</span><span class="v">email</span><span class="p">);</span>
-<span class="cl">7</span>  <span class="k">await</span> <span class="v">page</span><span class="p">.</span><span class="f">getByRole</span><span class="p">(</span><span class="s">'button'</span><span class="p">,</span> <span class="p">{</span> <span class="v">name</span><span class="p">:</span> <span class="s">'Sign in'</span> <span class="p">})</span><span class="p">.</span><span class="f">click</span><span class="p">();</span>
-<span class="cl">8</span>  <span class="k">await</span> <span class="f">expect</span><span class="p">(</span><span class="v">page</span><span class="p">).</span><span class="f">toHaveURL</span><span class="p">(</span><span class="s">'/dashboard'</span><span class="p">);</span>
-<span class="cl">9</span><span class="p">}</span><span class="p">);</span>
-<span class="cl">10</span>
-<span class="cl">11</span><span class="c">// $ npx playwright test --ui  </span><span class="caret"></span>
-</pre>
-            </div>
+        <div class="term reveal" role="img"
+             aria-label="A terminal running 'npx playwright test career.spec.ts'. Day-by-day tests pass; on day 23 a locator breaks, an AI agent heals it and the test passes again. Final result: 45 passed, interview-ready.">
+          <div class="term-bar mono">
+            <span class="dots"><i></i><i></i><i></i></span>
+            <span class="term-title">palla@learnwithpalla:~/your-career</span>
+          </div>
+          <div class="term-body mono" aria-hidden="true">
+            <div class="tl tl-cmd tl-anim t1"><span class="tp">$</span> npx playwright test career.spec.ts <span class="tflag">--project=you</span></div>
+            <div class="tl tl-info tl-anim t2">Running 45 days · 45 minutes each · live with Palla</div>
+            <div class="tl tl-pass tl-anim t3"><span class="mark ok">✓</span> day-01 › environment up, your first test is green<span class="tt">1.2s</span></div>
+            <div class="tl tl-pass tl-anim t4"><span class="mark ok">✓</span> day-19 › locators that survive a redesign<span class="tt">1.8s</span></div>
+            <div class="tl tl-fail tl-anim t5"><span class="mark bad">✘</span> day-23 › checkout spec — the Buy button was renamed</div>
+            <div class="tl tl-heal tl-anim t6"><span class="mark warn">↻</span> AI agent re-reads the page… locator healed, re-running</div>
+            <div class="tl tl-pass tl-anim t7"><span class="mark ok">✓</span> day-23 › checkout spec — healed, zero lines edited by hand<span class="tt">1.6s</span></div>
+            <div class="tl tl-pass tl-anim t8"><span class="mark ok">✓</span> day-24 › you read a trace like a story<span class="tt">1.4s</span></div>
+            <div class="tl tl-pass tl-anim t9"><span class="mark ok">✓</span> day-38 › API + UI in one end-to-end journey<span class="tt">2.3s</span></div>
+            <div class="tl tl-pass tl-anim t10"><span class="mark ok">✓</span> day-45 › your framework runs green in CI<span class="tt">45d</span></div>
+            <div class="tl tl-gap" aria-hidden="true"></div>
+            <div class="tl tl-sum tl-anim t11">45 passed (interview-ready)<span class="caret"></span></div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- ===== Report band (the numbers, as a test report) ===== -->
+    <section class="report-band">
+      <div class="container">
+        <div class="report mono reveal">
+          <span class="rp-item"><span class="ok">✓</span> 12+ years in software testing</span>
+          <span class="rp-item"><span class="ok">✓</span> 2000+ engineers &amp; students trained</span>
+          <span class="rp-item"><span class="ok">✓</span> 100% hands-on, project-based</span>
+          <span class="rp-item"><span class="ok">✓</span> 1:1 doubt-clearing &amp; mentoring</span>
+        </div>
+      </div>
+    </section>
+
     <!-- ===== Tech strip ===== -->
-    <div class="tech-strip">
+    <div class="tech-strip" style="border-top:0">
       <div class="container">
         <div class="row">
           <span class="chip"><b>TS</b> TypeScript</span>
@@ -121,57 +128,47 @@
       </div>
     </div>
 
-    <!-- ===== Stats ===== -->
-    <section class="section-sm">
-      <div class="container">
-        <div class="stats">
-          <div class="stat reveal"><div class="num grad">12+</div><div class="lbl">Years in software testing</div></div>
-          <div class="stat reveal"><div class="num grad">2000+</div><div class="lbl">Engineers &amp; students trained</div></div>
-          <div class="stat reveal"><div class="num grad">100%</div><div class="lbl">Hands-on, project-based</div></div>
-          <div class="stat reveal"><div class="num grad">1:1</div><div class="lbl">Doubt-clearing &amp; mentoring</div></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== What you'll learn ===== -->
+    <!-- ===== The 45-day suite (what you'll master) ===== -->
     <section class="section">
       <div class="container">
         <div class="section-head reveal">
-          <span class="eyebrow">What you'll master</span>
-          <h2>From writing your first test<br />to orchestrating AI agents</h2>
-          <p>A complete path into modern QA automation — the same stack used by top product teams today.</p>
+          <p class="spec-path">curriculum/45-day-plan.spec.ts</p>
+          <h2>From your first test<br />to orchestrating AI agents</h2>
+          <p>The whole course is one suite — seven modules, 45 days, run in this order.</p>
         </div>
-        <div class="grid grid-3">
-          <article class="card feature reveal">
-            <div class="ico">📘</div>
-            <h3>TypeScript for Testers</h3>
-            <p>Types, async/await, modules and clean code patterns — the foundation every modern automation framework is built on.</p>
-          </article>
-          <article class="card feature reveal">
-            <div class="ico">▶️</div>
-            <h3>Playwright, deeply</h3>
-            <p>Locators, fixtures, auto-waiting, network mocking, parallelism, the Trace Viewer and the UI mode — end to end.</p>
-          </article>
-          <article class="card feature reveal">
-            <div class="ico">⚡</div>
-            <h3>Playwright MCP</h3>
-            <p>Drive the browser through the Model Context Protocol so AI assistants can explore your app and generate tests.</p>
-          </article>
-          <article class="card feature reveal">
-            <div class="ico">🤖</div>
-            <h3>AI Test Agents</h3>
-            <p>Use AI to plan test scenarios, generate specs, review coverage and turn user stories into runnable tests.</p>
-          </article>
-          <article class="card feature reveal">
-            <div class="ico">🩹</div>
-            <h3>Self-Healing Tests</h3>
-            <p>Build resilient suites where agents repair broken locators automatically and cut flaky-test maintenance.</p>
-          </article>
-          <article class="card feature reveal">
-            <div class="ico">🚀</div>
-            <h3>CI/CD &amp; Reporting</h3>
-            <p>Run suites in GitHub Actions, shard for speed, publish HTML reports and wire automation into your pipeline.</p>
-          </article>
+        <ol class="spec-list">
+          <li class="spec-row reveal">
+            <span class="spec-days">D 01–02</span>
+            <div><h3>Kickoff &amp; setup</h3><p>The big picture of AI-first automation, and a fully working dev environment on your machine.</p></div>
+          </li>
+          <li class="spec-row reveal">
+            <span class="spec-days">D 03–14</span>
+            <div><h3>TypeScript for testers</h3><p>Types, async/await, modules and clean code patterns — the foundation every modern framework is built on.</p></div>
+          </li>
+          <li class="spec-row reveal">
+            <span class="spec-days">D 15–23</span>
+            <div><h3>Playwright, deeply</h3><p>Core test objects, codegen, locators that survive redesigns, and every kind of element interaction.</p></div>
+          </li>
+          <li class="spec-row reveal">
+            <span class="spec-days">D 24–32</span>
+            <div><h3>Debugging &amp; reliability</h3><p>The Trace Viewer, reports and config — then kill flakiness and run fast across browsers in parallel.</p></div>
+          </li>
+          <li class="spec-row reveal">
+            <span class="spec-days">D 33–37</span>
+            <div><h3>Page objects &amp; data-driven design</h3><p>Parameterise everything and structure a framework that scales past a hundred specs.</p></div>
+          </li>
+          <li class="spec-row reveal">
+            <span class="spec-days">D 38–40</span>
+            <div><h3>API &amp; end-to-end journeys</h3><p>Test APIs directly and tie UI + API together into complete user journeys.</p></div>
+          </li>
+          <li class="spec-row reveal">
+            <span class="spec-days">D 41–45</span>
+            <div><h3>AI agents, MCP &amp; CI/CD</h3><p>Agents that plan, write and heal tests via Playwright MCP — plus pipelines, sharding and your graduation project.</p></div>
+          </li>
+        </ol>
+        <div class="spec-foot reveal">
+          <span>7 modules · 45 days · 15 live Q&amp;A sessions</span>
+          <a href="curriculum.html">See the full day-by-day plan →</a>
         </div>
       </div>
     </section>
@@ -180,10 +177,10 @@
     <section class="section" style="padding-top:0">
       <div class="container split">
         <div class="reveal">
-          <span class="eyebrow">Why Learn with Palla</span>
+          <p class="spec-path">about/your-trainer.md</p>
           <h2>Taught by a working SDET — not a slide deck</h2>
           <p class="lead" style="margin:16px 0 8px">I've spent over a decade testing real products and leading QA teams, and years training engineers on Selenium with Java &amp; Python. Now I teach the AI-first stack the industry is moving to.</p>
-          <ul class="check">
+          <ul class="check home-check">
             <li><b>Live &amp; interactive</b> — code along in every session, ask anything, no recordings-only.</li>
             <li><b>Real projects</b> — you finish with a portfolio framework you can show in interviews.</li>
             <li><b>AI-first mindset</b> — learn to pair with AI agents, not fear them.</li>
@@ -213,35 +210,35 @@
       </div>
     </section>
 
-    <!-- ===== Courses preview ===== -->
+    <!-- ===== Tracks ===== -->
     <section class="section" style="padding-top:0">
       <div class="container">
         <div class="section-head reveal">
-          <span class="eyebrow">Programs</span>
+          <p class="spec-path">programs/pick-your-track.ts</p>
           <h2>Pick your track</h2>
           <p>Beginner to advanced — start where you are.</p>
         </div>
-        <div class="grid grid-3">
-          <article class="card feature reveal">
-            <div class="ico">▶️</div>
+        <div class="track-grid">
+          <article class="track-card reveal">
+            <span class="tc-tag">Playwright · TypeScript</span>
             <h3>Playwright + TypeScript</h3>
             <p>Modern, fast end-to-end testing with Playwright, Playwright MCP and AI test agents.</p>
-            <p class="mono" style="color:var(--primary);margin-top:14px;font-size:.9rem">45 days · 45 min/day · 15 Q&amp;A</p>
-            <a class="btn btn-primary btn-sm" href="curriculum.html#playwright" style="margin-top:16px">View 45-day plan →</a>
+            <p class="tc-meta">45 days · 45 min/day · 15 Q&amp;A</p>
+            <a class="btn btn-primary btn-sm" href="curriculum.html#playwright">View 45-day plan →</a>
           </article>
-          <article class="card feature reveal">
-            <div class="ico">☕</div>
+          <article class="track-card reveal">
+            <span class="tc-tag">Selenium · Java</span>
             <h3>Selenium + Java</h3>
             <p>The industry classic — Selenium WebDriver, TestNG, Page Object Model and AI-assisted testing.</p>
-            <p class="mono" style="color:var(--primary);margin-top:14px;font-size:.9rem">45 days · 45 min/day · 15 Q&amp;A</p>
-            <a class="btn btn-primary btn-sm" href="curriculum.html#selenium" style="margin-top:16px">View 45-day plan →</a>
+            <p class="tc-meta">45 days · 45 min/day · 15 Q&amp;A</p>
+            <a class="btn btn-primary btn-sm" href="curriculum.html#selenium">View 45-day plan →</a>
           </article>
-          <article class="card reveal">
-            <div class="ico">🏢</div>
+          <article class="track-card reveal">
+            <span class="tc-tag">Corporate · College</span>
             <h3>Corporate / College</h3>
             <p>Custom cohorts for teams and colleges, tailored to your stack and timelines.</p>
-            <p class="mono" style="color:var(--primary);margin-top:14px;font-size:.9rem">Flexible · Team</p>
-            <a class="btn btn-ghost btn-sm" href="contact.html" style="margin-top:16px">Request a plan →</a>
+            <p class="tc-meta">Flexible · Team-sized</p>
+            <a class="btn btn-ghost btn-sm" href="contact.html">Request a plan →</a>
           </article>
         </div>
       </div>
@@ -251,24 +248,21 @@
     <section class="section" style="padding-top:0">
       <div class="container">
         <div class="section-head reveal">
-          <span class="eyebrow">Student stories</span>
+          <p class="spec-path">reviews/student-stories.log</p>
           <h2>What learners say</h2>
         </div>
-        <div class="grid grid-3">
-          <figure class="quote reveal">
-            <div class="stars">★★★★★</div>
-            <p>"I came from manual testing and Palla's course got me writing Playwright tests with AI in weeks. Cleared my automation interview right after."</p>
-            <figcaption class="who"><span class="av">SK</span><div><b>Sushma K.</b><span>QA Engineer</span></div></figcaption>
+        <div class="testi-grid">
+          <figure class="testi reveal">
+            <blockquote>"I came from manual testing and Palla's course got me writing Playwright tests with AI in weeks. Cleared my automation interview right after."</blockquote>
+            <figcaption>— Sushma K. · QA Engineer</figcaption>
           </figure>
-          <figure class="quote reveal">
-            <div class="stars">★★★★★</div>
-            <p>"The Playwright MCP and agent sessions were eye-opening. Practical, hands-on, and he answers every doubt patiently."</p>
-            <figcaption class="who"><span class="av">RV</span><div><b>Ravi V.</b><span>SDET</span></div></figcaption>
+          <figure class="testi reveal">
+            <blockquote>"The Playwright MCP and agent sessions were eye-opening. Practical, hands-on, and he answers every doubt patiently."</blockquote>
+            <figcaption>— Ravi V. · SDET</figcaption>
           </figure>
-          <figure class="quote reveal">
-            <div class="stars">★★★★★</div>
-            <p>"Best trainer I've had. Real projects, real code, and you actually understand the 'why' behind every line."</p>
-            <figcaption class="who"><span class="av">AP</span><div><b>Anjali P.</b><span>Final-year student</span></div></figcaption>
+          <figure class="testi reveal">
+            <blockquote>"Best trainer I've had. Real projects, real code, and you actually understand the 'why' behind every line."</blockquote>
+            <figcaption>— Anjali P. · Final-year student</figcaption>
           </figure>
         </div>
       </div>
@@ -277,7 +271,8 @@
     <!-- ===== CTA ===== -->
     <section class="section" style="padding-top:0">
       <div class="container">
-        <div class="cta-band reveal">
+        <div class="home-cta reveal">
+          <p class="hc-prompt">$ git checkout -b your-automation-career</p>
           <h2>Ready to build AI-powered test skills?</h2>
           <p>Join the next batch. Message me on WhatsApp with your background and I'll help you pick the right track.</p>
           <div class="hero-cta">
