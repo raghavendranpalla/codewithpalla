@@ -69,6 +69,7 @@
           "suresh.marripalem@gmail.com",
           "shankarpalla1@gmail.com",
           "korlatharunchandra@gmail.com",
+          "emailsragunat@gmail.com",
         ],
         classUrl: "",  // optional live class link
         // Content is organised by day. Each day has a title, a short
