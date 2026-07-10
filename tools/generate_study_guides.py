@@ -475,6 +475,105 @@ DAYS = [
                      '[] and [7]. Two of the results will surprise you — write down which two '
                      'and why.',
     },
+    {
+        'num': 6,
+        'title': 'Arithmetic, Assignment &amp; Comparison Operators',
+        'intro': 'Recap of the Day 6 videos: the maths operators (including % and **), '
+                 'the compound assignment shortcuts like += and *=, and the comparison '
+                 'operators — with the single most important rule of the day: always '
+                 'prefer === over ==.',
+        'sections': [
+            ('Arithmetic operators', [
+                ('p', 'JavaScript has six arithmetic operators. Four you know from school '
+                      '— plus two that show up constantly in interviews and real code: '
+                      '<b>%</b> (remainder) and <b>**</b> (exponent).'),
+                ('c', ['7 + 3    // 10   addition',
+                       '7 - 3    // 4    subtraction',
+                       '7 * 3    // 21   multiplication',
+                       '7 / 3    // 2.3333...  division (no integer division in JS)',
+                       '7 % 3    // 1    remainder (modulus) — what is LEFT OVER',
+                       '2 ** 3   // 8    exponent — 2 to the power 3']),
+                ('b', '<b>%</b> is the tester\'s friend: <font face="Courier">n % 2 === 0'
+                      '</font> means n is even — handy for alternating rows in a table.'),
+                ('b', 'Operator precedence works like maths: <font face="Courier">2 + 3 * 4'
+                      '</font> is 14, not 20. Use parentheses to make intent obvious: '
+                      '<font face="Courier">(2 + 3) * 4</font>.'),
+            ]),
+            ('Assignment operators', [
+                ('p', 'The <b>=</b> sign assigns a value. Every arithmetic operator has a '
+                      'compound shortcut that updates a variable in place:'),
+                ('c', ['let score = 10;',
+                       'score += 5;    // score = score + 5   → 15',
+                       'score -= 3;    // score = score - 3   → 12',
+                       'score *= 2;    // score = score * 2   → 24',
+                       'score /= 4;    // score = score / 4   → 6',
+                       'score %= 4;    // score = score % 4   → 2',
+                       'score **= 3;   // score = score ** 3  → 8']),
+                ('b', 'Read <font face="Courier">score += 5</font> as "add 5 to score". '
+                      'It only works on variables declared with <b>let</b> — a const '
+                      'cannot be reassigned (Day 2!).'),
+            ]),
+            ('Comparison operators', [
+                ('p', 'Comparison operators always produce a <b>boolean</b> — true or '
+                      'false. They are the heart of every assertion your tests will make.'),
+                ('c', ['5 &gt; 3     // true    greater than',
+                       '5 &lt; 3     // false   less than',
+                       '5 &gt;= 5    // true    greater than or equal',
+                       '5 &lt;= 4    // false   less than or equal',
+                       '',
+                       '"5" ==  5   // true   loose equality — CONVERTS types first',
+                       '"5" === 5   // false  strict equality — types must match too',
+                       '"5" !=  5   // false  loose not-equal',
+                       '"5" !== 5   // true   strict not-equal']),
+                ('b', '<b>Rule of the day: always use === and !==.</b> Loose == converts '
+                      'types behind your back ("5" == 5 is true!) and causes bugs that '
+                      'are painful to find. Strict === has no surprises.'),
+                ('b', 'This matters in automation because everything read from a page is '
+                      'a <b>string</b> (Day 5). <font face="Courier">countText === 3</font> '
+                      'is always false — convert first: '
+                      '<font face="Courier">Number(countText) === 3</font>.'),
+            ]),
+        ],
+        'ref_head': ['Expression', 'Result — and why'],
+        'ref_rows': [
+            ['7 % 3', '1 — the remainder after dividing 7 by 3'],
+            ['2 ** 3', '8 — exponent: 2 × 2 × 2'],
+            ['score += 5', 'Shortcut for score = score + 5 (needs let, not const)'],
+            ['"5" == 5', 'true — loose equality converts the string first'],
+            ['"5" === 5', 'false — strict equality: number vs string'],
+            ['"5" !== 5', 'true — strict not-equal (the one to use)'],
+            ['5 >= 5', 'true — greater than OR equal'],
+        ],
+        'practice': [
+            ('Predict each result, then verify in Node: '
+             '<font face="Courier">10 % 4</font>, <font face="Courier">4 % 10</font>, '
+             '<font face="Courier">3 ** 2</font>, <font face="Courier">2 + 3 * 4</font>, '
+             '<font face="Courier">(2 + 3) * 4</font>.',
+             '4 % 10 surprises most people — 4 divided by 10 is 0 remainder 4.'),
+            ('Start with <font face="Courier">let points = 100</font>, then apply in order: '
+             '<font face="Courier">+= 20</font>, <font face="Courier">-= 50</font>, '
+             '<font face="Courier">*= 2</font>, <font face="Courier">%= 7</font>. '
+             'Predict the final value before you run it.', None),
+            ('Predict, then verify: <font face="Courier">"10" == 10</font>, '
+             '<font face="Courier">"10" === 10</font>, <font face="Courier">0 == false</font>, '
+             '<font face="Courier">0 === false</font>, <font face="Courier">null == undefined'
+             '</font>, <font face="Courier">null === undefined</font>.',
+             'The last pair is a classic interview question.'),
+            ('Write code that checks whether a number stored in '
+             '<font face="Courier">const year = 2026</font> is even, and prints '
+             '"even" or "odd".',
+             'year % 2 === 0 — combine it with the ternary or an if from earlier days.'),
+            ('A page gives you <font face="Courier">const priceText = "1499"</font>. Write '
+             'the WRONG check (<font face="Courier">priceText === 1499</font>) and the RIGHT '
+             'check, and print both results.',
+             'Convert with Number(priceText) before comparing — Day 5 + Day 6 together.'),
+        ],
+        'challenge': 'FizzBuzz, the most famous interview warm-up: for the numbers 1 to 15, '
+                     'print "Fizz" if the number is divisible by 3, "Buzz" if divisible by 5, '
+                     '"FizzBuzz" if divisible by both, otherwise the number itself. '
+                     'Everything you need is % and === . (Use a for loop if you know one, '
+                     'or just write 15 checks — the operators are the point.)',
+    },
 ]
 
 
