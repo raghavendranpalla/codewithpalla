@@ -161,9 +161,9 @@
             title: "Day 6 — Arithmetic, Assignment & Comparison Operators",
             description: "The operators your tests will use every single day. Part 1 covers arithmetic: + - * / plus the two everyone forgets — % (remainder) and ** (exponent). Part 2 covers assignment: = and the compound shortcuts += -= *= /= %= that update a variable in place. Part 3 covers comparison: > < >= <= and the difference that matters most in JavaScript — loose == (converts types, \"5\" == 5 is true!) versus strict === (the one you should always use). Watch all three parts in order.",
             resources: [
-              { type: "video", label: "Part 1 — Arithmetic Operators", poster: "assets/img/thumb-day6-part1.svg", vid: "XTASTwcsBlUJamsCCFBPB0QTElYNLwpnGUYBA3t0NAFB" },
-              { type: "video", label: "Part 2 — Assignment Operators", poster: "assets/img/thumb-day6-part2.svg", vid: "XSczeSBCDxAEJnADBWMDAhw0dFYmV1APDG5UUlkFFR4f" },
-              { type: "video", label: "Part 3 — Comparison Operators", poster: "assets/img/thumb-day6-part3.svg", vid: "XTAgEzE3IyhnKlpofkN5PUQEczoEFV1kAHF1AmhmCQ8R" },
+              { type: "video", label: "Part 1 — Arithmetic Operators", poster: "assets/img/thumb-day6-part1.svg?v=2", vid: "XTASTwcsBlUJamsCCFBPB0QTElYNLwpnGUYBA3t0NAFB" },
+              { type: "video", label: "Part 2 — Assignment Operators", poster: "assets/img/thumb-day6-part2.svg?v=2", vid: "XSczeSBCDxAEJnADBWMDAhw0dFYmV1APDG5UUlkFFR4f" },
+              { type: "video", label: "Part 3 — Comparison Operators", poster: "assets/img/thumb-day6-part3.svg?v=2", vid: "XTAgEzE3IyhnKlpofkN5PUQEczoEFV1kAHF1AmhmCQ8R" },
               { type: "pdf", label: "Study & Practice Guide (PDF)", vid: "XRYeRyhWC1Q8JBdzB3B5JCIISl1XMSJmOlUHVR9HBT0R" }
             ]
           }
