@@ -163,7 +163,8 @@
             resources: [
               { type: "video", label: "Part 1 — Arithmetic Operators", poster: "assets/img/thumb-day6-part1.svg", vid: "XTASTwcsBlUJamsCCFBPB0QTElYNLwpnGUYBA3t0NAFB" },
               { type: "video", label: "Part 2 — Assignment Operators", poster: "assets/img/thumb-day6-part2.svg", vid: "XSczeSBCDxAEJnADBWMDAhw0dFYmV1APDG5UUlkFFR4f" },
-              { type: "video", label: "Part 3 — Comparison Operators", poster: "assets/img/thumb-day6-part3.svg", vid: "XTAgEzE3IyhnKlpofkN5PUQEczoEFV1kAHF1AmhmCQ8R" }
+              { type: "video", label: "Part 3 — Comparison Operators", poster: "assets/img/thumb-day6-part3.svg", vid: "XTAgEzE3IyhnKlpofkN5PUQEczoEFV1kAHF1AmhmCQ8R" },
+              { type: "pdf", label: "Study & Practice Guide (PDF)", vid: "XRYeRyhWC1Q8JBdzB3B5JCIISl1XMSJmOlUHVR9HBT0R" }
             ]
           }
         ]
