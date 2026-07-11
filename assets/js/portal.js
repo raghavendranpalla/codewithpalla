@@ -39,7 +39,7 @@
     // server answers who this is: registered student / free trial /
     // blocked (same account on too many machines). Leave blank to turn
     // the API off — the portal then uses only the emails[] lists below.
-    apiUrl: "",
+    apiUrl: "https://lwp-api.learnwithpalla.workers.dev",
 
     // Unregistered Google accounts get a FREE TRIAL of the first N days.
     trialDays: 4,
