@@ -345,16 +345,6 @@
     });
   }
 
-  /* --- show all / show less --- */
-  var moreBtn = document.getElementById("tplMore");
-  if (moreBtn) {
-    tplRow.classList.add("collapsed");
-    moreBtn.addEventListener("click", function () {
-      var open = tplRow.classList.toggle("collapsed");
-      moreBtn.textContent = open ? "Show all " + TPLS.length + " templates ↓" : "Show less ↑";
-    });
-  }
-
   /* --- colour bar: preset swatches + custom pickers --- */
   var cbAccent = document.getElementById("cbAccent");
   var cbSide = document.getElementById("cbSide");

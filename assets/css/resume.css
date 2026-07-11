@@ -378,18 +378,61 @@
 }
 .lay-rail .rz-head { border-left: 10px solid var(--acc); margin-top: 34px; padding-top: 0; padding-bottom: 12px; }
 
-/* ---------- Gallery extras: filters, collapse, colour bar ---------- */
-.tpl-filters { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 0 0 14px; }
-.tpl-row.collapsed { max-height: 172px; overflow: hidden; }
-.tpl-morewrap { text-align: center; margin: 4px 0 14px; }
+/* =========================================================
+   Studio layout: template rail | form | live preview
+   ========================================================= */
+.rz-container { max-width: 1400px; }
+.rz-studio { grid-template-columns: 208px minmax(340px, 420px) minmax(0, 1fr); gap: 22px; }
 
-.rz-colorbar {
-  display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; justify-content: center;
-  margin: 4px auto 20px;
+.tpl-rail {
+  position: sticky; top: 86px;
+  max-height: calc(100vh - 106px);
+  display: flex; flex-direction: column; min-height: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
 }
-.rz-cb-label { font-size: .84rem; color: var(--muted); font-weight: 600; }
+.tpl-rail-head {
+  flex: none; display: flex; align-items: baseline; justify-content: space-between;
+  padding: 13px 14px; background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  font-weight: 700; font-size: .95rem;
+}
+.tpl-count { font-family: var(--font-mono); font-size: .7rem; color: var(--faint); }
+
+/* the rail's own scrolling list of templates */
+.tpl-rail .tpl-row {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto;
+  display: grid; grid-template-columns: 1fr; gap: 12px;
+  padding: 12px; margin: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(52,211,153,.55) rgba(255,255,255,.06);
+}
+.tpl-rail .tpl-row::-webkit-scrollbar { width: 9px; }
+.tpl-rail .tpl-row::-webkit-scrollbar-track { background: rgba(255,255,255,.06); }
+.tpl-rail .tpl-row::-webkit-scrollbar-thumb {
+  background: rgba(52,211,153,.55); border-radius: 999px;
+  border: 2px solid transparent; background-clip: padding-box;
+}
+.tpl-rail .tpl-card { width: auto; }
+
+.tpl-filters {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+}
+
+/* actions card above the preview */
+.rz-actions { display: grid; gap: 10px; margin-bottom: 14px; }
+.rz-actions .rz-toolbar { margin: 0; justify-content: flex-start; }
+.rz-actions .rz-ats { margin: 0; max-width: none; justify-content: flex-start; }
+
+/* ---------- Colour bar (inside the rail) ---------- */
+.rz-colorbar {
+  display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center;
+  padding: 10px 12px 12px; border-bottom: 1px solid var(--border);
+}
+.rz-cb-label { width: 100%; font-size: .78rem; color: var(--muted); font-weight: 650; }
 .rz-swatch {
-  width: 22px; height: 22px; border-radius: 50%;
+  width: 19px; height: 19px; border-radius: 50%;
   border: 2px solid rgba(255,255,255,.25); cursor: pointer;
   transition: transform .12s;
 }
@@ -399,9 +442,10 @@
   font-size: .8rem; color: var(--muted); font-weight: 600; cursor: pointer;
 }
 .rz-cb-pick input[type="color"] {
-  width: 34px; height: 26px; padding: 0; border: 1px solid var(--border-2);
+  width: 30px; height: 24px; padding: 0; border: 1px solid var(--border-2);
   border-radius: 6px; background: var(--bg-2); cursor: pointer;
 }
+.rz-colorbar #cbReset { --pad: 4px 10px; font-size: .74rem; }
 
 /* ---------- LinkedIn import box ---------- */
 .rz-liimport {
@@ -446,9 +490,19 @@
 .mini-bandside .mm-l.l4 { top: 74%; } .mini-bandside .mm-l.l5 { top: 81%; width: 42%; }
 
 /* ---------- Responsive ---------- */
+@media (max-width: 1280px) {
+  .rz-studio { grid-template-columns: 182px minmax(300px, 380px) minmax(0, 1fr); }
+}
 @media (max-width: 1080px) {
   .rz-app { grid-template-columns: 1fr; }
   .rz-previewCol { position: static; }
+  /* the rail becomes a horizontal film-strip above the form */
+  .tpl-rail { position: static; max-height: none; }
+  .tpl-rail .tpl-row {
+    display: flex; overflow-x: auto; overflow-y: hidden;
+    scrollbar-width: thin;
+  }
+  .tpl-rail .tpl-card { flex: 0 0 108px; }
   .rz-hero-grid { grid-template-columns: 1fr; text-align: center; gap: 26px; }
   .rz-hero-copy .lead { margin-inline: auto; }
   .rz-hero-copy .rz-feats { justify-content: center; }
@@ -465,7 +519,7 @@
 
 /* ---------- Print: only the resume, at real A4 size ---------- */
 @media print {
-  .site-header, .rz-hero, .tpl-row, .tpl-filters, .tpl-morewrap, .rz-colorbar,
+  .site-header, .rz-hero, .tpl-rail, .rz-actions, .tpl-row, .tpl-filters, .rz-colorbar,
   .rz-toolbar, .rz-ats, .rz-form, .rz-tip,
   .site-footer, .wa-float { display: none !important; }
   body { background: #fff !important; }
