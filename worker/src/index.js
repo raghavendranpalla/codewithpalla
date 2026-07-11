@@ -48,7 +48,7 @@ function corsHeaders(origin) {
       ? origin
       : "https://learnwithpalla.com",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, X-Admin-Token",
     "Vary": "Origin",
   };
 }
@@ -65,6 +65,18 @@ function normEmail(email) {
     domain = "gmail.com";
   }
   return local + "@" + domain;
+}
+
+// Admin = students row with role='admin'. Admin API calls must carry an
+// X-Admin-Token header; tokens are minted only on a verified Google
+// sign-in by an admin, and expire after 30 days.
+async function adminEmailFor(sql, request) {
+  const token = (request.headers.get("X-Admin-Token") || "").slice(0, 64);
+  if (!token) return null;
+  const rows = await sql`
+    select email from admin_tokens
+    where token = ${token} and expires_at > now()`;
+  return rows.length ? rows[0].email : null;
 }
 
 // Decide what a signed-in email may see. "Machines" are counted by the
@@ -146,7 +158,22 @@ export default {
               set device_id = ${device}, updated_at = now()`;
         }
 
-        return json({ email, ...(await accessFor(sql, email)) });
+        const res = { email, ...(await accessFor(sql, email)) };
+
+        // Admin role: hand the browser a 30-day token for the admin API.
+        const roleRows =
+          await sql`select role from students where email = ${email}`;
+        if (roleRows.length && roleRows[0].role === "admin") {
+          const token = crypto.randomUUID();
+          await sql`delete from admin_tokens where expires_at < now()`;
+          await sql`
+            insert into admin_tokens (token, email, expires_at)
+            values (${token}, ${email}, now() + interval '30 days')`;
+          res.admin = true;
+          res.adminToken = token;
+        }
+
+        return json(res);
       }
 
       if (request.method === "GET" && url.pathname === "/api/status") {
@@ -163,6 +190,64 @@ export default {
           }
         }
         return json(await accessFor(sql, email));
+      }
+
+      /* ---- Admin API (X-Admin-Token required on every call) ---- */
+      if (url.pathname.startsWith("/api/admin/")) {
+        const adminEmail = await adminEmailFor(sql, request);
+        if (!adminEmail) return json({ error: "unauthorized" }, 401);
+
+        if (request.method === "GET" && url.pathname === "/api/admin/users") {
+          const students = await sql`
+            select s.email, s.batch_id, s.status, s.role, s.machine_limit,
+              (select count(distinct l.device_id)::int from logins l
+                where l.email = s.email and l.device_id <> ''
+                  and l.created_at > now() - interval '30 days') as machines,
+              (select max(l.created_at) from logins l
+                where l.email = s.email) as last_login
+            from students s order by s.email`;
+          const trials = await sql`
+            select email,
+                   min(created_at) as first_seen,
+                   max(created_at) as last_seen,
+                   count(*)::int as visits
+            from logins
+            where email not in (select email from students)
+            group by email order by last_seen desc`;
+          return json({ students, trials });
+        }
+
+        if (request.method === "POST") {
+          const body = await request.json().catch(() => ({}));
+          const email = normEmail(body.email || "");
+          if (!email.includes("@")) return json({ error: "bad email" }, 400);
+
+          if (url.pathname === "/api/admin/upgrade") {
+            const batch = String(body.batchId || "jun26").slice(0, 40);
+            await sql`
+              insert into students (email, batch_id)
+              values (${email}, ${batch})
+              on conflict (email) do update
+                set batch_id = ${batch}, status = 'active'`;
+            return json({ ok: true });
+          }
+          if (url.pathname === "/api/admin/remove") {
+            // Admins cannot remove themselves or another admin here.
+            const target =
+              await sql`select role from students where email = ${email}`;
+            if (target.length && target[0].role === "admin") {
+              return json({ error: "cannot remove an admin" }, 400);
+            }
+            await sql`delete from students where email = ${email}`;
+            return json({ ok: true });
+          }
+          if (url.pathname === "/api/admin/unblock") {
+            await sql`delete from logins where email = ${email}`;
+            await sql`update students set status = 'active' where email = ${email}`;
+            return json({ ok: true });
+          }
+        }
+        return json({ error: "not found" }, 404);
       }
 
       return json({ error: "not found" }, 404);

@@ -17,6 +17,8 @@ create table if not exists students (
   name          text not null default '',
   batch_id      text not null default 'jun26',  -- matches CONFIG.batches[].id
   status        text not null default 'active', -- 'active' | 'blocked' (manual block)
+  role          text not null default 'student',-- 'student' | 'admin' (admin sees the
+                                                --  in-portal admin panel)
   machine_limit int  not null default 5,        -- backstop: blocked when used on more than
                                                 -- this many devices in the LAST 30 DAYS
   created_at    timestamptz not null default now()
@@ -46,6 +48,22 @@ create table if not exists sessions (
   device_id  text not null,                  -- the ONE device allowed right now
   updated_at timestamptz not null default now()
 );
+
+-- 30-day tokens for the in-portal admin panel. Minted only when a
+-- students row with role='admin' completes a verified Google sign-in;
+-- sent by the portal as the X-Admin-Token header on /api/admin/* calls.
+create table if not exists admin_tokens (
+  token      text primary key,
+  email      text not null,
+  created_at timestamptz not null default now(),
+  expires_at timestamptz not null
+);
+
+-- Make someone an admin (they must already be in students):
+--   update students set role = 'admin' where email = 'someone@gmail.com';
+-- Current admin: raghavendranpalla@gmail.com
+-- Admins manage students from the portal itself (⚙ Admin panel button):
+-- upgrade trial users to a batch, remove students, unblock machines.
 
 -- =========================================================
 -- UPGRADE POLICY — free trial → paid student

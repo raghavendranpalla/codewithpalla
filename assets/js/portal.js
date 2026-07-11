@@ -696,6 +696,7 @@
       if (wrap) wrap.classList.add("portal-wrap-wide");
       document.body.classList.add("course-mode");
       renderContent(batch, user);
+      addAdminButton();
     } else if (access && access.status === "trial") {
       // Not registered in any batch — FREE TRIAL of the first few days.
       hide(els.signinBox);
@@ -737,6 +738,145 @@
         (user.email || "") + ") and I want to join the batch.") +
       '">message Palla on WhatsApp</a>.';
     els.content.insertBefore(banner, els.content.firstChild);
+  }
+
+  /* =======================================================
+     ADMIN PANEL — visible ONLY to the admin role. Every call
+     is re-checked on the server via the X-Admin-Token header,
+     so hiding/showing here is cosmetic, not the security.
+     ======================================================= */
+  function isAdmin() {
+    var a = get(LS_ACCESS) || {};
+    return !!(a.admin && a.adminToken);
+  }
+
+  function addAdminButton() {
+    if (!isAdmin() || document.getElementById("adminOpen")) return;
+    var btn = document.createElement("button");
+    btn.id = "adminOpen";
+    btn.className = "btn btn-ghost admin-open-btn";
+    btn.type = "button";
+    btn.textContent = "⚙ Admin panel";
+    btn.addEventListener("click", renderAdmin);
+    els.content.insertBefore(btn, els.content.firstChild);
+  }
+
+  function adminApi(path, opts) {
+    var a = get(LS_ACCESS) || {};
+    opts = opts || {};
+    opts.headers = opts.headers || {};
+    opts.headers["X-Admin-Token"] = a.adminToken || "";
+    if (opts.body) opts.headers["Content-Type"] = "application/json";
+    return fetch(CONFIG.apiUrl + path, opts).then(function (r) { return r.json(); });
+  }
+
+  function fmtWhen(v) {
+    if (!v) return "—";
+    var d = new Date(v);
+    if (isNaN(d.getTime())) return "—";
+    return d.toLocaleString(undefined,
+      { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+  }
+
+  function renderAdmin() {
+    if (!isAdmin()) { render(); return; }
+    els.contentBox.classList.remove("is-course");
+    els.content.innerHTML =
+      '<div class="portal-batch-name">⚙ Admin — Students &amp; Trial Users</div>' +
+      '<p class="day-desc">Loading…</p>';
+    adminApi("/api/admin/users").then(function (d) {
+      if (!d || !d.students) {
+        els.content.innerHTML +=
+          '<p class="day-desc">Could not load (session expired?). Sign out and back in.</p>';
+        return;
+      }
+      var html =
+        '<div class="admin-wrap">' +
+        '<div class="portal-batch-name">⚙ Admin — Students &amp; Trial Users</div>' +
+        '<button id="adminBack" class="btn btn-ghost admin-open-btn" type="button">← Back to course</button>';
+
+      html += '<h2 class="admin-h">Students (' + d.students.length + ")</h2>" +
+        '<div class="admin-table-wrap"><table class="admin-table"><thead><tr>' +
+        "<th>Email</th><th>Batch</th><th>Role</th><th>Status</th>" +
+        "<th>Machines (30d)</th><th>Last login</th><th></th>" +
+        "</tr></thead><tbody>";
+      d.students.forEach(function (s) {
+        html += "<tr><td>" + escapeHtml(s.email) + "</td>" +
+          "<td>" + escapeHtml(s.batch_id) + "</td>" +
+          "<td>" + escapeHtml(s.role || "student") + "</td>" +
+          "<td>" + escapeHtml(s.status) + "</td>" +
+          "<td>" + (s.machines || 0) + " / " + s.machine_limit + "</td>" +
+          "<td>" + fmtWhen(s.last_login) + "</td>" +
+          "<td>" + (s.role === "admin" ? "" :
+            '<button class="btn btn-ghost admin-act" data-act="unblock" data-email="' +
+            escapeAttr(s.email) + '">Unblock</button> ' +
+            '<button class="btn btn-ghost admin-act admin-danger" data-act="remove" data-email="' +
+            escapeAttr(s.email) + '">Remove</button>') +
+          "</td></tr>";
+      });
+      html += "</tbody></table></div>";
+
+      html += '<h2 class="admin-h">Trial users (' + d.trials.length + ")</h2>" +
+        '<div class="admin-table-wrap"><table class="admin-table"><thead><tr>' +
+        "<th>Email</th><th>First seen</th><th>Last seen</th><th>Sign-ins</th><th></th>" +
+        "</tr></thead><tbody>";
+      if (!d.trials.length) {
+        html += '<tr><td colspan="5">No trial users yet.</td></tr>';
+      }
+      d.trials.forEach(function (t) {
+        html += "<tr><td>" + escapeHtml(t.email) + "</td>" +
+          "<td>" + fmtWhen(t.first_seen) + "</td>" +
+          "<td>" + fmtWhen(t.last_seen) + "</td>" +
+          "<td>" + t.visits + "</td>" +
+          '<td><button class="btn btn-ghost admin-act" data-act="upgrade" data-email="' +
+          escapeAttr(t.email) + '">Upgrade → ' +
+          escapeHtml(CONFIG.batches[0].name) + "</button></td></tr>";
+      });
+      html += "</tbody></table></div>" +
+        '<p class="day-desc">Upgrade adds the email to the batch (full course in ~5 min, ' +
+        "no re-login needed). Remove sends a student back to the free trial. " +
+        "Unblock forgets all recorded machines. Remember Drive sharing is separate.</p></div>";
+
+      els.content.innerHTML = html;
+
+      document.getElementById("adminBack").addEventListener("click", function () { render(); });
+      var acts = els.content.querySelectorAll(".admin-act");
+      for (var i = 0; i < acts.length; i++) {
+        acts[i].addEventListener("click", onAdminAction);
+      }
+    }).catch(function () {
+      els.content.innerHTML =
+        '<p class="day-desc">Could not reach the admin API. Try again in a minute.</p>';
+    });
+  }
+
+  function onAdminAction(e) {
+    var btn = e.currentTarget;
+    var act = btn.getAttribute("data-act");
+    var email = btn.getAttribute("data-email");
+    var msgs = {
+      upgrade: "Upgrade " + email + " to " + CONFIG.batches[0].name +
+        "?\n\nThey get the full course within ~5 minutes. Remember to also " +
+        "share the Drive files with them.",
+      remove: "Remove " + email + " from their batch?\n\nThey fall back to " +
+        "the FREE TRIAL (first days only).",
+      unblock: "Forget all recorded machines for " + email +
+        "? Use this when an honest student got blocked."
+    };
+    if (!window.confirm(msgs[act])) return;
+    btn.disabled = true;
+    var payload = { email: email };
+    if (act === "upgrade") payload.batchId = CONFIG.batches[0].id;
+    adminApi("/api/admin/" + act, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }).then(function (r) {
+      if (r && r.ok) { renderAdmin(); }
+      else { alert("Failed: " + ((r && r.error) || "unknown error")); btn.disabled = false; }
+    }).catch(function () {
+      alert("Network error — try again.");
+      btn.disabled = false;
+    });
   }
 
   /* ---- BLOCKED: same account used on too many machines ---- */
@@ -844,6 +984,8 @@
         }
         var old = get(LS_ACCESS) || {};
         if (old.status !== a.status || old.batchId !== a.batchId) {
+          // Keep the admin token — /api/status doesn't re-issue it.
+          if (old.admin) { a.admin = old.admin; a.adminToken = old.adminToken; }
           set(LS_ACCESS, a);
           render();
         }
