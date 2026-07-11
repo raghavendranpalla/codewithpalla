@@ -292,56 +292,35 @@
     return "";
   }
 
-  TPLS.forEach(function (t) {
+  // One card per LAYOUT (10 cards, easy to scan) — colours are chosen
+  // with the swatches, so every layout still comes in every colour.
+  LAYOUTS.forEach(function (L) {
+    var P = null;
+    for (var i = 0; i < PALETTES.length; i++) if (PALETTES[i].id === L.pals[0]) P = PALETTES[i];
     var b = document.createElement("button");
-    b.type = "button"; b.className = "tpl-card"; b.setAttribute("data-tpl", t.id);
-    b.setAttribute("data-group", t.layout.group);
-    b.title = t.name;
+    b.type = "button"; b.className = "tpl-card"; b.setAttribute("data-lay", L.id);
+    b.title = L.name;
     b.innerHTML =
-      '<span class="tpl-mini ' + t.layout.mini + '" style="--a:' + t.pal.acc + ';--s:' + t.pal.side + '" aria-hidden="true">' +
-        miniExtras(t.layout.mini) +
+      '<span class="tpl-mini ' + L.mini + '" style="--a:' + P.acc + ';--s:' + P.side + '" aria-hidden="true">' +
+        miniExtras(L.mini) +
         '<i class="mm-name"></i><i class="mm-acc"></i>' +
         '<i class="mm-l l1"></i><i class="mm-l l2"></i><i class="mm-l l3"></i>' +
         '<i class="mm-acc2"></i><i class="mm-l l4"></i><i class="mm-l l5"></i>' +
       "</span>" +
-      '<span class="tpl-name">' + esc(t.name) + "</span>";
+      '<span class="tpl-name">' + esc(L.name) + "</span>";
     b.addEventListener("click", function () {
-      state.template = t.id; save(); syncTplUI(); syncColorUI(); renderPreview();
+      // keep the current colour family when the new layout has it too
+      var curPal = tpl().pal.id;
+      var palId = L.pals.indexOf(curPal) >= 0 ? curPal : L.pals[0];
+      state.template = L.id + "-" + palId;
+      save(); syncTplUI(); syncColorUI(); renderPreview();
     });
     tplRow.appendChild(b);
   });
   function syncTplUI() {
-    var id = LEGACY[state.template] || state.template;
+    var layId = tpl().layout.id;
     tplRow.querySelectorAll(".tpl-card").forEach(function (b) {
-      b.classList.toggle("active", b.getAttribute("data-tpl") === id);
-    });
-  }
-
-  /* --- layout filter chips --- */
-  var FILTERS = [
-    { id: "all",     name: "All (" + TPLS.length + ")" },
-    { id: "sidebar", name: "Sidebar" },
-    { id: "banner",  name: "Banner" },
-    { id: "classic", name: "Classic" },
-    { id: "modern",  name: "Modern" }
-  ];
-  var filterEl = document.getElementById("tplFilters");
-  var curFilter = "all";
-  if (filterEl) {
-    FILTERS.forEach(function (f) {
-      var c = document.createElement("button");
-      c.type = "button"; c.className = "rz-schip" + (f.id === "all" ? " active" : "");
-      c.textContent = f.name;
-      c.addEventListener("click", function () {
-        curFilter = f.id;
-        filterEl.querySelectorAll(".rz-schip").forEach(function (x) { x.classList.remove("active"); });
-        c.classList.add("active");
-        tplRow.querySelectorAll(".tpl-card").forEach(function (card) {
-          card.style.display =
-            (f.id === "all" || card.getAttribute("data-group") === f.id) ? "" : "none";
-        });
-      });
-      filterEl.appendChild(c);
+      b.classList.toggle("active", b.getAttribute("data-lay") === layId);
     });
   }
 
