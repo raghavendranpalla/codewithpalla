@@ -143,8 +143,13 @@
               </div>
               <div class="rz-liimport">
                 <b>⚡ Auto-fill from LinkedIn (optional)</b>
-                <p style="margin:0">On LinkedIn: <i>Me → Settings &amp; Privacy → Data privacy →
-                Get a copy of your data</i> → tick the profile files → Request archive.
+                <div>
+                  <button type="button" class="btn btn-sm btn-primary" id="rzLiSignin" style="display:none">
+                    in&nbsp; Sign in with LinkedIn — fills name, email &amp; photo
+                  </button>
+                </div>
+                <p style="margin:0">For your full profile: on LinkedIn go to <i>Me → Settings &amp; Privacy →
+                Data privacy → Get a copy of your data</i> → tick the profile files → Request archive.
                 LinkedIn emails you a ZIP — upload it here (or its CSV files) and your
                 experience, education, skills and more fill in automatically.
                 Nothing is uploaded — it's read right here in your browser.</p>
@@ -300,6 +305,6 @@
   </footer>
 
   <script src="assets/js/main.js?v=3"></script>
-  <script src="assets/js/resume.js?v=4"></script>
+  <script src="assets/js/resume.js?v=5"></script>
 </body>
 </html>

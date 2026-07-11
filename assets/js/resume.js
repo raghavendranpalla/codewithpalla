@@ -792,6 +792,60 @@
     liInput.value = "";
   });
 
+  /* =========================================================
+     Sign in with LinkedIn (OpenID Connect via our worker).
+     LinkedIn shares ONLY name, email and photo with apps — the
+     ZIP import above is what fills the full work history.
+     ========================================================= */
+  var LI_API = "https://lwp-api.learnwithpalla.workers.dev";
+  var liBtn = document.getElementById("rzLiSignin");
+
+  if (liBtn) {
+    // Show the button only when the worker has LinkedIn keys configured.
+    fetch(LI_API + "/api/linkedin/enabled")
+      .then(function (r) { return r.json(); })
+      .then(function (d) { if (d && d.enabled) liBtn.style.display = "inline-flex"; })
+      .catch(function () { /* API unreachable — keep hidden */ });
+    liBtn.addEventListener("click", function () {
+      window.location.href = LI_API + "/api/linkedin/start";
+    });
+  }
+
+  // Returning from LinkedIn: profile arrives in the URL fragment.
+  (function handleLinkedInReturn() {
+    var m = window.location.hash.match(/#li=([\w-]+)/);
+    var err = window.location.hash.match(/#lierr=(\w+)/);
+    if (!m && !err) return;
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+    if (err) {
+      liSay("LinkedIn sign-in didn't complete — please try again, or use the ZIP upload.", false);
+      return;
+    }
+    try {
+      var b64 = m[1].replace(/-/g, "+").replace(/_/g, "/");
+      var p = JSON.parse(decodeURIComponent(escape(atob(b64))));
+      if (p.name) state.name = p.name;
+      if (p.email) state.email = p.email;
+      save(); bindSingles(); renderPreview();
+      liSay("✓ Signed in as " + (p.name || p.email) +
+        " — name, email & photo loaded. LinkedIn only shares those three; " +
+        "upload your data-export ZIP above to fill experience, education and skills.", true);
+      if (p.picture) {
+        fetch(LI_API + "/api/linkedin/photo?url=" + encodeURIComponent(p.picture))
+          .then(function (r) { if (!r.ok) throw 0; return r.blob(); })
+          .then(function (b) {
+            var rd = new FileReader();
+            rd.onload = function () {
+              state.photo = rd.result;
+              save(); syncPhotoUI(); renderPreview();
+            };
+            rd.readAsDataURL(b);
+          })
+          .catch(function () { /* photo is optional — ignore */ });
+      }
+    } catch (e) { /* malformed fragment — ignore */ }
+  })();
+
   /* ---------- init ---------- */
   bindSingles();
   renderList("exp"); renderList("edu"); renderList("projects");

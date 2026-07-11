@@ -192,6 +192,88 @@ export default {
         return json(await accessFor(sql, email));
       }
 
+      /* ---- LinkedIn sign-in for the resume builder ----
+         OpenID Connect: LinkedIn shares ONLY name, email and photo.
+         Secrets: LINKEDIN_CLIENT_ID + LINKEDIN_CLIENT_SECRET
+         (npx wrangler secret put ...). Redirect URL to register in the
+         LinkedIn app: <worker>/api/linkedin/callback                  */
+      const LI_REDIRECT = url.origin + "/api/linkedin/callback";
+      const LI_RETURN = "https://learnwithpalla.com/resume.html";
+
+      if (url.pathname === "/api/linkedin/enabled") {
+        return json({ enabled: !!(env.LINKEDIN_CLIENT_ID && env.LINKEDIN_CLIENT_SECRET) });
+      }
+
+      if (url.pathname === "/api/linkedin/start") {
+        if (!env.LINKEDIN_CLIENT_ID) return json({ error: "LinkedIn sign-in not configured" }, 503);
+        const stateTok = crypto.randomUUID();
+        const auth = "https://www.linkedin.com/oauth/v2/authorization?response_type=code" +
+          "&client_id=" + encodeURIComponent(env.LINKEDIN_CLIENT_ID) +
+          "&redirect_uri=" + encodeURIComponent(LI_REDIRECT) +
+          "&scope=" + encodeURIComponent("openid profile email") +
+          "&state=" + stateTok;
+        return new Response(null, {
+          status: 302,
+          headers: {
+            "Location": auth,
+            "Set-Cookie": "li_state=" + stateTok +
+              "; Max-Age=600; Path=/api/linkedin; Secure; HttpOnly; SameSite=Lax",
+          },
+        });
+      }
+
+      if (url.pathname === "/api/linkedin/callback") {
+        const code = url.searchParams.get("code");
+        const st = url.searchParams.get("state") || "";
+        const ck = (request.headers.get("Cookie") || "").match(/li_state=([\w-]+)/);
+        if (!code || !ck || ck[1] !== st) {
+          return Response.redirect(LI_RETURN + "#lierr=cancelled", 302);
+        }
+        const tok = await (await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            grant_type: "authorization_code",
+            code,
+            client_id: env.LINKEDIN_CLIENT_ID,
+            client_secret: env.LINKEDIN_CLIENT_SECRET,
+            redirect_uri: LI_REDIRECT,
+          }),
+        })).json();
+        if (!tok.access_token) return Response.redirect(LI_RETURN + "#lierr=token", 302);
+
+        const info = await (await fetch("https://api.linkedin.com/v2/userinfo", {
+          headers: { "Authorization": "Bearer " + tok.access_token },
+        })).json();
+        const payload = {
+          name: info.name ||
+            ((info.given_name || "") + " " + (info.family_name || "")).trim(),
+          email: info.email || "",
+          picture: info.picture || "",
+        };
+        // Hand the profile to the resume page via the URL fragment
+        // (fragments never reach servers or logs).
+        const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))))
+          .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+        return Response.redirect(LI_RETURN + "#li=" + b64, 302);
+      }
+
+      if (url.pathname === "/api/linkedin/photo") {
+        // Proxy the LinkedIn CDN photo so the browser can read it
+        // (licdn.com sends no CORS headers). LinkedIn hosts only.
+        const p = url.searchParams.get("url") || "";
+        if (!/^https:\/\/media[\w.-]*\.licdn\.com\//.test(p)) return json({ error: "bad url" }, 400);
+        const r = await fetch(p);
+        return new Response(r.body, {
+          status: r.status,
+          headers: {
+            ...cors,
+            "Content-Type": r.headers.get("Content-Type") || "image/jpeg",
+            "Cache-Control": "private, max-age=300",
+          },
+        });
+      }
+
       /* ---- Admin API (X-Admin-Token required on every call) ---- */
       if (url.pathname.startsWith("/api/admin/")) {
         const adminEmail = await adminEmailFor(sql, request);
