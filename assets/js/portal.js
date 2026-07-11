@@ -34,6 +34,16 @@
     // turn notifications off. (Setup steps were provided separately.)
     notifyUrl: "",
 
+    // --- Portal API (Cloudflare Worker + Neon Postgres) ---
+    // Every sign-in is verified and logged there (email + IP), and the
+    // server answers who this is: registered student / free trial /
+    // blocked (same account on too many machines). Leave blank to turn
+    // the API off — the portal then uses only the emails[] lists below.
+    apiUrl: "",
+
+    // Unregistered Google accounts get a FREE TRIAL of the first N days.
+    trialDays: 4,
+
     // --- Your batches ---
     // A student is matched to a batch by their Google email.
     // Put each student's Gmail in `emails`. When they sign in, if
@@ -179,6 +189,7 @@
   var LS_USER = "lwp_user";
   var LS_BATCH = "lwp_batch";
   var LS_LOG = "lwp_signins"; // local record of who signed in (this browser)
+  var LS_ACCESS = "lwp_access"; // server verdict: student / trial / blocked
 
   var els = {
     notice:    document.getElementById("setupNotice"),
@@ -646,8 +657,25 @@
       els.avatar.hidden = false;
     }
 
-    // Email match takes priority; fall back to a code-unlocked batch.
+    var access = get(LS_ACCESS);
+
+    // Server said blocked (same account on too many machines, or a
+    // manual admin block) — this overrides everything else.
+    if (access && access.status === "blocked") {
+      narrow();
+      hide(els.signinBox);
+      hide(els.gateBox);
+      show(els.contentBox);
+      renderBlocked(access);
+      return;
+    }
+
+    // Email match takes priority; then a code-unlocked batch; then the
+    // server verdict (covers students added in the DB but not this file).
     var batch = findBatchByEmail(user.email) || (batchId ? findBatch(batchId) : null);
+    if (!batch && access && access.status === "student" && access.batchId) {
+      batch = findBatch(access.batchId);
+    }
     if (batch) {
       // Unlocked
       hide(els.signinBox);
@@ -656,6 +684,14 @@
       if (wrap) wrap.classList.add("portal-wrap-wide");
       document.body.classList.add("course-mode");
       renderContent(batch, user);
+    } else if (access && access.status === "trial") {
+      // Not registered in any batch — FREE TRIAL of the first few days.
+      hide(els.signinBox);
+      hide(els.gateBox);
+      show(els.contentBox);
+      if (wrap) wrap.classList.add("portal-wrap-wide");
+      document.body.classList.add("course-mode");
+      renderTrial(user);
     } else {
       // Signed in but no batch unlocked yet
       narrow();
@@ -663,6 +699,47 @@
       show(els.gateBox);
       hide(els.contentBox);
     }
+  }
+
+  /* ---- FREE TRIAL: unregistered accounts see the first N days ---- */
+  function trialBatch() {
+    var src = CONFIG.batches[0];
+    var days = [];
+    for (var i = 0; i < src.days.length && days.length < CONFIG.trialDays; i++) {
+      // Only real course days count toward the trial (tests are skipped).
+      if (/^Day\s/i.test(src.days[i].title || "")) days.push(src.days[i]);
+    }
+    return { id: "trial", name: "Free Trial — Days 1 to " + days.length, days: days };
+  }
+
+  function renderTrial(user) {
+    renderContent(trialBatch(), user);
+    var banner = document.createElement("div");
+    banner.className = "trial-banner";
+    banner.innerHTML =
+      '🎁 <strong>You are on a FREE TRIAL</strong> — the first ' +
+      CONFIG.trialDays + " days of the course are unlocked for you. " +
+      'To join the batch and unlock everything, <a target="_blank" rel="noopener" ' +
+      'href="https://wa.me/919581341999?text=' +
+      encodeURIComponent("Hi Palla, I finished trying the free trial on the portal (" +
+        (user.email || "") + ") and I want to join the batch.") +
+      '">message Palla on WhatsApp</a>.';
+    els.content.insertBefore(banner, els.content.firstChild);
+  }
+
+  /* ---- BLOCKED: same account used on too many machines ---- */
+  function renderBlocked(access) {
+    els.contentBox.classList.remove("is-course");
+    els.content.innerHTML =
+      '<div class="portal-icon">⛔</div>' +
+      '<h1>Account <span class="grad">blocked</span></h1>' +
+      '<p class="lead">This account was logged in on more than ' +
+      (access.limit || 5) + " machines, so access has been paused. " +
+      "Please contact the admin to restore it.</p>" +
+      '<a class="btn btn-wa portal-cta" target="_blank" rel="noopener" ' +
+      'href="https://wa.me/919581341999?text=' +
+      encodeURIComponent("Hi Palla, the portal says my account is blocked (logged in on too many machines). Please help me restore access.") +
+      '">Contact admin on WhatsApp</a>';
   }
 
   /* ---- Called by Google after a successful sign-in ---- */
@@ -687,9 +764,49 @@
 
     notifyLogin(user);
 
-    // Refresh once so the nav (avatar + Log out) and content update
-    // everywhere. This only runs on a fresh sign-in, so no loop.
-    window.location.reload();
+    // Ask the server who this is (student / trial / blocked) — it also
+    // records the sign-in (email + IP). Then refresh once so the nav
+    // (avatar + Log out) and content update everywhere. This only runs
+    // on a fresh sign-in, so no loop.
+    checkAccess(response.credential, function () {
+      window.location.reload();
+    });
+  }
+
+  /* ---- Portal API (Cloudflare Worker + Neon database) ---- */
+  // On sign-in: verify the Google token server-side, log email + IP,
+  // and store the verdict. A slow or down API never blocks sign-in —
+  // after 6s we carry on and the portal falls back to the local lists.
+  function checkAccess(credential, done) {
+    if (!CONFIG.apiUrl) { del(LS_ACCESS); done(); return; }
+    var finished = false;
+    function finish() { if (!finished) { finished = true; done(); } }
+    setTimeout(finish, 6000);
+    fetch(CONFIG.apiUrl + "/api/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ credential: credential })
+    }).then(function (r) { return r.json(); }).then(function (a) {
+      if (a && a.status) set(LS_ACCESS, a); else del(LS_ACCESS);
+      finish();
+    }).catch(function () { del(LS_ACCESS); finish(); });
+  }
+
+  // Silent recheck on every visit so a block applies on all machines,
+  // and an unblock / new registration is picked up without re-signing in.
+  function recheckAccess(user) {
+    if (!CONFIG.apiUrl || !user || !user.email) return;
+    fetch(CONFIG.apiUrl + "/api/status?email=" + encodeURIComponent(user.email))
+      .then(function (r) { return r.json(); })
+      .then(function (a) {
+        if (!a || !a.status) return;
+        var old = get(LS_ACCESS) || {};
+        if (old.status !== a.status || old.batchId !== a.batchId) {
+          set(LS_ACCESS, a);
+          render();
+        }
+      })
+      .catch(function () { /* offline — keep the last verdict */ });
   }
 
   /* ---- Notify the admin (email + Sheet) via Google Apps Script ---- */
@@ -752,6 +869,7 @@
   function signOut() {
     del(LS_USER);
     del(LS_BATCH);
+    del(LS_ACCESS);
     if (window.google && google.accounts && google.accounts.id) {
       try { google.accounts.id.disableAutoSelect(); } catch (e) {}
     }
@@ -852,4 +970,6 @@
 
   // First paint (restores a previous session from localStorage).
   render();
+  // ...then quietly re-verify with the server (block / unblock updates).
+  recheckAccess(get(LS_USER));
 })();

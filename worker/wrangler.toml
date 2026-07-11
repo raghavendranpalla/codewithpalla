@@ -1,0 +1,7 @@
+name = "lwp-api"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+
+# Secrets (NOT in this file — set once with):
+#   npx wrangler secret put DATABASE_URL
+#   (paste the Neon connection string when asked)

@@ -1,0 +1,15 @@
+{
+  "name": "lwp-api",
+  "private": true,
+  "description": "Learn with Palla portal API — Cloudflare Worker in front of the Neon Postgres database",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
