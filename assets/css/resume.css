@@ -162,8 +162,22 @@
 .rz-add:hover { border-color: var(--primary); }
 
 /* ---------- Wizard steps ---------- */
-.rz-step { border: 0; padding: 0; margin: 0; display: grid; gap: 16px; min-width: 0; }
+.rz-step { border: 0; padding: 0; margin: 0; display: grid; gap: 16px; min-width: 0; animation: rz-step-in .28s ease; }
 .rz-step[hidden] { display: none; }
+@keyframes rz-step-in {
+  from { opacity: 0; transform: translateY(10px); }
+}
+
+/* progress bar above the step chips */
+.rz-progress {
+  height: 6px; border-radius: 999px; background: var(--bg-2);
+  border: 1px solid var(--border); overflow: hidden;
+}
+.rz-progress i {
+  display: block; height: 100%; width: 0; border-radius: inherit;
+  background: var(--grad);
+  transition: width .4s cubic-bezier(.4, 0, .2, 1);
+}
 
 .rz-stepper { display: flex; flex-wrap: wrap; gap: 6px; }
 .rz-schip {
@@ -196,6 +210,7 @@
   display: flex; justify-content: space-between; align-items: center; gap: 10px;
   border-top: 1px solid var(--border); padding-top: 16px;
 }
+.rz-stepnav .btn-primary { --pad: 10px 26px; }
 .rz-stepinfo { font-size: .76rem; color: var(--faint); }
 #stepBack:disabled { opacity: .35; pointer-events: none; }
 

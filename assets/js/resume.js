@@ -577,6 +577,9 @@
      Wizard: fill in phases, finish with a ready-to-download resume
      ========================================================= */
   var STEP_LABELS = ["Basics", "Summary", "Skills", "Experience", "Projects & Edu", "Extras", "Finish"];
+  // Each step is a route: resume.html#basics … #finish. Browser
+  // back/forward moves between steps and refresh keeps your place.
+  var ROUTES = ["basics", "summary", "skills", "experience", "projects", "extras", "finish"];
   var TOTAL = 6, cur = 1;
   var stepEls = form.querySelectorAll(".rz-step");
   var readyEl = document.getElementById("rzReady");
@@ -589,11 +592,17 @@
     var b = document.createElement("button");
     b.type = "button"; b.className = "rz-schip";
     b.innerHTML = '<span class="n">' + (i + 1) + "</span>" + lbl;
-    b.addEventListener("click", function () { showStep(i + 1); });
+    b.addEventListener("click", function () { showStep(i + 1, true); });
     stepperEl.appendChild(b);
   });
 
-  function showStep(n) {
+  function stepFromHash() {
+    var h = (window.location.hash || "").replace(/^#\/?/, "").toLowerCase();
+    var i = ROUTES.indexOf(h);
+    return i >= 0 ? i + 1 : 1;
+  }
+
+  function showStep(n, fromUser) {
     cur = n;
     stepEls.forEach(function (s) { s.hidden = +s.getAttribute("data-step") !== n; });
     readyEl.hidden = n !== TOTAL + 1;
@@ -602,12 +611,26 @@
     nextBtn.textContent = n === TOTAL ? "Finish ✓" : "Next →";
     infoEl.textContent = n === TOTAL + 1 ? "Done — download your resume" : "Step " + n + " of " + TOTAL;
     stepperEl.querySelectorAll(".rz-schip").forEach(function (b, i) {
-      b.classList.toggle("active", i + 1 === n);
-      b.classList.toggle("done", i + 1 < n);
+      var on = i + 1 === n, done = i + 1 < n;
+      b.classList.toggle("active", on);
+      b.classList.toggle("done", done);
+      var num = b.querySelector(".n");
+      if (num) num.textContent = done ? "✓" : String(i + 1);
     });
+    var bar = document.getElementById("rzProgressBar");
+    if (bar) bar.style.width = Math.round(((n - 1) / TOTAL) * 100) + "%";
+    if (fromUser) {
+      var want = "#" + ROUTES[n - 1];
+      if (window.location.hash !== want) window.location.hash = want;
+      if (window.innerWidth < 1080) form.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }
-  backBtn.addEventListener("click", function () { showStep(Math.max(1, cur - 1)); });
-  nextBtn.addEventListener("click", function () { showStep(Math.min(TOTAL + 1, cur + 1)); });
+  window.addEventListener("hashchange", function () {
+    var n = stepFromHash();
+    if (n !== cur) showStep(n, false);
+  });
+  backBtn.addEventListener("click", function () { showStep(Math.max(1, cur - 1), true); });
+  nextBtn.addEventListener("click", function () { showStep(Math.min(TOTAL + 1, cur + 1), true); });
   document.getElementById("btnPdf2").addEventListener("click", function () { window.print(); });
   document.getElementById("btnWord2").addEventListener("click", downloadWord);
 
@@ -850,5 +873,5 @@
   bindSingles();
   renderList("exp"); renderList("edu"); renderList("projects");
   syncPhotoUI(); syncTplUI(); syncColorUI(); syncAtsUI(); renderPreview();
-  showStep(1);
+  showStep(stepFromHash(), false);
 })();
