@@ -8,21 +8,64 @@
 
   var LS_KEY = "lwp_resume";
 
-  /* ---------- Templates ---------- */
-  var TPLS = [
-    { id: "emerald", name: "Emerald Pro",   lay: "lay-side-l", dot: "#059669", dot2: "#0f172a" },
-    { id: "ocean",   name: "Ocean Blue",    lay: "lay-band",   dot: "#2563eb", dot2: "#1e3a8a" },
-    { id: "teal",    name: "Teal Fresh",    lay: "lay-side-l", dot: "#0d9488", dot2: "#134e4a" },
-    { id: "violet",  name: "Royal Violet",  lay: "lay-side-r", dot: "#7c3aed", dot2: "#2e1065" },
-    { id: "sunset",  name: "Sunset Bold",   lay: "lay-band",   dot: "#ea580c", dot2: "#431407" },
-    { id: "crimson", name: "Crimson Serif", lay: "lay-plain",  dot: "#dc2626", dot2: "#450a0a" },
-    { id: "gold",    name: "Golden Slate",  lay: "lay-band",   dot: "#d97706", dot2: "#292524" },
-    { id: "ink",     name: "Minimal Ink",   lay: "lay-plain",  dot: "#111827", dot2: "#9ca3af" }
+  /* ---------- Templates ----------
+     ORIGINAL designs (not copied from any resume site): 10 base
+     layouts × 6 colour palettes each = 60 templates, and every one
+     can be recoloured with the colour bar (custom accent + header). */
+  var LAYOUTS = [
+    { id: "side-l",   name: "Sidebar",       lay: "lay-side-l",   mini: "mini-side-l",   group: "sidebar",
+      pals: ["emerald", "teal", "sapphire", "violet", "rose", "ink"] },
+    { id: "side-r",   name: "Right Rail",    lay: "lay-side-r",   mini: "mini-side-r",   group: "sidebar",
+      pals: ["violet", "indigo", "cyan", "crimson", "forest", "gold"] },
+    { id: "bandside", name: "Banner Duo",    lay: "lay-bandside", mini: "mini-bandside", group: "sidebar",
+      pals: ["teal", "indigo", "rose", "emerald", "sunset", "sapphire"] },
+    { id: "band",     name: "Banner",        lay: "lay-band",     mini: "mini-band",     group: "banner",
+      pals: ["sapphire", "sunset", "gold", "emerald", "crimson", "cyan"] },
+    { id: "topbar",   name: "Topline",       lay: "lay-topline",  mini: "mini-topline",  group: "banner",
+      pals: ["sunset", "cyan", "emerald", "violet", "gold", "rose"] },
+    { id: "plain",    name: "Classic",       lay: "lay-plain",    mini: "mini-plain",    group: "classic",
+      pals: ["ink", "emerald", "sapphire", "crimson", "teal", "indigo"] },
+    { id: "serif",    name: "Classic Serif", lay: "lay-plain lay-serif", mini: "mini-serif", group: "classic",
+      pals: ["crimson", "gold", "ink", "forest", "sapphire", "violet"] },
+    { id: "center",   name: "Centered",      lay: "lay-center",   mini: "mini-center",   group: "classic",
+      pals: ["rose", "violet", "sapphire", "ink", "teal", "crimson"] },
+    { id: "split",    name: "Split Header",  lay: "lay-split",    mini: "mini-split",    group: "modern",
+      pals: ["cyan", "forest", "sunset", "indigo", "emerald", "rose"] },
+    { id: "rail",     name: "Accent Rail",   lay: "lay-rail",     mini: "mini-rail",     group: "modern",
+      pals: ["forest", "crimson", "indigo", "gold", "cyan", "sunset"] }
   ];
+  var PALETTES = [
+    { id: "emerald",  name: "Emerald",  acc: "#059669", soft: "#d1fae5", side: "#0f172a" },
+    { id: "sapphire", name: "Sapphire", acc: "#2563eb", soft: "#dbeafe", side: "#1e3a8a" },
+    { id: "teal",     name: "Teal",     acc: "#0d9488", soft: "#ccfbf1", side: "#134e4a" },
+    { id: "violet",   name: "Violet",   acc: "#7c3aed", soft: "#ede9fe", side: "#2e1065" },
+    { id: "sunset",   name: "Sunset",   acc: "#ea580c", soft: "#ffedd5", side: "#431407" },
+    { id: "crimson",  name: "Crimson",  acc: "#dc2626", soft: "#fee2e2", side: "#450a0a" },
+    { id: "gold",     name: "Gold",     acc: "#b45309", soft: "#fef3c7", side: "#292524" },
+    { id: "ink",      name: "Ink",      acc: "#111827", soft: "#e5e7eb", side: "#111827" },
+    { id: "rose",     name: "Rose",     acc: "#db2777", soft: "#fce7f3", side: "#500724" },
+    { id: "cyan",     name: "Cyan",     acc: "#0891b2", soft: "#cffafe", side: "#164e63" },
+    { id: "indigo",   name: "Indigo",   acc: "#4f46e5", soft: "#e0e7ff", side: "#1e1b4b" },
+    { id: "forest",   name: "Forest",   acc: "#16a34a", soft: "#dcfce7", side: "#14532d" }
+  ];
+  var TPLS = [];
+  LAYOUTS.forEach(function (L) {
+    L.pals.forEach(function (pid) {
+      var P = null;
+      for (var i = 0; i < PALETTES.length; i++) if (PALETTES[i].id === pid) P = PALETTES[i];
+      if (P) TPLS.push({ id: L.id + "-" + P.id, name: P.name + " " + L.name, layout: L, pal: P });
+    });
+  });
+  // Old saved resumes used the original 8 template ids — map them over.
+  var LEGACY = {
+    emerald: "side-l-emerald", ocean: "band-sapphire", teal: "side-l-teal",
+    violet: "side-r-violet", sunset: "band-sunset", crimson: "serif-crimson",
+    gold: "band-gold", ink: "plain-ink"
+  };
 
   /* ---------- State ---------- */
   var blank = {
-    template: "emerald", photo: null, ats: true,
+    template: "side-l-emerald", accent: "", side: "", photo: null, ats: true,
     name: "", title: "", email: "", phone: "", location: "", linkedin: "",
     summary: "", skills: "",
     exp: [], edu: [], projects: [],
@@ -30,7 +73,7 @@
   };
 
   var SAMPLE_EXP = {
-    template: "emerald", photo: null, ats: true,
+    template: "side-l-emerald", accent: "", side: "", photo: null, ats: true,
     name: "Ravi Kumar", title: "Senior SDET — Playwright | TypeScript | AI Test Agents",
     email: "ravi.kumar@email.com", phone: "+91 98xxxxxx21", location: "Hyderabad, India",
     linkedin: "linkedin.com/in/ravikumar-sdet",
@@ -57,7 +100,7 @@
   };
 
   var SAMPLE_FRESHER = {
-    template: "ocean", photo: null, ats: true,
+    template: "band-sapphire", accent: "", side: "", photo: null, ats: true,
     name: "Ananya Sharma", title: "Aspiring QA Automation Engineer — Playwright | TypeScript",
     email: "ananya.sharma@email.com", phone: "+91 90xxxxxx45", location: "Pune, India",
     linkedin: "linkedin.com/in/ananyasharma-qa",
@@ -105,8 +148,27 @@
     return String(s || "").split(/[,\n]+/).map(function (x) { return x.trim(); }).filter(Boolean);
   }
   function tpl() {
-    for (var i = 0; i < TPLS.length; i++) if (TPLS[i].id === state.template) return TPLS[i];
+    var id = LEGACY[state.template] || state.template;
+    for (var i = 0; i < TPLS.length; i++) if (TPLS[i].id === id) return TPLS[i];
     return TPLS[0];
+  }
+
+  /* ---- effective colours: template palette, unless customised ---- */
+  function mixWithWhite(hex, f) { // f=0..1 amount of white
+    var m = /^#?([0-9a-f]{6})$/i.exec(String(hex || "").trim());
+    if (!m) return "#e5e7eb";
+    var n = parseInt(m[1], 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+    function ch(v) { return Math.round(v + (255 - v) * f); }
+    return "#" + ((1 << 24) + (ch(r) << 16) + (ch(g) << 8) + ch(b)).toString(16).slice(1);
+  }
+  function colors() {
+    var t = tpl();
+    var acc = state.accent || t.pal.acc;
+    return {
+      acc: acc,
+      soft: state.accent ? mixWithWhite(acc, .86) : t.pal.soft,
+      side: state.side || t.pal.side
+    };
   }
 
   /* =========================================================
@@ -211,36 +273,119 @@
     if (state.photo) photoThumb.src = state.photo;
   }
 
-  /* --- template picker: gallery of mini previews --- */
+  /* --- template picker: 60-card gallery + filters + colour bar --- */
   var tplRow = document.getElementById("tplRow");
+
+  function miniExtras(mini) {
+    if (mini === "mini-band")
+      return '<i class="mm-bandbar"></i>';
+    if (mini === "mini-side-l" || mini === "mini-side-r")
+      return '<i class="mm-side"></i><i class="mm-s s1"></i><i class="mm-s s2"></i><i class="mm-s s3"></i>';
+    if (mini === "mini-bandside")
+      return '<i class="mm-bandbar"></i><i class="mm-side"></i><i class="mm-s s1"></i><i class="mm-s s2"></i><i class="mm-s s3"></i>';
+    if (mini === "mini-topline")
+      return '<i class="mm-topbar"></i>';
+    if (mini === "mini-split")
+      return '<i class="mm-r r1"></i><i class="mm-r r2"></i><i class="mm-headrule"></i>';
+    if (mini === "mini-rail")
+      return '<i class="mm-rb rb1"></i><i class="mm-rb rb2"></i>';
+    return "";
+  }
+
   TPLS.forEach(function (t) {
     var b = document.createElement("button");
     b.type = "button"; b.className = "tpl-card"; b.setAttribute("data-tpl", t.id);
+    b.setAttribute("data-group", t.layout.group);
     b.title = t.name;
-    var miniClass = t.lay === "lay-side-l" ? "mini-side-l"
-                  : t.lay === "lay-side-r" ? "mini-side-r"
-                  : t.lay === "lay-band"   ? "mini-band" : "mini-plain";
-    var extras = "";
-    if (t.lay === "lay-band") extras = '<i class="mm-bandbar"></i>';
-    if (t.lay === "lay-side-l" || t.lay === "lay-side-r")
-      extras = '<i class="mm-side"></i><i class="mm-s s1"></i><i class="mm-s s2"></i><i class="mm-s s3"></i>';
     b.innerHTML =
-      '<span class="tpl-mini ' + miniClass + '" style="--a:' + t.dot + ';--s:' + t.dot2 + '" aria-hidden="true">' +
-        extras +
+      '<span class="tpl-mini ' + t.layout.mini + '" style="--a:' + t.pal.acc + ';--s:' + t.pal.side + '" aria-hidden="true">' +
+        miniExtras(t.layout.mini) +
         '<i class="mm-name"></i><i class="mm-acc"></i>' +
         '<i class="mm-l l1"></i><i class="mm-l l2"></i><i class="mm-l l3"></i>' +
         '<i class="mm-acc2"></i><i class="mm-l l4"></i><i class="mm-l l5"></i>' +
       "</span>" +
       '<span class="tpl-name">' + esc(t.name) + "</span>";
     b.addEventListener("click", function () {
-      state.template = t.id; save(); syncTplUI(); renderPreview();
+      state.template = t.id; save(); syncTplUI(); syncColorUI(); renderPreview();
     });
     tplRow.appendChild(b);
   });
   function syncTplUI() {
+    var id = LEGACY[state.template] || state.template;
     tplRow.querySelectorAll(".tpl-card").forEach(function (b) {
-      b.classList.toggle("active", b.getAttribute("data-tpl") === state.template);
+      b.classList.toggle("active", b.getAttribute("data-tpl") === id);
     });
+  }
+
+  /* --- layout filter chips --- */
+  var FILTERS = [
+    { id: "all",     name: "All (" + TPLS.length + ")" },
+    { id: "sidebar", name: "Sidebar" },
+    { id: "banner",  name: "Banner" },
+    { id: "classic", name: "Classic" },
+    { id: "modern",  name: "Modern" }
+  ];
+  var filterEl = document.getElementById("tplFilters");
+  var curFilter = "all";
+  if (filterEl) {
+    FILTERS.forEach(function (f) {
+      var c = document.createElement("button");
+      c.type = "button"; c.className = "rz-schip" + (f.id === "all" ? " active" : "");
+      c.textContent = f.name;
+      c.addEventListener("click", function () {
+        curFilter = f.id;
+        filterEl.querySelectorAll(".rz-schip").forEach(function (x) { x.classList.remove("active"); });
+        c.classList.add("active");
+        tplRow.querySelectorAll(".tpl-card").forEach(function (card) {
+          card.style.display =
+            (f.id === "all" || card.getAttribute("data-group") === f.id) ? "" : "none";
+        });
+      });
+      filterEl.appendChild(c);
+    });
+  }
+
+  /* --- show all / show less --- */
+  var moreBtn = document.getElementById("tplMore");
+  if (moreBtn) {
+    tplRow.classList.add("collapsed");
+    moreBtn.addEventListener("click", function () {
+      var open = tplRow.classList.toggle("collapsed");
+      moreBtn.textContent = open ? "Show all " + TPLS.length + " templates ↓" : "Show less ↑";
+    });
+  }
+
+  /* --- colour bar: preset swatches + custom pickers --- */
+  var cbAccent = document.getElementById("cbAccent");
+  var cbSide = document.getElementById("cbSide");
+  var cbReset = document.getElementById("cbReset");
+  var cbSwatches = document.getElementById("cbSwatches");
+  if (cbSwatches) {
+    PALETTES.forEach(function (p) {
+      var s = document.createElement("button");
+      s.type = "button"; s.className = "rz-swatch"; s.title = p.name;
+      s.style.background = p.acc;
+      s.addEventListener("click", function () {
+        state.accent = p.acc; state.side = p.side;
+        save(); syncColorUI(); renderPreview();
+      });
+      cbSwatches.appendChild(s);
+    });
+  }
+  if (cbAccent) cbAccent.addEventListener("input", function () {
+    state.accent = cbAccent.value; save(); renderPreview();
+  });
+  if (cbSide) cbSide.addEventListener("input", function () {
+    state.side = cbSide.value; save(); renderPreview();
+  });
+  if (cbReset) cbReset.addEventListener("click", function () {
+    state.accent = ""; state.side = "";
+    save(); syncColorUI(); renderPreview();
+  });
+  function syncColorUI() {
+    var c = colors();
+    if (cbAccent) cbAccent.value = c.acc;
+    if (cbSide) cbSide.value = c.side;
   }
 
   /* --- toolbar --- */
@@ -262,7 +407,7 @@
     state = JSON.parse(JSON.stringify(src));
     save();
     bindSingles(); renderList("exp"); renderList("edu"); renderList("projects");
-    syncPhotoUI(); syncTplUI(); syncAtsUI(); renderPreview();
+    syncPhotoUI(); syncTplUI(); syncColorUI(); syncAtsUI(); renderPreview();
   }
 
   /* =========================================================
@@ -275,9 +420,17 @@
   }
 
   function renderPreview() {
-    var t = tpl();
+    var t = tpl(), L = t.layout;
     var ats = state.ats !== false;
-    page.className = "rz-page tpl-" + t.id + " " + (ats && t.lay !== "lay-band" ? "lay-plain" : t.lay);
+    // ATS mode collapses sidebar layouts to a single column.
+    var lay = (ats && L.group === "sidebar")
+      ? (L.id === "bandside" ? "lay-band" : "lay-plain")
+      : L.lay;
+    page.className = "rz-page " + lay;
+    var c = colors();
+    page.style.setProperty("--acc", c.acc);
+    page.style.setProperty("--accSoft", c.soft);
+    page.style.setProperty("--sideBg", c.side);
 
     var contacts = "";
     if (state.email)    contacts += "<span><b>@</b>" + esc(state.email) + "</span>";
@@ -335,7 +488,7 @@
       sec("Languages", langHtml) +
       sec("Interests", hobHtml);
 
-    var hasSide = !ats && (t.lay === "lay-side-l" || t.lay === "lay-side-r");
+    var hasSide = !ats && L.group === "sidebar";
     var body;
     if (hasSide) {
       body = '<div class="rz-body"><aside class="rz-side">' + sideCore + '</aside><div class="rz-main">' + mainCore + "</div></div>";
@@ -372,8 +525,7 @@
      Word export (.doc = HTML Word happily opens)
      ========================================================= */
   function downloadWord() {
-    var t = tpl();
-    var acc = t.dot;
+    var acc = colors().acc;
     function wsec(title, inner) {
       return inner ? '<h2 style="font-size:13pt;color:' + acc + ';text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid ' + acc + ';padding-bottom:2pt;margin:14pt 0 6pt">' + title + "</h2>" + inner : "";
     }
@@ -459,9 +611,190 @@
   document.getElementById("btnPdf2").addEventListener("click", function () { window.print(); });
   document.getElementById("btnWord2").addEventListener("click", downloadWord);
 
+  /* =========================================================
+     Import from LinkedIn — the official data export.
+     LinkedIn's API doesn't share experience/education with normal
+     apps, but every member can download their own data as a ZIP
+     (Settings & Privacy → Data privacy → Get a copy of your data).
+     We read that ZIP (or its CSV files) fully in the browser —
+     nothing is uploaded anywhere.
+     ========================================================= */
+  var liInput = document.getElementById("rzLiFile");
+  var liMsg = document.getElementById("rzLiMsg");
+
+  function liSay(msg, ok) {
+    if (!liMsg) return;
+    liMsg.textContent = msg;
+    liMsg.className = "rz-limsg " + (ok ? "ok" : "err");
+  }
+
+  function parseCsv(text) {
+    var rows = [], row = [], cur = "", q = false;
+    for (var i = 0; i < text.length; i++) {
+      var ch = text[i];
+      if (q) {
+        if (ch === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; }
+        else cur += ch;
+      }
+      else if (ch === '"') q = true;
+      else if (ch === ",") { row.push(cur); cur = ""; }
+      else if (ch === "\n" || ch === "\r") {
+        if (cur !== "" || row.length) { row.push(cur); rows.push(row); row = []; cur = ""; }
+        if (ch === "\r" && text[i + 1] === "\n") i++;
+      }
+      else cur += ch;
+    }
+    if (cur !== "" || row.length) { row.push(cur); rows.push(row); }
+    return rows;
+  }
+  function csvObjects(text) {
+    var rows = parseCsv(text);
+    if (rows.length < 2) return [];
+    var head = rows[0].map(function (h) { return h.trim().toLowerCase(); });
+    return rows.slice(1).map(function (r) {
+      var o = {};
+      head.forEach(function (h, i) { o[h] = (r[i] || "").trim(); });
+      return o;
+    });
+  }
+
+  function applyLinkedIn(files) { // files = { lowercased filename: text }
+    var got = [];
+    function file(re) {
+      for (var k in files) if (re.test(k)) return files[k];
+      return null;
+    }
+
+    var t = file(/(^|\/)profile\.csv$/);
+    if (t) {
+      var p = csvObjects(t)[0] || {};
+      if (p["first name"] || p["last name"])
+        state.name = ((p["first name"] || "") + " " + (p["last name"] || "")).trim();
+      if (p.headline) state.title = p.headline;
+      if (p.summary) state.summary = p.summary;
+      if (p["geo location"]) state.location = p["geo location"];
+      got.push("profile");
+    }
+    t = file(/positions\.csv$/);
+    if (t) {
+      var pos = csvObjects(t);
+      if (pos.length) {
+        state.exp = pos.map(function (r) {
+          return {
+            role: r.title || "", company: r["company name"] || "",
+            period: (r["started on"] || "") + " — " + (r["finished on"] || "Present"),
+            points: r.description || ""
+          };
+        });
+        got.push(pos.length + " roles");
+      }
+    }
+    t = file(/education\.csv$/);
+    if (t) {
+      var edu = csvObjects(t);
+      if (edu.length) {
+        state.edu = edu.map(function (r) {
+          return {
+            degree: r["degree name"] || "Course", school: r["school name"] || "",
+            period: ((r["start date"] || "") + " — " + (r["end date"] || "")).replace(/^ — $/, ""),
+            note: r.notes || ""
+          };
+        });
+        got.push(edu.length + " education");
+      }
+    }
+    t = file(/skills\.csv$/);
+    if (t) {
+      var sk = csvObjects(t).map(function (r) { return r.name; }).filter(Boolean);
+      if (sk.length) { state.skills = sk.join(", "); got.push(sk.length + " skills"); }
+    }
+    t = file(/certifications\.csv$/);
+    if (t) {
+      var ce = csvObjects(t).map(function (r) {
+        return [r.name, r.authority && "— " + r.authority,
+                r["started on"] && "(" + r["started on"] + ")"].filter(Boolean).join(" ");
+      }).filter(Boolean);
+      if (ce.length) { state.certs = ce.join("\n"); got.push(ce.length + " certifications"); }
+    }
+    t = file(/email addresses\.csv$/);
+    if (t) {
+      var em = csvObjects(t);
+      var prim = null;
+      em.forEach(function (r) { if (!prim || /yes/i.test(r.primary || "")) prim = r["email address"] || prim; });
+      if (prim) { state.email = prim; got.push("email"); }
+    }
+    t = file(/phonenumbers\.csv$/) || file(/phone numbers\.csv$/);
+    if (t) {
+      var ph = csvObjects(t)[0];
+      if (ph && ph.number) { state.phone = ph.number; got.push("phone"); }
+    }
+    t = file(/languages\.csv$/);
+    if (t) {
+      var la = csvObjects(t).map(function (r) { return r.name; }).filter(Boolean);
+      if (la.length) { state.languages = la.join(", "); got.push("languages"); }
+    }
+    t = file(/projects\.csv$/);
+    if (t) {
+      var pr = csvObjects(t);
+      if (pr.length) {
+        state.projects = pr.map(function (r) {
+          return { name: r.title || "", desc: r.description || "" };
+        });
+        got.push(pr.length + " projects");
+      }
+    }
+
+    if (!got.length) {
+      liSay("No LinkedIn files recognised — upload the export ZIP, or its CSV files (Profile, Positions, Education, Skills…).", false);
+      return;
+    }
+    save();
+    bindSingles(); renderList("exp"); renderList("edu"); renderList("projects");
+    renderPreview();
+    liSay("✓ Imported: " + got.join(", ") + ". Now review each step and polish the wording.", true);
+  }
+
+  if (liInput) liInput.addEventListener("change", function () {
+    var fl = liInput.files;
+    if (!fl || !fl.length) return;
+    liSay("Reading…", true);
+    var texts = {}, pending = 0;
+
+    function done() { if (--pending === 0) applyLinkedIn(texts); }
+
+    for (var i = 0; i < fl.length; i++) (function (f) {
+      if (/\.zip$/i.test(f.name)) {
+        if (!window.JSZip) { liSay("ZIP reader didn't load — unzip the file and upload the CSVs instead.", false); return; }
+        pending++;
+        JSZip.loadAsync(f).then(function (zip) {
+          var inner = 0;
+          zip.forEach(function (path, entry) {
+            if (/\.csv$/i.test(path)) {
+              inner++; pending++;
+              entry.async("string").then(function (txt) {
+                texts[path.toLowerCase()] = txt; done();
+              }).catch(done);
+            }
+          });
+          if (!inner) liSay("That ZIP has no CSV files inside.", false);
+          done();
+        }).catch(function () { liSay("Couldn't read that ZIP file.", false); done(); });
+      } else {
+        pending++;
+        var rd = new FileReader();
+        rd.onload = function () { texts[f.name.toLowerCase()] = rd.result; done(); };
+        rd.onerror = done;
+        rd.readAsText(f);
+      }
+    })(fl[i]);
+
+    if (!pending) liSay("Please choose the LinkedIn ZIP or its CSV files.", false);
+    liInput.value = "";
+  });
+
   /* ---------- init ---------- */
   bindSingles();
   renderList("exp"); renderList("edu"); renderList("projects");
-  syncPhotoUI(); syncTplUI(); syncAtsUI(); renderPreview();
+  syncPhotoUI(); syncTplUI(); syncColorUI(); syncAtsUI(); renderPreview();
   showStep(1);
 })();
