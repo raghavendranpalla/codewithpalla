@@ -101,12 +101,13 @@
 
         <h2>The task we'll follow: Swagger in, positive + negative tests out</h2>
         <p>Our framework is the classic enterprise API stack: <strong>Java 17 + Rest Assured + TestNG</strong>, YAML-driven scenarios, field-level PostgreSQL validations. The recurring chore we hand to Copilot CLI: a new endpoint appears in the OpenAPI spec, and someone must design and automate its coverage — every required-field, type, boundary and auth case, positive <em>and</em> negative. The actual prompt looks like this:</p>
-        <div class="codeblock"><code>Read docs/swagger/payments.yaml (POST /payments only).
+        <div class="codeblock"><code>Read docs/swagger/auth.yaml (POST /login only).
 
 1. Design a review-ready test matrix: every positive case and every
-   negative case — required fields, types, boundaries, auth, duplicates.
-2. Implement them as YAML scenarios following scenarios/orders.yaml,
-   with DB field validations like validations/orders-db.yaml.
+   negative case — required fields, formats, wrong credentials,
+   locked accounts, expired passwords, rate limits.
+2. Implement them as YAML scenarios following scenarios/signup.yaml,
+   with DB field validations like validations/signup-db.yaml.
 3. Run the suite, fix data issues, and summarise results with evidence.</code></div>
         <p>One prompt, four phases of agent work. Here is the whole flow with what each stage consumes:</p>
 
@@ -130,7 +131,7 @@
               <rect x="10" y="40" width="146" height="100" rx="12" fill="#0f1520" stroke="#22d3ee" stroke-width="1.5"/>
               <text x="83" y="72" text-anchor="middle" font-size="22">📄</text>
               <text x="83" y="97" text-anchor="middle" font-size="12.5" font-weight="700" fill="#e5e7eb" font-family="Inter, sans-serif">Swagger spec</text>
-              <text x="83" y="114" text-anchor="middle" font-size="10.5" fill="#9ca3af" font-family="Inter, sans-serif">POST /payments</text>
+              <text x="83" y="114" text-anchor="middle" font-size="10.5" fill="#9ca3af" font-family="Inter, sans-serif">POST /login</text>
               <rect x="48" y="152" width="70" height="22" rx="11" fill="rgba(34,211,238,.12)" stroke="rgba(34,211,238,.4)"/>
               <text x="83" y="167" text-anchor="middle" font-size="10.5" fill="#67e8f9" font-family="JetBrains Mono, monospace">input</text>
             </g>
@@ -200,7 +201,7 @@
             </tbody>
           </table>
         </div>
-        <p class="tok-note">Read the total the way a lead should: ≈ 92 credits of a 3,900-credit Enterprise seat = <strong>~2.4% of one person's month for a fully designed, automated, executed and evidenced endpoint</strong> — roughly 40 such tasks per seat per month if you did nothing else. The same task on a frontier model runs 3–5× that; a vague prompt ("test the payments API") can double it again in retry loops. Scope is the cheapest optimisation there is.</p>
+        <p class="tok-note">Read the total the way a lead should: ≈ 92 credits of a 3,900-credit Enterprise seat = <strong>~2.4% of one person's month for a fully designed, automated, executed and evidenced endpoint</strong> — roughly 40 such tasks per seat per month if you did nothing else. The same task on a frontier model runs 3–5× that; a vague prompt ("test the login API") can double it again in retry loops. Scope is the cheapest optimisation there is.</p>
         <p>Now let's unpack <em>where</em> all that context came from — because that 85% cached figure is not luck, it's three layers you control.</p>
 
         <h2>What the agent knows at turn zero: run <code>/context</code></h2>
