@@ -697,6 +697,19 @@
       document.body.classList.add("course-mode");
       renderContent(batch, user);
       addAdminButton();
+    } else if (access && access.status === "student" && access.batchId) {
+      // Enrolled in a batch whose content isn't published on the site
+      // yet (batch created from the admin panel) — friendly holding page.
+      narrow();
+      hide(els.signinBox);
+      hide(els.gateBox);
+      show(els.contentBox);
+      els.content.innerHTML =
+        '<div class="portal-icon">🎓</div>' +
+        '<h1>You are <span class="grad">enrolled</span></h1>' +
+        '<p class="lead">Welcome! Your batch is set up and its recordings ' +
+        "will appear right here as classes begin. Check back soon.</p>";
+      addAdminButton();
     } else if (access && access.status === "trial") {
       // Not registered in any batch — FREE TRIAL of the first few days.
       hide(els.signinBox);
@@ -778,6 +791,22 @@
       { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
   }
 
+  var adminBatches = []; // filled by renderAdmin; used by the action handlers
+
+  function batchOptions() {
+    var h = "";
+    adminBatches.forEach(function (b) {
+      h += '<option value="' + escapeAttr(b.id) + '">' + escapeHtml(b.name) + "</option>";
+    });
+    return h;
+  }
+  function batchName(id) {
+    for (var i = 0; i < adminBatches.length; i++) {
+      if (adminBatches[i].id === id) return adminBatches[i].name;
+    }
+    return id;
+  }
+
   function renderAdmin() {
     if (!isAdmin()) { render(); return; }
     els.contentBox.classList.remove("is-course");
@@ -790,10 +819,20 @@
           '<p class="day-desc">Could not load (session expired?). Sign out and back in.</p>';
         return;
       }
+      adminBatches = d.batches || [];
       var html =
         '<div class="admin-wrap">' +
         '<div class="portal-batch-name">⚙ Admin — Students &amp; Trial Users</div>' +
         '<button id="adminBack" class="btn btn-ghost admin-open-btn" type="button">← Back to course</button>';
+
+      // Toolbar: add any email to a specific batch + create a new batch.
+      html += '<div class="admin-toolbar">' +
+        '<input id="adminNewEmail" type="email" autocomplete="off" placeholder="student@gmail.com" />' +
+        '<select id="adminNewBatch">' + batchOptions() + "</select>" +
+        '<button id="adminAddBtn" class="btn btn-primary admin-act" type="button">Add to batch</button>' +
+        '<button id="adminNewBatchBtn" class="btn btn-ghost admin-act" type="button">＋ New batch</button>' +
+        "</div>" +
+        '<p class="day-desc">Adding an email that already exists moves that student to the chosen batch.</p>';
 
       html += '<h2 class="admin-h">Students (' + d.students.length + ")</h2>" +
         '<div class="admin-table-wrap"><table class="admin-table"><thead><tr>' +
@@ -828,9 +867,9 @@
           "<td>" + fmtWhen(t.first_seen) + "</td>" +
           "<td>" + fmtWhen(t.last_seen) + "</td>" +
           "<td>" + t.visits + "</td>" +
-          '<td><button class="btn btn-ghost admin-act" data-act="upgrade" data-email="' +
-          escapeAttr(t.email) + '">Upgrade → ' +
-          escapeHtml(CONFIG.batches[0].name) + "</button></td></tr>";
+          '<td><select class="admin-batch-sel">' + batchOptions() + "</select> " +
+          '<button class="btn btn-ghost admin-act" data-act="upgrade" data-email="' +
+          escapeAttr(t.email) + '">Upgrade</button></td></tr>';
       });
       html += "</tbody></table></div>" +
         '<p class="day-desc">Upgrade adds the email to the batch (full course in ~5 min, ' +
@@ -840,7 +879,9 @@
       els.content.innerHTML = html;
 
       document.getElementById("adminBack").addEventListener("click", function () { render(); });
-      var acts = els.content.querySelectorAll(".admin-act");
+      document.getElementById("adminAddBtn").addEventListener("click", addStudent);
+      document.getElementById("adminNewBatchBtn").addEventListener("click", createBatch);
+      var acts = els.content.querySelectorAll(".admin-act[data-act]");
       for (var i = 0; i < acts.length; i++) {
         acts[i].addEventListener("click", onAdminAction);
       }
@@ -850,33 +891,64 @@
     });
   }
 
+  function adminPost(path, payload, btn) {
+    if (btn) btn.disabled = true;
+    adminApi(path, { method: "POST", body: JSON.stringify(payload) })
+      .then(function (r) {
+        if (r && r.ok) { renderAdmin(); }
+        else { alert("Failed: " + ((r && r.error) || "unknown error")); if (btn) btn.disabled = false; }
+      }).catch(function () {
+        alert("Network error — try again.");
+        if (btn) btn.disabled = false;
+      });
+  }
+
   function onAdminAction(e) {
     var btn = e.currentTarget;
     var act = btn.getAttribute("data-act");
     var email = btn.getAttribute("data-email");
+    var payload = { email: email };
+    if (act === "upgrade") {
+      var sel = btn.parentNode.querySelector(".admin-batch-sel");
+      payload.batchId = sel ? sel.value : (adminBatches[0] && adminBatches[0].id);
+    }
     var msgs = {
-      upgrade: "Upgrade " + email + " to " + CONFIG.batches[0].name +
-        "?\n\nThey get the full course within ~5 minutes. Remember to also " +
-        "share the Drive files with them.",
+      upgrade: "Add " + email + " to " + batchName(payload.batchId) +
+        "?\n\nThey get that batch's course within ~5 minutes. Remember to " +
+        "also share the Drive files with them.",
       remove: "Remove " + email + " from their batch?\n\nThey fall back to " +
         "the FREE TRIAL (first days only).",
       unblock: "Forget all recorded machines for " + email +
         "? Use this when an honest student got blocked."
     };
     if (!window.confirm(msgs[act])) return;
-    btn.disabled = true;
-    var payload = { email: email };
-    if (act === "upgrade") payload.batchId = CONFIG.batches[0].id;
-    adminApi("/api/admin/" + act, {
-      method: "POST",
-      body: JSON.stringify(payload)
-    }).then(function (r) {
-      if (r && r.ok) { renderAdmin(); }
-      else { alert("Failed: " + ((r && r.error) || "unknown error")); btn.disabled = false; }
-    }).catch(function () {
-      alert("Network error — try again.");
-      btn.disabled = false;
-    });
+    adminPost("/api/admin/" + act, payload, btn);
+  }
+
+  /* ---- Toolbar: add ANY email to a chosen batch ---- */
+  function addStudent() {
+    var emailEl = document.getElementById("adminNewEmail");
+    var batchEl = document.getElementById("adminNewBatch");
+    var email = (emailEl && emailEl.value || "").trim();
+    var batchId = batchEl ? batchEl.value : "";
+    if (email.indexOf("@") < 0) { alert("Please type a valid email address."); return; }
+    if (!window.confirm("Add " + email + " to " + batchName(batchId) +
+        "?\n\nRemember to also share the Drive files with them.")) return;
+    adminPost("/api/admin/upgrade", { email: email, batchId: batchId },
+      document.getElementById("adminAddBtn"));
+  }
+
+  /* ---- Toolbar: create a new batch ---- */
+  function createBatch() {
+    var id = window.prompt(
+      "New batch ID — short, lowercase letters/numbers/dashes.\nExample: aug26");
+    if (!id) return;
+    var name = window.prompt(
+      "Batch display name.\nExample: August 2026 Batch");
+    if (!name) return;
+    adminPost("/api/admin/batch",
+      { id: id.trim().toLowerCase(), name: name.trim() },
+      document.getElementById("adminNewBatchBtn"));
   }
 
   /* ---- BLOCKED: same account used on too many machines ---- */

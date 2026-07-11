@@ -96,6 +96,20 @@
     }
     /* Admin panel (only rendered for the admin role) */
     .admin-open-btn { display: inline-flex; width: auto; margin: 0 0 16px; }
+    .admin-toolbar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      margin: 4px 0 6px;
+    }
+    .admin-toolbar input, .admin-toolbar select, .admin-batch-sel {
+      background: var(--bg-2); border: 1px solid var(--border-2);
+      color: var(--text); border-radius: var(--radius-sm);
+      padding: 8px 12px; font: inherit; font-size: .9rem;
+    }
+    .admin-toolbar input { min-width: 240px; }
+    .admin-toolbar input:focus, .admin-toolbar select:focus, .admin-batch-sel:focus {
+      outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring);
+    }
+    .admin-batch-sel { padding: 5px 8px; font-size: .8rem; }
     .admin-wrap { text-align: left; }
     .admin-h { font-size: 1.05rem; font-weight: 700; margin: 22px 0 4px; }
     .admin-table-wrap {
@@ -460,6 +474,6 @@
   </footer>
 
   <script src="assets/js/main.js?v=3"></script>
-  <script src="assets/js/portal.js?v=35"></script>
+  <script src="assets/js/portal.js?v=36"></script>
 </body>
 </html>

@@ -214,16 +214,37 @@ export default {
             from logins
             where email not in (select email from students)
             group by email order by last_seen desc`;
-          return json({ students, trials });
+          const batches =
+            await sql`select id, name from batches order by created_at`;
+          return json({ students, trials, batches });
         }
 
         if (request.method === "POST") {
           const body = await request.json().catch(() => ({}));
+
+          // Create a batch — no email involved.
+          if (url.pathname === "/api/admin/batch") {
+            const id = String(body.id || "").trim().toLowerCase();
+            const name = String(body.name || "").trim().slice(0, 60);
+            if (!/^[a-z0-9][a-z0-9-]{1,19}$/.test(id)) {
+              return json({ error: "batch id: 2-20 chars, letters/numbers/dashes" }, 400);
+            }
+            if (!name) return json({ error: "batch name required" }, 400);
+            const dupe = await sql`select 1 from batches where id = ${id}`;
+            if (dupe.length) return json({ error: "batch '" + id + "' already exists" }, 400);
+            await sql`insert into batches (id, name) values (${id}, ${name})`;
+            return json({ ok: true });
+          }
+
           const email = normEmail(body.email || "");
           if (!email.includes("@")) return json({ error: "bad email" }, 400);
 
+          // Add an email to a specific batch (also moves an existing
+          // student between batches, and upgrades a trial user).
           if (url.pathname === "/api/admin/upgrade") {
             const batch = String(body.batchId || "jun26").slice(0, 40);
+            const known = await sql`select 1 from batches where id = ${batch}`;
+            if (!known.length) return json({ error: "unknown batch: " + batch }, 400);
             await sql`
               insert into students (email, batch_id)
               values (${email}, ${batch})

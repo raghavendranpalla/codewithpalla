@@ -30,9 +30,14 @@ Live at https://learnwithpalla.com (GitHub Pages, repo `raghavendranpalla/codewi
   Portal falls back to the local `emails[]` lists if the API is down.
 - **Roles:** `students.role` is `student` or `admin` (currently
   raghavendranpalla@gmail.com). Admins get a ⚙ Admin panel button in the
-  portal: list students/trials, upgrade a trial to a batch, remove a
-  student (back to trial), unblock machines. Server-enforced via 30-day
-  `admin_tokens` minted at Google sign-in (X-Admin-Token header).
+  portal: list students/trials, add any email to a chosen batch (also
+  moves existing students), create new batches, remove a student (back
+  to trial), unblock machines. Server-enforced via 30-day `admin_tokens`
+  minted at Google sign-in (X-Admin-Token header).
+- **Batches** now live in the DB `batches` table (admin panel can create
+  them), but a batch's course content still comes from
+  `CONFIG.batches[]` in portal.js — students of a DB-only batch see a
+  "recordings coming soon" page until that batch's `days[]` is added.
 
 ### Adding a student email
 

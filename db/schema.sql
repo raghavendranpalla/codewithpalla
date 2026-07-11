@@ -8,6 +8,17 @@
 -- only in the Worker (wrangler secret DATABASE_URL), never in git.
 -- =========================================================
 
+-- Batches. Created from the admin panel (＋ New batch) or by SQL.
+-- NOTE: a batch's course content (days/videos) still lives in
+-- assets/js/portal.js CONFIG.batches[] — a DB batch with no matching
+-- portal.js entry shows its students a "recordings coming soon" page.
+create table if not exists batches (
+  id         text primary key,          -- short slug, e.g. 'jun26'
+  name       text not null,             -- display name, e.g. 'June 2026 Batch'
+  created_at timestamptz not null default now()
+);
+-- seeded: ('jun26', 'June 2026 Batch')
+
 -- Registered students. One row per student email.
 -- email is stored GMAIL-NORMALISED: lowercase, dots and +tags removed
 -- from the local part, googlemail.com folded to gmail.com — the same
