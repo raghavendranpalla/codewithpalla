@@ -20,16 +20,32 @@ Live at https://learnwithpalla.com (GitHub Pages, repo `raghavendranpalla/codewi
 - Default batch: **June 2026** (`jun26`). New student emails go there unless
   told otherwise.
 - Content is organised as `days[]` (title, description, resources).
+- **Backend (2026-07):** Cloudflare Worker `worker/` at
+  https://lwp-api.learnwithpalla.workers.dev + Neon Postgres (schema +
+  admin cheatsheet in `db/schema.sql`; connection string is a Worker
+  secret, never in git). It logs every sign-in (email/IP/device),
+  gives unregistered accounts a FREE TRIAL of the first 4 days, and
+  enforces ONE live session per account (newest login wins; 5-device/
+  30-day block as backstop). Deploy: `cd worker && npx wrangler deploy`.
+  Portal falls back to the local `emails[]` lists if the API is down.
 
 ### Adding a student email
 
-1. Append to the `jun26` `emails[]` array in `assets/js/portal.js`.
-2. Bump `portal.js?v=N` in `portal.html`.
-3. Commit, push.
-4. Remind Palla to also share the Drive video files with that email —
+1. Insert into the `students` table (Neon SQL editor or a script) —
+   gmail-normalised (lowercase, dots/+tags stripped). This alone is
+   enough: the portal picks it up within ~5 min, no redeploy needed.
+2. Also append to the `jun26` `emails[]` array in `assets/js/portal.js`
+   (offline fallback), bump `portal.js?v=N` in `portal.html`, commit, push.
+3. Remind Palla to also share the Drive video files with that email —
    Drive sharing is the real access control.
-5. His messages have frequent typos — if two spellings of an address appear,
+4. His messages have frequent typos — if two spellings of an address appear,
    confirm which is correct.
+
+### Upgrade policy (free trial → paid student)
+
+- Trial is computed, never stored: any signed-in email not in `students`
+  is a trial user (first 4 days). Upgrading = the insert in step 1 above;
+  full policy + downgrade steps are documented in `db/schema.sql`.
 
 ### Adding a day's videos
 

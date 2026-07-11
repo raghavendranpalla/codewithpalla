@@ -48,6 +48,31 @@ create table if not exists sessions (
 );
 
 -- =========================================================
+-- UPGRADE POLICY — free trial → paid student
+-- =========================================================
+-- "Trial" is never stored; it is computed on every check as
+-- "email not in students". So upgrading is ONE insert:
+--
+--   insert into students (email, batch_id) values ('theirname@gmail.com', 'jun26');
+--
+-- Rules:
+--   1. Write the email GMAIL-NORMALISED: lowercase, remove dots and
+--      +tags from the part before @ (suresh.kb78+x@ -> sureshkb78@),
+--      googlemail.com -> gmail.com. Wrong form = lookup misses.
+--   2. Takes effect automatically within ~5 minutes (the portal
+--      rechecks the server) — the student does NOT need to sign in
+--      again; the trial banner disappears and all days unlock.
+--   3. Then share the Days 5+ Drive files (videos + PDFs) with their
+--      real Gmail — Drive is the true gate on the content itself.
+--   4. Nothing to clean up: their trial logins stay as history
+--      (is_student=false), device count and live session carry over.
+--
+-- Downgrade / refund is the reverse:
+--   delete from students where email = 'theirname@gmail.com';
+--   (they fall back to free trial within ~5 minutes; also un-share
+--    the Days 5+ Drive files from their Gmail)
+
+-- =========================================================
 -- Admin cheatsheet (run in the Neon SQL editor)
 -- =========================================================
 -- Add a student (remember: gmail-normalised, no dots):
