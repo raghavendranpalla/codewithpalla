@@ -17,7 +17,8 @@ create table if not exists students (
   name          text not null default '',
   batch_id      text not null default 'jun26',  -- matches CONFIG.batches[].id
   status        text not null default 'active', -- 'active' | 'blocked' (manual block)
-  machine_limit int  not null default 5,        -- blocked when used on more than this many devices
+  machine_limit int  not null default 5,        -- backstop: blocked when used on more than
+                                                -- this many devices in the LAST 30 DAYS
   created_at    timestamptz not null default now()
 );
 
@@ -36,6 +37,15 @@ create table if not exists logins (
 );
 
 create index if not exists logins_email_idx on logins (email);
+
+-- One live session per account (Netflix-style). Every sign-in makes that
+-- device the session; any other device is signed out on its next recheck
+-- (the portal rechecks on load and every 5 minutes).
+create table if not exists sessions (
+  email      text primary key,               -- gmail-normalised
+  device_id  text not null,                  -- the ONE device allowed right now
+  updated_at timestamptz not null default now()
+);
 
 -- =========================================================
 -- Admin cheatsheet (run in the Neon SQL editor)

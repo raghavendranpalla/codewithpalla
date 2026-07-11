@@ -5,18 +5,22 @@
    so the database password never reaches the browser.
 
    Endpoints
-     POST /api/session   body: { credential: <Google ID token> }
+     POST /api/session   body: { credential: <Google ID token>, deviceId }
        Verifies the token with Google, records the login
-       (email + IP + browser), and answers who this is:
+       (email + IP + browser), makes THIS device the account's single
+       live session (any other device gets signed out), and answers:
          { status:"student", batchId }          registered, allowed
          { status:"trial" }                     not registered → free trial
          { status:"blocked", reason, limit }    too many machines / admin block
-     GET /api/status?email=...
-       Read-only recheck on page load (writes nothing).
+     GET /api/status?email=...&device=...
+       Read-only recheck the portal runs on load and every few minutes.
+       Answers { status:"signed_out" } when another device has since
+       logged in (one live session per account, newest login wins).
 
    Tables (created in Neon):
      students(email pk, name, batch_id, status, machine_limit, created_at)
      logins(id, email, raw_email, name, ip, user_agent, device_id, is_student, created_at)
+     sessions(email pk, device_id, updated_at)   -- the one live device per account
 
    Secrets: DATABASE_URL — set with `npx wrangler secret put DATABASE_URL`.
 
@@ -75,9 +79,13 @@ async function accessFor(sql, email) {
   if (st.status === "blocked") {
     return { status: "blocked", reason: "admin", limit: st.machine_limit };
   }
+  // Safety net only (single live session is the real control): count
+  // just the last 30 days so replaced laptops / cleaned browsers stop
+  // counting against honest students.
   const [{ machines }] = await sql`
     select count(distinct device_id)::int as machines
-    from logins where email = ${email} and device_id <> ''`;
+    from logins where email = ${email} and device_id <> ''
+      and created_at > now() - interval '30 days'`;
   if (machines > st.machine_limit) {
     return { status: "blocked", reason: "machine_limit", limit: st.machine_limit, machines };
   }
@@ -127,12 +135,33 @@ export default {
           values (${email}, ${info.email}, ${info.name || ""}, ${ip}, ${ua},
                   ${device}, ${student.length > 0})`;
 
+        // One live session per account: this device becomes the session,
+        // and any previously signed-in device gets signed out on its
+        // next recheck.
+        if (device) {
+          await sql`
+            insert into sessions (email, device_id, updated_at)
+            values (${email}, ${device}, now())
+            on conflict (email) do update
+              set device_id = ${device}, updated_at = now()`;
+        }
+
         return json({ email, ...(await accessFor(sql, email)) });
       }
 
       if (request.method === "GET" && url.pathname === "/api/status") {
         const email = normEmail(url.searchParams.get("email"));
         if (!email.includes("@")) return json({ error: "bad email" }, 400);
+
+        // If another device has logged in since, this one is signed out.
+        const device = String(url.searchParams.get("device") || "").slice(0, 64);
+        if (device) {
+          const live =
+            await sql`select device_id from sessions where email = ${email}`;
+          if (live.length && live[0].device_id !== device) {
+            return json({ status: "signed_out" });
+          }
+        }
         return json(await accessFor(sql, email));
       }
 

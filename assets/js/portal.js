@@ -191,6 +191,7 @@
   var LS_LOG = "lwp_signins"; // local record of who signed in (this browser)
   var LS_ACCESS = "lwp_access"; // server verdict: student / trial / blocked
   var LS_DEVICE = "lwp_device"; // permanent random id for THIS browser/machine
+  var LS_KICKED = "lwp_kicked"; // set when another device took the session
 
   var els = {
     notice:    document.getElementById("setupNotice"),
@@ -647,6 +648,16 @@
       show(els.signinBox);
       hide(els.gateBox);
       hide(els.contentBox);
+      // Explain why, if another device just took over this account.
+      if (get(LS_KICKED) && els.signinBox && !document.getElementById("kickedNote")) {
+        var note = document.createElement("div");
+        note.id = "kickedNote";
+        note.className = "setup-notice";
+        note.textContent = "⚠️ You were signed out because this account " +
+          "was just logged in on another device. Only one device can be " +
+          "logged in at a time — sign in again to use this one.";
+        els.signinBox.insertBefore(note, els.signinBox.firstChild);
+      }
       return;
     }
 
@@ -757,6 +768,7 @@
       at: profile.iat || 0
     };
     set(LS_USER, user);
+    del(LS_KICKED); // fresh sign-in — this device is the session now
 
     // Keep a local record of sign-ins (this browser only).
     var log = get(LS_LOG) || [];
@@ -810,14 +822,26 @@
     }).catch(function () { del(LS_ACCESS); finish(); });
   }
 
-  // Silent recheck on every visit so a block applies on all machines,
-  // and an unblock / new registration is picked up without re-signing in.
+  // Silent recheck on every visit (and every few minutes) so a login on
+  // another device signs this one out, a block applies everywhere, and
+  // an unblock / new registration is picked up without re-signing in.
   function recheckAccess(user) {
     if (!CONFIG.apiUrl || !user || !user.email) return;
-    fetch(CONFIG.apiUrl + "/api/status?email=" + encodeURIComponent(user.email))
+    fetch(CONFIG.apiUrl + "/api/status?email=" + encodeURIComponent(user.email) +
+          "&device=" + encodeURIComponent(deviceId()))
       .then(function (r) { return r.json(); })
       .then(function (a) {
         if (!a || !a.status) return;
+        if (a.status === "signed_out") {
+          // Someone logged in to this account on ANOTHER device — only
+          // one live session is allowed, so this one signs out.
+          del(LS_USER);
+          del(LS_BATCH);
+          del(LS_ACCESS);
+          set(LS_KICKED, 1);
+          render();
+          return;
+        }
         var old = get(LS_ACCESS) || {};
         if (old.status !== a.status || old.batchId !== a.batchId) {
           set(LS_ACCESS, a);
@@ -888,6 +912,7 @@
     del(LS_USER);
     del(LS_BATCH);
     del(LS_ACCESS);
+    del(LS_KICKED);
     if (window.google && google.accounts && google.accounts.id) {
       try { google.accounts.id.disableAutoSelect(); } catch (e) {}
     }
@@ -988,6 +1013,8 @@
 
   // First paint (restores a previous session from localStorage).
   render();
-  // ...then quietly re-verify with the server (block / unblock updates).
+  // ...then quietly re-verify with the server (one-live-session +
+  // block / unblock updates) — on load and every 5 minutes after.
   recheckAccess(get(LS_USER));
+  setInterval(function () { recheckAccess(get(LS_USER)); }, 5 * 60 * 1000);
 })();
