@@ -190,6 +190,7 @@
   var LS_BATCH = "lwp_batch";
   var LS_LOG = "lwp_signins"; // local record of who signed in (this browser)
   var LS_ACCESS = "lwp_access"; // server verdict: student / trial / blocked
+  var LS_DEVICE = "lwp_device"; // permanent random id for THIS browser/machine
 
   var els = {
     notice:    document.getElementById("setupNotice"),
@@ -774,6 +775,23 @@
   }
 
   /* ---- Portal API (Cloudflare Worker + Neon database) ---- */
+  // One random id per browser, created once and kept forever — this is
+  // how the server counts "machines" for the 5-machine limit (IPs change
+  // too often to be fair: mobile data, router restarts…).
+  function deviceId() {
+    var id = get(LS_DEVICE);
+    if (id) return id;
+    if (window.crypto && crypto.randomUUID) {
+      id = crypto.randomUUID();
+    } else {
+      id = "d-" + Date.now().toString(36) + "-" +
+        Math.random().toString(36).slice(2, 10) +
+        Math.random().toString(36).slice(2, 10);
+    }
+    set(LS_DEVICE, id);
+    return id;
+  }
+
   // On sign-in: verify the Google token server-side, log email + IP,
   // and store the verdict. A slow or down API never blocks sign-in —
   // after 6s we carry on and the portal falls back to the local lists.
@@ -785,7 +803,7 @@
     fetch(CONFIG.apiUrl + "/api/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ credential: credential })
+      body: JSON.stringify({ credential: credential, deviceId: deviceId() })
     }).then(function (r) { return r.json(); }).then(function (a) {
       if (a && a.status) set(LS_ACCESS, a); else del(LS_ACCESS);
       finish();

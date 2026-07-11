@@ -15,15 +15,15 @@
        Read-only recheck on page load (writes nothing).
 
    Tables (created in Neon):
-     students(email pk, name, batch_id, status, ip_limit, created_at)
-     logins(id, email, raw_email, name, ip, user_agent, is_student, created_at)
+     students(email pk, name, batch_id, status, machine_limit, created_at)
+     logins(id, email, raw_email, name, ip, user_agent, device_id, is_student, created_at)
 
    Secrets: DATABASE_URL — set with `npx wrangler secret put DATABASE_URL`.
 
    Admin cheatsheet (run in the Neon SQL editor):
      add student    insert into students (email, batch_id) values ('x@gmail.com','jun26');
      unblock        delete from logins where email='x@gmail.com';        -- forget old machines
-     or             update students set ip_limit=10 where email='x@gmail.com';
+     or             update students set machine_limit=10 where email='x@gmail.com';
      manual block   update students set status='blocked' where email='x@gmail.com';
      who logged in  select email, ip, created_at from logins order by created_at desc limit 50;
      trial users    select distinct email from logins where is_student=false;
@@ -63,21 +63,23 @@ function normEmail(email) {
   return local + "@" + domain;
 }
 
-// Decide what a signed-in email may see.
+// Decide what a signed-in email may see. "Machines" are counted by the
+// device id the portal stores in each browser's localStorage — NOT by IP,
+// so a student whose network address changes is never wrongly blocked.
 async function accessFor(sql, email) {
   const rows =
-    await sql`select batch_id, status, ip_limit from students where email = ${email}`;
+    await sql`select batch_id, status, machine_limit from students where email = ${email}`;
   if (!rows.length) return { status: "trial" };
 
   const st = rows[0];
   if (st.status === "blocked") {
-    return { status: "blocked", reason: "admin", limit: st.ip_limit };
+    return { status: "blocked", reason: "admin", limit: st.machine_limit };
   }
-  const [{ ips }] = await sql`
-    select count(distinct ip)::int as ips
-    from logins where email = ${email} and ip <> ''`;
-  if (ips > st.ip_limit) {
-    return { status: "blocked", reason: "ip_limit", limit: st.ip_limit, ips };
+  const [{ machines }] = await sql`
+    select count(distinct device_id)::int as machines
+    from logins where email = ${email} and device_id <> ''`;
+  if (machines > st.machine_limit) {
+    return { status: "blocked", reason: "machine_limit", limit: st.machine_limit, machines };
   }
   return { status: "student", batchId: st.batch_id };
 }
@@ -117,12 +119,13 @@ export default {
         const email = normEmail(info.email);
         const ip = request.headers.get("CF-Connecting-IP") || "";
         const ua = (request.headers.get("User-Agent") || "").slice(0, 300);
+        const device = String(body.deviceId || "").slice(0, 64);
 
         const student = await sql`select 1 from students where email = ${email}`;
         await sql`
-          insert into logins (email, raw_email, name, ip, user_agent, is_student)
+          insert into logins (email, raw_email, name, ip, user_agent, device_id, is_student)
           values (${email}, ${info.email}, ${info.name || ""}, ${ip}, ${ua},
-                  ${student.length > 0})`;
+                  ${device}, ${student.length > 0})`;
 
         return json({ email, ...(await accessFor(sql, email)) });
       }
