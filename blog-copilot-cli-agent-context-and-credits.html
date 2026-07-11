@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Copilot CLI for Everyday Tasks: Where Its Context Comes From &amp; What a Task Costs — Learn with Palla</title>
+  <meta name="description" content="We moved our routine engineering chores to GitHub Copilot CLI. What the agent already knows before your first prompt — cached system context, instruction files, Copilot Memory — how to see your AI Credit burn, and how many tasks an Enterprise seat really buys." />
+  <meta name="theme-color" content="#0a0e14" />
+  <link rel="canonical" href="https://learnwithpalla.com/blog-copilot-cli-agent-context-and-credits.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Copilot CLI for everyday tasks: where its context comes from, and what a task really costs" />
+  <meta property="og:description" content="Cached system context vs instruction files vs Copilot Memory, how to actually see your AI Credit usage, and how many tasks an Enterprise seat buys." />
+  <meta property="og:url" content="https://learnwithpalla.com/blog-copilot-cli-agent-context-and-credits.html" />
+  <meta name="twitter:card" content="summary" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Copilot CLI for everyday tasks: where its context comes from, and what a task really costs",
+    "author": { "@type": "Person", "name": "Palla Raghavendran", "url": "https://learnwithpalla.com/about.html" },
+    "datePublished": "2026-07-11",
+    "dateModified": "2026-07-11",
+    "publisher": { "@type": "Organization", "name": "Learn with Palla", "url": "https://learnwithpalla.com/" },
+    "mainEntityOfPage": "https://learnwithpalla.com/blog-copilot-cli-agent-context-and-credits.html"
+  }
+  </script>
+
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css?v=5" />
+  <link rel="stylesheet" href="assets/css/blog.css?v=3" />
+</head>
+<body>
+  <!-- ===== Header ===== -->
+  <header class="site-header" id="siteHeader">
+    <div class="container nav">
+      <a class="brand" href="index.html" aria-label="Learn with Palla home">
+        <span class="brand-mark">&lt;/&gt;</span>
+        <span class="brand-name">Learn<span class="grad">with</span>Palla</span>
+      </a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="courses.html">Courses</a>
+        <a href="curriculum.html">Curriculum</a>
+        <a href="blog.html" class="active">Blog</a>
+        <a href="resume.html">Resume</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a class="btn btn-sm btn-google" href="portal.html"><svg class="gicon" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Sign in</a>
+      </nav>
+      <a class="nav-mobile-auth" href="portal.html" id="mobileAuth" aria-label="Sign in with Google"><svg class="gicon" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg></a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <article class="post container">
+      <header class="post-head">
+        <span class="eyebrow">AI Tooling</span>
+        <h1>Copilot CLI for everyday tasks: where its context comes from, and what a task really costs</h1>
+        <p class="post-meta">By Palla Raghavendran · 11 July 2026 · 10 min read</p>
+      </header>
+
+      <div class="post-body">
+        <p>Our team has been moving routine engineering chores — failure triage, test-design drafts, small refactors, release-note summaries — from the IDE chat window to <strong>GitHub Copilot CLI</strong>, the terminal agent. It's a different way of working: you give it a task, it plans, reads files, edits and runs commands in a loop. And it raises two questions every team asks in week one:</p>
+        <ul>
+          <li><strong>"What does the agent already know before I type my first word?"</strong> (and where does that knowledge come from — cache, instruction files, or memory?)</li>
+          <li><strong>"What is each task doing to our AI Credit pool?"</strong> — because since the <a href="blog-github-copilot-ai-credits-explained.html">June 2026 move to usage-based AI Credits</a>, honestly, almost nobody on a team can tell you their balance.</li>
+        </ul>
+        <p>This article answers both, with the exact commands to see it for yourself.</p>
+
+        <h2>What the agent knows at turn zero: run <code>/context</code></h2>
+        <p>Copilot CLI ships a slash command that most people discover far too late. Type <code>/context</code> in a session and it draws a map of the model's context window — who is occupying it and how much. It looks roughly like this (numbers illustrative):</p>
+        <div class="codeblock"><code>Model: base agent model · 34k / 200k tokens used (17%)
+
+  System prompt        ~4k    ██
+  Custom instructions  ~2k    █      ← your AGENTS.md etc.
+  System tools         ~11k   █████
+  MCP tools            ~9k    ████   ← Playwright MCP, etc.
+  Messages             ~8k    ████   ← the conversation so far
+  Free space           166k</code></div>
+        <p>So before you say a word, the window already carries four layers. Understanding which layer is which tells you what's cheap, what's yours to control, and what the agent "remembers" on its own.</p>
+
+        <h2>Layer 1 — preloaded and (mostly) cached: the system prompt and tool definitions</h2>
+        <p>The <strong>system prompt</strong> and the <strong>built-in tool definitions</strong> are GitHub's, not yours — they load in every session, identical every time. Add MCP servers and their tool definitions join too. Identical-every-time is exactly what <strong>prompt caching</strong> is for: context the model has already processed is re-billed as <em>cached input</em>, typically at about <strong>10% of the fresh-input price</strong>. Two practical consequences your team should know:</p>
+        <ul>
+          <li><strong>Don't switch models mid-session.</strong> A different model cannot reuse another model's cache, so the whole context is re-processed at full price. Pick the model, then start the task.</li>
+          <li><strong>Caches expire on idle</strong> — roughly 24 hours for OpenAI models and about 1 hour for most others. A session you abandon over lunch may pay a re-warm on return.</li>
+        </ul>
+
+        <h2>Layer 2 — instruction files: the part you write once and pay for always</h2>
+        <p>The "Custom instructions" line in <code>/context</code> is the sum of every instruction file the CLI found:</p>
+        <ul>
+          <li><strong><code>AGENTS.md</code></strong> in the repository — the agent-facing rulebook (build commands, conventions, definition of done).</li>
+          <li><strong><code>.github/copilot-instructions.md</code></strong> — repository instructions, shared with Copilot's other surfaces (chat, code review, cloud agent).</li>
+          <li><strong><code>~/.copilot/instructions/*.instructions.md</code></strong> — your personal, global instructions that apply in every repository (coding style, "always answer with runnable commands", language preferences).</li>
+        </ul>
+        <p>These files are injected into <em>every session</em>. That's their power — the agent starts already knowing your stack — and their tax: a bloated instructions file is input tokens on every request from every user, cached or not. My rule from the <a href="blog-github-copilot-ai-credits-explained.html">credits article</a> stands: <strong>one screen</strong> of the things the agent gets wrong without it, nothing more.</p>
+
+        <h2>Layer 3 — Copilot Memory: what the agent learned by itself</h2>
+        <p>This is the layer teams are most surprised by. <strong>Copilot Memory</strong> (used by Copilot CLI, the cloud coding agent and Copilot code review) stores small facts the agent validated while working with you — "tests run with <code>npm run test:api</code>", "this repo uses YAML-driven scenarios" — and retrieves the relevant ones into context on later tasks. The mechanics that matter:</p>
+        <ul>
+          <li><strong>Repo-scoped, permission-gated.</strong> Memories are created only from actions in a repository by people with write access, and only used in tasks on that same repository. Your conventions don't leak across projects.</li>
+          <li><strong>Self-cleaning.</strong> A memory that goes unused for 28 days is deleted automatically; using one resets its clock.</li>
+          <li><strong>You control it per surface:</strong> in the CLI, <code>/memory on</code>, <code>/memory off</code>, and <code>/memory show</code> to see what it currently believes. The setting persists across sessions.</li>
+        </ul>
+        <p>Think of the difference this way: <strong>instruction files are what you decided to tell the agent; memory is what it noticed.</strong> Both arrive as context tokens. Memory's advantage is that it's small, targeted and retrieved only when relevant — you don't pay for a 500-line wiki on every request.</p>
+
+        <h2>"Nobody knows how many credits we've used" — here's how to actually see it</h2>
+        <p>The old "300 premium requests" intuition died in June; a task now costs whatever its tokens cost, which is why <em>nobody's gut feeling works anymore</em>. The visibility tools exist — they're just not where people look:</p>
+        <ul>
+          <li><strong><code>/usage</code></strong> (in a CLI session) — session statistics including the AI Credits burned so far in <em>this</em> session. Make "check <code>/usage</code> before you close" a team habit for the first month.</li>
+          <li><strong><code>/limits</code></strong> — view or set a <strong>per-session credit cap</strong> (added July 2026). The session tracks everything — model calls, subagents, background compaction — and stops at your ceiling instead of surprising you. Give juniors a default limit while they learn what tasks cost.</li>
+          <li><strong>The org dashboard</strong> (billing → AI usage) — where the pooled Enterprise picture lives: consumption by user, by model, by day. Admins can set budgets per cost-center or per user.</li>
+        </ul>
+        <blockquote><p>Habit for adopters: <code>/context</code> when you start, <code>/usage</code> before you close, <code>/limits</code> if you're experimenting.</p></blockquote>
+
+        <h2>So how many tasks does an Enterprise seat actually buy?</h2>
+        <p>A <strong>Copilot Enterprise</strong> seat includes <strong>3,900 AI Credits per user per month</strong> (Business: 1,900), pooled across the org, no rollover. A credit is $0.01 of model usage — so the honest answer to "how many tasks?" is "it depends on the task's tokens". From our own adoption, with the base model and a lean setup, tasks cluster into three sizes (illustrative averages, not GitHub's numbers — measure your own with <code>/usage</code>):</p>
+        <ul>
+          <li><strong>Small (≈3–15 credits):</strong> explain a failure, draft a test-data table, a one-file edit with review. An Enterprise seat covers <strong>hundreds per month</strong>.</li>
+          <li><strong>Medium (≈30–80 credits):</strong> a scoped agent task — "add validation to these three endpoints following the pattern in <code>orders.ts</code>, run the tests". Roughly <strong>50–130 per seat per month</strong> if that's all you did.</li>
+          <li><strong>Large (≈200–500+ credits):</strong> long multi-hour agentic sessions, frontier models, big-context refactors. These are <strong>a few per week per seat</strong> — budget them like you'd budget a specialist's afternoon.</li>
+        </ul>
+        <p>The levers that move a task between buckets, in order of impact: <strong>model choice</strong> (frontier vs base is often the single biggest multiplier), <strong>conversation length</strong> (every turn re-sends history — one task per session), and <strong>context hygiene</strong> (compaction kicks in automatically near 80% of the window, but <code>/compact</code> before a new phase of work keeps you in cheap territory).</p>
+
+        <h2>The adoption playbook we settled on</h2>
+        <ol>
+          <li>One <code>AGENTS.md</code> per repo, one screen long. Review it monthly like code.</li>
+          <li><code>/memory on</code> for the repos you work in daily; <code>/memory show</code> in retros so the team sees what it learned.</li>
+          <li>Base model by default; frontier models are an escalation, not a habit.</li>
+          <li>One task per session. Finishing a task and starting an unrelated one in the same thread is paying to re-send the first task forever.</li>
+          <li><code>/limits</code> caps for new users; <code>/usage</code> before closing any long session.</li>
+          <li>Admins: watch billing → AI usage <em>weekly</em>, and set per-user budgets before the first month-end surprise.</li>
+        </ol>
+
+        <p>References: <a href="https://docs.github.com/en/copilot/concepts/agents/copilot-cli/context-management" target="_blank" rel="noopener">Managing context in Copilot CLI</a>, <a href="https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference" target="_blank" rel="noopener">Copilot CLI command reference</a>, <a href="https://docs.github.com/en/copilot/concepts/agents/copilot-memory" target="_blank" rel="noopener">About Copilot Memory</a>, <a href="https://github.blog/changelog/2026-05-26-copilot-memory-has-more-controls-for-deletion-scope-and-the-copilot-cli/" target="_blank" rel="noopener">Memory controls in the CLI</a>, <a href="https://github.blog/changelog/2026-07-01-set-ai-credit-session-limits-in-copilot-cli-and-sdk/" target="_blank" rel="noopener">AI Credit session limits</a>, <a href="https://docs.github.com/en/copilot/concepts/billing/usage-based-billing-for-organizations-and-enterprises" target="_blank" rel="noopener">usage-based billing for organizations</a> and <a href="https://github.blog/ai-and-ml/github-copilot/getting-more-from-each-token-how-copilot-improves-context-handling-and-model-routing/" target="_blank" rel="noopener">GitHub on context handling &amp; model routing</a>. Checked 11 July 2026 — the CLI moves fast; trust <code>/context</code> and <code>/usage</code> on your own machine over any article, including this one.</p>
+
+        <div class="post-cta">
+          <p><strong>Want your team to adopt agents with judgment, not just enthusiasm?</strong> My 45-day course teaches AI-assisted test automation hands-on — Copilot, agents, MCP and the discipline to use them well.</p>
+          <a class="btn btn-primary btn-sm" href="curriculum.html">See the 45-day plan →</a>
+        </div>
+      </div>
+
+      <footer class="post-foot">
+        <a href="blog.html">← All articles</a>
+        <span>Palla Raghavendran · SDET &amp; trainer</span>
+      </footer>
+    </article>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="foot-grid">
+        <div class="foot-about">
+          <a class="brand" href="index.html">
+            <span class="brand-mark">&lt;/&gt;</span>
+            <span class="brand-name">Learn<span class="grad">with</span>Palla</span>
+          </a>
+          <p>AI-powered test automation training with TypeScript, Playwright &amp; agents — for engineers and students who want job-ready skills.</p>
+          <div class="foot-social">
+            <a href="https://in.linkedin.com/in/palla-raghavendran" target="_blank" rel="noopener" aria-label="LinkedIn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 11-.02 5 2.5 2.5 0 01.02-5zM3 9h4v12H3zM10 9h3.8v1.7h.05c.53-1 1.83-2.05 3.76-2.05C21.4 8.65 22 11 22 14.1V21h-4v-6.1c0-1.45-.03-3.3-2-3.3-2 0-2.3 1.57-2.3 3.2V21h-4z"/></svg>
+            </a>
+            <a href="https://wa.me/919581341999" target="_blank" rel="noopener" aria-label="WhatsApp">
+              <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 3C9 3 3.5 8.5 3.5 15.5c0 2.4.7 4.7 1.9 6.7L3 29l7-1.8c1.9 1 4 1.6 6 1.6 7 0 12.5-5.5 12.5-12.5S23 3 16 3z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h4>Explore</h4>
+          <div class="foot-links">
+            <a href="index.html">Home</a>
+            <a href="courses.html">Courses</a>
+            <a href="curriculum.html">Curriculum</a>
+            <a href="blog.html">Blog</a>
+            <a href="resume.html">Resume Builder</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+          </div>
+        </div>
+        <div>
+          <h4>Courses</h4>
+          <div class="foot-links">
+            <a href="curriculum.html">45-Day Plan</a>
+            <a href="courses.html">AI-Powered Automation</a>
+            <a href="contact.html">Corporate / Batch</a>
+          </div>
+        </div>
+        <div>
+          <h4>Get in touch</h4>
+          <div class="foot-links">
+            <a href="https://wa.me/919581341999" target="_blank" rel="noopener">Chat on WhatsApp</a>
+            <a href="https://in.linkedin.com/in/palla-raghavendran" target="_blank" rel="noopener">LinkedIn</a>
+          </div>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© <span id="year">2026</span> Learn with Palla · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+        <span class="mono">// built for engineers, by an engineer</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js?v=3"></script>
+</body>
+</html>
