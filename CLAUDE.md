@@ -28,6 +28,11 @@ Live at https://learnwithpalla.com (GitHub Pages, repo `raghavendranpalla/codewi
   enforces ONE live session per account (newest login wins; 5-device/
   30-day block as backstop). Deploy: `cd worker && npx wrangler deploy`.
   Portal falls back to the local `emails[]` lists if the API is down.
+- **Roles:** `students.role` is `student` or `admin` (currently
+  raghavendranpalla@gmail.com). Admins get a ⚙ Admin panel button in the
+  portal: list students/trials, upgrade a trial to a batch, remove a
+  student (back to trial), unblock machines. Server-enforced via 30-day
+  `admin_tokens` minted at Google sign-in (X-Admin-Token header).
 
 ### Adding a student email
 
