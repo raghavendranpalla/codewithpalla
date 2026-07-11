@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Copilot CLI for Everyday Tasks: Where Its Context Comes From &amp; What a Task Costs — Learn with Palla</title>
-  <meta name="description" content="We moved our routine engineering chores to GitHub Copilot CLI. What the agent already knows before your first prompt — cached system context, instruction files, Copilot Memory — how to see your AI Credit burn, and how many tasks an Enterprise seat really buys." />
+  <meta name="description" content="A real Copilot CLI task from Swagger spec to automated positive & negative API tests — with the token bill per stage, a flow diagram, where the context comes from (cache, instruction files, Copilot Memory), and how many such tasks an Enterprise seat buys." />
   <meta name="theme-color" content="#0a0e14" />
   <link rel="canonical" href="https://learnwithpalla.com/blog-copilot-cli-agent-context-and-credits.html" />
 
@@ -33,6 +33,30 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/styles.css?v=5" />
   <link rel="stylesheet" href="assets/css/blog.css?v=3" />
+
+  <style>
+    /* ---- scoped to this article: flow diagram + token table ---- */
+    .flow-wrap {
+      overflow-x: auto; margin: 22px 0;
+      border: 1px solid var(--border); border-radius: 12px;
+      background: var(--bg-2); padding: 18px 14px;
+    }
+    .flow-wrap svg { display: block; min-width: 980px; margin: 0 auto; }
+    .flow-node { transition: filter .15s ease; cursor: default; }
+    .flow-node:hover { filter: drop-shadow(0 0 10px rgba(52,211,153,.55)); }
+    .flow-cap { text-align: center; font-size: .8rem; color: var(--faint); font-family: var(--font-mono); margin-top: 8px; }
+
+    .tok-wrap { overflow-x: auto; margin: 18px 0 8px; border: 1px solid var(--border); border-radius: 12px; }
+    .tok-table { width: 100%; min-width: 640px; border-collapse: collapse; font-size: .88rem; }
+    .tok-table th, .tok-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); text-align: left; }
+    .tok-table th {
+      background: var(--bg-2); font-family: var(--font-mono); font-size: .72rem;
+      text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+    }
+    .tok-table td.num, .tok-table th.num { text-align: right; font-family: var(--font-mono); font-size: .82rem; white-space: nowrap; }
+    .tok-table tr.total td { border-top: 2px solid var(--primary); font-weight: 700; color: var(--text); background: rgba(52,211,153,.06); }
+    .tok-note { font-size: .8rem; color: var(--faint); margin-top: 8px; }
+  </style>
 </head>
 <body>
   <!-- ===== Header ===== -->
@@ -64,7 +88,7 @@
       <header class="post-head">
         <span class="eyebrow">AI Tooling</span>
         <h1>Copilot CLI for everyday tasks: where its context comes from, and what a task really costs</h1>
-        <p class="post-meta">By Palla Raghavendran · 11 July 2026 · 10 min read</p>
+        <p class="post-meta">By Palla Raghavendran · 11 July 2026 · 12 min read</p>
       </header>
 
       <div class="post-body">
@@ -73,7 +97,111 @@
           <li><strong>"What does the agent already know before I type my first word?"</strong> (and where does that knowledge come from — cache, instruction files, or memory?)</li>
           <li><strong>"What is each task doing to our AI Credit pool?"</strong> — because since the <a href="blog-github-copilot-ai-credits-explained.html">June 2026 move to usage-based AI Credits</a>, honestly, almost nobody on a team can tell you their balance.</li>
         </ul>
-        <p>This article answers both, with the exact commands to see it for yourself.</p>
+        <p>This article answers both — not in the abstract, but by following <strong>one real task</strong> through the agent, stage by stage, with the token bill at each step.</p>
+
+        <h2>The task we'll follow: Swagger in, positive + negative tests out</h2>
+        <p>Our framework is the classic enterprise API stack: <strong>Java 17 + Rest Assured + TestNG</strong>, YAML-driven scenarios, field-level PostgreSQL validations. The recurring chore we hand to Copilot CLI: a new endpoint appears in the OpenAPI spec, and someone must design and automate its coverage — every required-field, type, boundary and auth case, positive <em>and</em> negative. The actual prompt looks like this:</p>
+        <div class="codeblock"><code>Read docs/swagger/payments.yaml (POST /payments only).
+
+1. Design a review-ready test matrix: every positive case and every
+   negative case — required fields, types, boundaries, auth, duplicates.
+2. Implement them as YAML scenarios following scenarios/orders.yaml,
+   with DB field validations like validations/orders-db.yaml.
+3. Run the suite, fix data issues, and summarise results with evidence.</code></div>
+        <p>One prompt, four phases of agent work. Here is the whole flow with what each stage consumes:</p>
+
+        <div class="flow-wrap" role="img" aria-label="Flow: Swagger spec to context load to test design to YAML scenarios to run and triage to evidence report, with credits per stage">
+          <svg viewBox="0 0 1040 210" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" fill="#34d399"/>
+              </marker>
+            </defs>
+
+            <!-- connectors -->
+            <path d="M156 90 L182 90" stroke="#34d399" stroke-width="2" marker-end="url(#arr)"/>
+            <path d="M331 90 L357 90" stroke="#34d399" stroke-width="2" marker-end="url(#arr)"/>
+            <path d="M506 90 L532 90" stroke="#34d399" stroke-width="2" marker-end="url(#arr)"/>
+            <path d="M681 90 L707 90" stroke="#34d399" stroke-width="2" marker-end="url(#arr)"/>
+            <path d="M856 90 L882 90" stroke="#34d399" stroke-width="2" marker-end="url(#arr)"/>
+
+            <!-- 1 Swagger spec -->
+            <g class="flow-node">
+              <rect x="10" y="40" width="146" height="100" rx="12" fill="#0f1520" stroke="#22d3ee" stroke-width="1.5"/>
+              <text x="83" y="72" text-anchor="middle" font-size="22">📄</text>
+              <text x="83" y="97" text-anchor="middle" font-size="12.5" font-weight="700" fill="#e5e7eb" font-family="Inter, sans-serif">Swagger spec</text>
+              <text x="83" y="114" text-anchor="middle" font-size="10.5" fill="#9ca3af" font-family="Inter, sans-serif">POST /payments</text>
+              <rect x="48" y="152" width="70" height="22" rx="11" fill="rgba(34,211,238,.12)" stroke="rgba(34,211,238,.4)"/>
+              <text x="83" y="167" text-anchor="middle" font-size="10.5" fill="#67e8f9" font-family="JetBrains Mono, monospace">input</text>
+            </g>
+            <!-- 2 Context loads -->
+            <g class="flow-node">
+              <rect x="185" y="40" width="146" height="100" rx="12" fill="#0f1520" stroke="#818cf8" stroke-width="1.5"/>
+              <text x="258" y="72" text-anchor="middle" font-size="22">🧠</text>
+              <text x="258" y="97" text-anchor="middle" font-size="12.5" font-weight="700" fill="#e5e7eb" font-family="Inter, sans-serif">Context loads</text>
+              <text x="258" y="114" text-anchor="middle" font-size="10.5" fill="#9ca3af" font-family="Inter, sans-serif">cache · AGENTS.md · memory</text>
+              <rect x="223" y="152" width="70" height="22" rx="11" fill="rgba(52,211,153,.12)" stroke="rgba(52,211,153,.4)"/>
+              <text x="258" y="167" text-anchor="middle" font-size="10.5" fill="#6ee7b7" font-family="JetBrains Mono, monospace">~8 cr</text>
+            </g>
+            <!-- 3 Test design -->
+            <g class="flow-node">
+              <rect x="360" y="40" width="146" height="100" rx="12" fill="#0f1520" stroke="#34d399" stroke-width="1.5"/>
+              <text x="433" y="72" text-anchor="middle" font-size="22">📝</text>
+              <text x="433" y="97" text-anchor="middle" font-size="12.5" font-weight="700" fill="#e5e7eb" font-family="Inter, sans-serif">Test design</text>
+              <text x="433" y="114" text-anchor="middle" font-size="10.5" fill="#9ca3af" font-family="Inter, sans-serif">32 cases · 8 +ve / 24 −ve</text>
+              <rect x="398" y="152" width="70" height="22" rx="11" fill="rgba(52,211,153,.12)" stroke="rgba(52,211,153,.4)"/>
+              <text x="433" y="167" text-anchor="middle" font-size="10.5" fill="#6ee7b7" font-family="JetBrains Mono, monospace">~12 cr</text>
+            </g>
+            <!-- 4 YAML scenarios -->
+            <g class="flow-node">
+              <rect x="535" y="40" width="146" height="100" rx="12" fill="#0f1520" stroke="#fbbf24" stroke-width="1.5"/>
+              <text x="608" y="72" text-anchor="middle" font-size="22">⚙️</text>
+              <text x="608" y="97" text-anchor="middle" font-size="12.5" font-weight="700" fill="#e5e7eb" font-family="Inter, sans-serif">YAML scenarios</text>
+              <text x="608" y="114" text-anchor="middle" font-size="10.5" fill="#9ca3af" font-family="Inter, sans-serif">24 files + DB validations</text>
+              <rect x="573" y="152" width="70" height="22" rx="11" fill="rgba(251,191,36,.12)" stroke="rgba(251,191,36,.4)"/>
+              <text x="608" y="167" text-anchor="middle" font-size="10.5" fill="#fcd34d" font-family="JetBrains Mono, monospace">~34 cr</text>
+            </g>
+            <!-- 5 Run & triage -->
+            <g class="flow-node">
+              <rect x="710" y="40" width="146" height="100" rx="12" fill="#0f1520" stroke="#f472b6" stroke-width="1.5"/>
+              <text x="783" y="72" text-anchor="middle" font-size="22">▶️</text>
+              <text x="783" y="97" text-anchor="middle" font-size="12.5" font-weight="700" fill="#e5e7eb" font-family="Inter, sans-serif">Run &amp; triage</text>
+              <text x="783" y="114" text-anchor="middle" font-size="10.5" fill="#9ca3af" font-family="Inter, sans-serif">suite run · 2 data fixes</text>
+              <rect x="748" y="152" width="70" height="22" rx="11" fill="rgba(244,114,182,.12)" stroke="rgba(244,114,182,.4)"/>
+              <text x="783" y="167" text-anchor="middle" font-size="10.5" fill="#f9a8d4" font-family="JetBrains Mono, monospace">~26 cr</text>
+            </g>
+            <!-- 6 Evidence -->
+            <g class="flow-node">
+              <rect x="885" y="40" width="146" height="100" rx="12" fill="#0f1520" stroke="#34d399" stroke-width="1.5"/>
+              <text x="958" y="72" text-anchor="middle" font-size="22">✅</text>
+              <text x="958" y="97" text-anchor="middle" font-size="12.5" font-weight="700" fill="#e5e7eb" font-family="Inter, sans-serif">Evidence &amp; PR</text>
+              <text x="958" y="114" text-anchor="middle" font-size="10.5" fill="#9ca3af" font-family="Inter, sans-serif">summary · req/resp/DB proof</text>
+              <rect x="923" y="152" width="70" height="22" rx="11" fill="rgba(52,211,153,.12)" stroke="rgba(52,211,153,.4)"/>
+              <text x="958" y="167" text-anchor="middle" font-size="10.5" fill="#6ee7b7" font-family="JetBrains Mono, monospace">~12 cr</text>
+            </g>
+          </svg>
+        </div>
+        <p class="flow-cap">One complete design-and-automate task ≈ 92 credits ≈ 2.4% of one Enterprise seat's month (base model)</p>
+
+        <h2>The bill for that one task, stage by stage</h2>
+        <p>These numbers are from our own runs on the base model — <em>illustrative, not GitHub's</em> (yours will differ; measure with <code>/usage</code>). Notice how much of the input is cached — that's what makes an agentic loop affordable at all:</p>
+        <div class="tok-wrap">
+          <table class="tok-table">
+            <thead>
+              <tr><th>Stage</th><th class="num">Input tokens</th><th class="num">of which cached</th><th class="num">Output tokens</th><th class="num">≈ Credits</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Load context, read spec, plan</td><td class="num">42k</td><td class="num">28k (67%)</td><td class="num">2.5k</td><td class="num">8</td></tr>
+              <tr><td>Design the 32-case test matrix</td><td class="num">55k</td><td class="num">46k (84%)</td><td class="num">6k</td><td class="num">12</td></tr>
+              <tr><td>Generate 24 YAML scenarios + fixtures</td><td class="num">130k</td><td class="num">110k (85%)</td><td class="num">18k</td><td class="num">34</td></tr>
+              <tr><td>Run suite, triage, fix 2 data issues</td><td class="num">160k</td><td class="num">140k (88%)</td><td class="num">9k</td><td class="num">26</td></tr>
+              <tr><td>Evidence summary + PR description</td><td class="num">60k</td><td class="num">55k (92%)</td><td class="num">4k</td><td class="num">12</td></tr>
+              <tr class="total"><td>One full task</td><td class="num">447k</td><td class="num">379k (85%)</td><td class="num">39.5k</td><td class="num">≈ 92</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="tok-note">Read the total the way a lead should: ≈ 92 credits of a 3,900-credit Enterprise seat = <strong>~2.4% of one person's month for a fully designed, automated, executed and evidenced endpoint</strong> — roughly 40 such tasks per seat per month if you did nothing else. The same task on a frontier model runs 3–5× that; a vague prompt ("test the payments API") can double it again in retry loops. Scope is the cheapest optimisation there is.</p>
+        <p>Now let's unpack <em>where</em> all that context came from — because that 85% cached figure is not luck, it's three layers you control.</p>
 
         <h2>What the agent knows at turn zero: run <code>/context</code></h2>
         <p>Copilot CLI ships a slash command that most people discover far too late. Type <code>/context</code> in a session and it draws a map of the model's context window — who is occupying it and how much. It looks roughly like this (numbers illustrative):</p>
