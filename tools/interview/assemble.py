@@ -32,7 +32,9 @@ def tts(text, voice, out):
         params={'output_format': 'mp3_44100_128'},
         headers={'xi-api-key': api_key()},
         json={'text': text, 'model_id': 'eleven_multilingual_v2',
-              'voice_settings': {'stability': 0.55, 'similarity_boost': 0.8}},
+              'voice_settings': {'stability': 0.45, 'similarity_boost': 0.85,
+                                 'style': 0.35, 'speed': 0.9,
+                                 'use_speaker_boost': True}},
         timeout=300)
     if r.status_code != 200:
         sys.exit(f'TTS failed ({r.status_code}): {r.text[:400]}')

@@ -96,10 +96,13 @@ Live at https://learnwithpalla.com (GitHub Pages, repo `raghavendranpalla/codewi
 - Format Palla promised students: he asks a question in his voice →
   45-second on-screen countdown for out-loud self-evaluation (beeps in
   the last 3 s) → he reveals the answer. ~25 min for 20 questions.
-- Narration uses Palla's ElevenLabs voice clone, voice_id
-  `x8tHWG9VqOQ8sTCj3MZC` (cloned 2026-07 from his Day 7 class
-  recordings). API key is in the *user-scope* env var `ELEVANLABS`
-  (his typo spelling — keep it). Needs the paid Starter plan.
+- Narration voice: **"Raghu"** `XArEYi9seQIEXf0bxQuP` — the clone Palla
+  registered himself and prefers. (An earlier auto-clone
+  "Palla Raghavendran" `x8tHWG9VqOQ8sTCj3MZC` also exists.) He wants
+  delivery slightly slow with emphasis — voice_settings in assemble.py
+  (speed 0.9, style 0.35) reflect that. API key is in the *user-scope*
+  env var `ELEVANLABS` (his typo spelling — keep it). Needs the paid
+  Starter plan (~30k credits/mo; one 20-question video ≈ 9.3k).
 - Workflow: edit the `QA` list in `tools/interview/make_slides.py`
   (question, answer headline/bullets/code, `a_narr` narration), run it
   (writes `slides/*.svg` + `manifest.json`), render SVGs→PNGs with
