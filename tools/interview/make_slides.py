@@ -165,7 +165,7 @@ QA = [
 ]
 
 INTRO_NARR = ("Welcome to your first interview practice session at Learn with Palla. "
-              "Here's how this works: I'll ask you a question, and you get forty-five seconds. "
+              "Here's how this works: I'll ask you a question, and you get twenty seconds. "
               "Answer out loud, as if you're sitting in a real interview. When the time is up, "
               "I'll give you the answer — compare it with yours and evaluate yourself honestly. "
               "Twenty questions today, covering everything from day one to day seven. "
@@ -262,8 +262,8 @@ b = '  <text x="96" y="150" font-family="%s" font-size="26" letter-spacing="7" f
 b += '  <text x="92" y="268" font-family="%s" font-size="64" font-weight="800" fill="#e6edf3">JavaScript</text>\n' % SANS
 b += '  <text x="96" y="362" font-family="%s" font-size="80" font-weight="800" fill="url(#grad)">Interview</text>\n' % SANS
 b += '  <text x="96" y="456" font-family="%s" font-size="80" font-weight="800" fill="url(#grad)">Practice #1</text>\n' % SANS
-b += '  <text x="96" y="530" font-family="%s" font-size="30" fill="#cbd5e1">Days 1–7  ·  20 questions  ·  45 seconds each</text>\n' % SANS
-rules = ['1. I ask — you answer OUT LOUD', '2. 45 seconds on the clock', '3. I reveal — you self-evaluate']
+b += '  <text x="96" y="530" font-family="%s" font-size="30" fill="#cbd5e1">Days 1–7  ·  20 questions  ·  20 seconds each</text>\n' % SANS
+rules = ['1. I ask — you answer OUT LOUD', '2. 20 seconds on the clock', '3. I reveal — you self-evaluate']
 ry = 200
 b += '  <rect x="820" y="150" rx="16" width="380" height="230" fill="#22d3ee" fill-opacity=".07" stroke="#22d3ee" stroke-opacity=".4" stroke-width="1.5"/>\n'
 b += '  <text x="850" y="196" font-family="%s" font-size="24" font-weight="700" letter-spacing="3" fill="#22d3ee">THE RULES</text>\n' % SANS
@@ -291,7 +291,7 @@ NUMWORD = ['one','two','three','four','five','six','seven','eight','nine','ten',
 items = [dict(id='intro', slide='intro.png', narr=INTRO_NARR, kind='plain')]
 for i, qa in enumerate(QA, 1):
     items.append(dict(id='q%02d' % i, slide='q%02d.png' % i,
-                      narr='Question %s. %s Your forty-five seconds start... now.' % (NUMWORD[i-1], qa['q']),
+                      narr='Question %s. %s Your twenty seconds start... now.' % (NUMWORD[i-1], qa['q']),
                       kind='question'))
     items.append(dict(id='a%02d' % i, slide='a%02d.png' % i,
                       narr="Okay, time's up. " + qa['a_narr'], kind='plain'))

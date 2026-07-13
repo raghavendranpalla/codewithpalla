@@ -11,7 +11,7 @@ FF = os.environ.get('FFMPEG_DIR', '')
 FFMPEG = os.path.join(FF, 'ffmpeg.exe') if FF else 'ffmpeg'
 FFPROBE = os.path.join(FF, 'ffprobe.exe') if FF else 'ffprobe'
 FONT = 'consolab.ttf'  # copied into HERE; ffmpeg runs with cwd=HERE to dodge C:\ escaping
-TIMER_SECONDS = 45
+TIMER_SECONDS = 20
 
 VENC = ['-c:v', 'libx264', '-preset', 'medium', '-tune', 'stillimage',
         '-pix_fmt', 'yuv420p', '-r', '30', '-video_track_timescale', '15360']

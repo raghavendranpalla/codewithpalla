@@ -94,8 +94,9 @@ Live at https://learnwithpalla.com (GitHub Pages, repo `raghavendranpalla/codewi
 ### Mock-interview videos (tools/interview/)
 
 - Format Palla promised students: he asks a question in his voice →
-  45-second on-screen countdown for out-loud self-evaluation (beeps in
-  the last 3 s) → he reveals the answer. ~25 min for 20 questions.
+  20-second on-screen countdown for out-loud self-evaluation (beeps in
+  the last 3 s; TIMER_SECONDS in assemble.py, was 45 originally) →
+  he reveals the answer. ~18 min for 20 questions.
 - Narration voice: **"Raghu"** `XArEYi9seQIEXf0bxQuP` — the clone Palla
   registered himself and prefers. (An earlier auto-clone
   "Palla Raghavendran" `x8tHWG9VqOQ8sTCj3MZC` also exists.) He wants
