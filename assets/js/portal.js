@@ -177,6 +177,14 @@
               { type: "video", label: "Part 3 — Comparison Operators", poster: "assets/img/thumb-day6-part3.svg?v=2", vid: "XTAgEzE3IyhnKlpofkN5PUQEczoEFV1kAHF1AmhmCQ8R" },
               { type: "pdf", label: "Study & Practice Guide (PDF)", vid: "XRYeRyhWC1Q8JBdzB3B5JCIISl1XMSJmOlUHVR9HBT0R" }
             ]
+          },
+          {
+            title: "Day 7 — Logical Operators, Ternary & the switch Statement",
+            description: "Decision-making, levelled up. Part 1 covers the logical operators — && (AND: every condition must be true), || (OR: any one is enough) and ! (NOT) — how to combine multiple conditions inside a single if, and the ternary operator cond ? a : b, a whole if/else in one line. Part 2 covers the switch statement — the cleaner way to compare one value against many exact options, with case, break (don't fall through!) and default. Watch both parts in order.",
+            resources: [
+              { type: "video", label: "Part 1 — Logical Operators (&&, ||), Multi-condition if & Ternary", poster: "assets/img/thumb-day7-part1.svg", vid: "XTUmF1sAPCMQK3sKXX9OPxg6GUMVHVYVOkZ9Y0sFQTsz" },
+              { type: "video", label: "Part 2 — The switch Statement", poster: "assets/img/thumb-day7-part2.svg", vid: "XSdEFS8ZFSdmGW5LewJVPA8/V1khFhIuB3tVfnoOJh4l" }
+            ]
           }
         ]
       }

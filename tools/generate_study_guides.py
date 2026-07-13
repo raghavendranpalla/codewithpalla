@@ -574,6 +574,117 @@ DAYS = [
                      'Everything you need is % and === . (Use a for loop if you know one, '
                      'or just write 15 checks — the operators are the point.)',
     },
+    {
+        'num': 7,
+        'title': 'Logical Operators, Ternary &amp; the switch Statement',
+        'intro': 'Recap of the Day 7 videos: combining conditions with &amp;&amp; (AND), '
+                 '|| (OR) and ! (NOT), writing an if/else in one line with the ternary '
+                 'operator, and the switch statement — the cleaner way to compare one '
+                 'value against many exact options.',
+        'sections': [
+            ('Logical operators — &amp;&amp;, || and !', [
+                ('p', 'Real checks rarely depend on a single condition. The logical '
+                      'operators glue booleans together: <b>&amp;&amp;</b> (AND) is true only '
+                      'when EVERY side is true, <b>||</b> (OR) is true when ANY side is '
+                      'true, and <b>!</b> (NOT) flips a boolean.'),
+                ('c', ['const age = 21, hasID = true;',
+                       '',
+                       'age &gt;= 18 &amp;&amp; hasID    // true  — BOTH conditions hold',
+                       'age &gt;= 65 || hasID    // true  — one side is enough',
+                       '!hasID                // false — NOT flips true/false']),
+                ('b', 'Combine as many conditions as you need inside one if: '
+                      '<font face="Courier">if (browser === "chrome" &amp;&amp; env === "qa") '
+                      '{ ... }</font> — no need to nest an if inside an if.'),
+                ('b', 'Order matters for readability, and JavaScript <b>short-circuits</b>: '
+                      'in <font face="Courier">a &amp;&amp; b</font>, if a is false, b is never '
+                      'even evaluated (the answer is already known). Same for '
+                      '<font face="Courier">a || b</font> when a is true.'),
+            ]),
+            ('The ternary operator — an if/else in one line', [
+                ('p', 'The ternary is the only JavaScript operator with three parts: '
+                      '<b>condition ? valueIfTrue : valueIfFalse</b>. Use it when an '
+                      'if/else exists only to pick between two values.'),
+                ('c', ['const score = 78;',
+                       '',
+                       '// the if/else way — 3 lines',
+                       'let result;',
+                       'if (score &gt;= 50) { result = "PASS"; } else { result = "FAIL"; }',
+                       '',
+                       '// the ternary way — 1 line',
+                       'const result2 = score &gt;= 50 ? "PASS" : "FAIL";']),
+                ('b', 'Read <font face="Courier">?</font> as "then" and '
+                      '<font face="Courier">:</font> as "otherwise".'),
+                ('b', 'Keep ternaries simple — one condition, two outcomes. If you feel '
+                      'the urge to nest a ternary inside a ternary, use if/else (or '
+                      'switch) instead.'),
+            ]),
+            ('The switch statement', [
+                ('p', 'When one value must be compared against many exact options, a '
+                      'ladder of if/else-if gets noisy. <b>switch</b> says it once, then '
+                      'lists the cases:'),
+                ('c', ['const day = "Mon";',
+                       '',
+                       'switch (day) {',
+                       '  case "Sat":',
+                       '  case "Sun":',
+                       '    console.log("Weekend!");',
+                       '    break;',
+                       '  case "Mon":',
+                       '    console.log("Start of the week");',
+                       '    break;',
+                       '  default:',
+                       '    console.log("Midweek");',
+                       '}']),
+                ('b', '<b>break is not optional in spirit:</b> without it, execution '
+                      '"falls through" into the NEXT case and runs its code too. The '
+                      'stacked <font face="Courier">case "Sat": case "Sun":</font> above '
+                      'uses fall-through on purpose — two cases sharing one body.'),
+                ('b', '<b>default</b> runs when no case matched — like the final else. '
+                      'Put it last.'),
+                ('b', 'switch compares with <b>strict equality (===)</b>: '
+                      '<font face="Courier">switch (count)</font> with '
+                      '<font face="Courier">case "3":</font> will NOT match the number 3 '
+                      '— Day 5 and Day 6 strike again.'),
+            ]),
+        ],
+        'ref_head': ['Expression', 'Result — and why'],
+        'ref_rows': [
+            ['true && false', 'false — AND needs BOTH sides true'],
+            ['true || false', 'true — OR needs just one side true'],
+            ['!true', 'false — NOT flips the boolean'],
+            ['a && b (a is false)', 'b never runs — short-circuit'],
+            ['x ? "yes" : "no"', '"yes" if x is true, otherwise "no"'],
+            ['case without break', 'Falls through — the next case runs too'],
+            ['default:', 'Runs when no case matched (like else)'],
+        ],
+        'practice': [
+            ('Predict each result, then verify in Node: '
+             '<font face="Courier">true &amp;&amp; false</font>, '
+             '<font face="Courier">true || false</font>, '
+             '<font face="Courier">!false</font>, '
+             '<font face="Courier">5 &gt; 3 &amp;&amp; 2 &gt; 4</font>, '
+             '<font face="Courier">5 &gt; 3 || 2 &gt; 4</font>.', None),
+            ('A login form: <font face="Courier">const user = "palla"; const pass = '
+             '"secret123";</font> Write ONE if that prints "Welcome" only when the user '
+             'is "palla" AND the password is at least 8 characters long.',
+             'Combine === with pass.length &gt;= 8 using &amp;&amp;.'),
+            ('Rewrite with a ternary: <font face="Courier">const n = 7;</font> print '
+             '"even" or "odd".',
+             'n % 2 === 0 ? "even" : "odd" — Day 6\'s % meets today\'s ternary.'),
+            ('Write a switch on <font face="Courier">const browser = "firefox"</font> '
+             'that prints the driver name for "chrome", "firefox" and "safari", and '
+             '"unsupported browser" for anything else.',
+             'Don\'t forget break after each case — and default for the rest.'),
+            ('Remove the breaks from your switch above, run it again, and explain what '
+             'printed and why.',
+             'This is fall-through — seeing it once protects you in interviews forever.'),
+        ],
+        'challenge': 'A ticket-price calculator: given const age = 34 and const isStudent '
+                     '= false, price is 0 under 5 years old, half price for students OR '
+                     'anyone 60 and over, otherwise 200. Write it twice — once with '
+                     'if / else-if / else using &amp;&amp; and ||, and once as a single nested '
+                     'ternary. Which one is easier to read a week later?',
+    },
 ]
 
 
