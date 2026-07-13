@@ -91,6 +91,26 @@ Live at https://learnwithpalla.com (GitHub Pages, repo `raghavendranpalla/codewi
   not for anything that counts.
 - Bump `?v=N`, commit, push. No Drive sharing needed for quizzes.
 
+### Mock-interview videos (tools/interview/)
+
+- Format Palla promised students: he asks a question in his voice →
+  45-second on-screen countdown for out-loud self-evaluation (beeps in
+  the last 3 s) → he reveals the answer. ~25 min for 20 questions.
+- Narration uses Palla's ElevenLabs voice clone, voice_id
+  `x8tHWG9VqOQ8sTCj3MZC` (cloned 2026-07 from his Day 7 class
+  recordings). API key is in the *user-scope* env var `ELEVANLABS`
+  (his typo spelling — keep it). Needs the paid Starter plan.
+- Workflow: edit the `QA` list in `tools/interview/make_slides.py`
+  (question, answer headline/bullets/code, `a_narr` narration), run it
+  (writes `slides/*.svg` + `manifest.json`), render SVGs→PNGs with
+  headless Edge, then `python assemble.py --voice x8tHWG9VqOQ8sTCj3MZC`
+  (TTS is cached per id in `audio/`; `--only q01,a01` for smoke tests).
+  Needs ffmpeg (`FFMPEG_DIR` env var or on PATH) — not installed
+  globally on this machine; grab the gyan.dev essentials zip.
+- Output mp4 goes to Google Drive like class videos (not the repo);
+  slides/audio/segs work dirs are gitignored by location (scratch).
+- Interview Practice #1 (Days 1–7, 20 questions) delivered 2026-07-13.
+
 ## Marketing site
 
 - Pages: index / courses / curriculum / about / contact (+ 404). Dark theme,
