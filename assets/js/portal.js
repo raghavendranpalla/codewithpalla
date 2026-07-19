@@ -709,6 +709,7 @@
       renderContent(batch, user);
       addAdminButton();
       addLiveButton();
+      addMediaWarmup();
     } else if (access && access.status === "student" && access.batchId) {
       // Enrolled in a batch whose content isn't published on the site
       // yet (batch created from the admin panel) — friendly holding page.
@@ -723,6 +724,7 @@
         "will appear right here as classes begin. Check back soon.</p>";
       addAdminButton();
       addLiveButton();
+      addMediaWarmup();
     } else if (access && access.status === "trial") {
       // Not registered in any batch — FREE TRIAL of the first few days.
       hide(els.signinBox);
@@ -1299,6 +1301,40 @@
         o.start(at); o.stop(at + 0.26);
       });
     } catch (e) { /* no audio — visual ring only */ }
+  }
+
+  /* ---- One-time camera/mic warm-up for live-enabled students ----
+     Asking once right after login means every later call connects with
+     a single Accept tap and no permission popup. The stream is stopped
+     immediately — this only records the browser permission. ---- */
+  var LS_MEDIA_OK = "lwp_media_ok";
+
+  function addMediaWarmup() {
+    if (!liveEnabled() || get(LS_MEDIA_OK) || document.getElementById("mediaWarmup")) return;
+    var box = document.createElement("div");
+    box.id = "mediaWarmup";
+    box.className = "trial-banner";
+    box.innerHTML =
+      '🎥 <strong>Live calls are enabled for your account.</strong> ' +
+      "Allow your camera &amp; microphone once now, so Palla's calls connect " +
+      "instantly when you accept. " +
+      '<button id="mediaWarmupBtn" class="btn btn-primary media-ready-btn" type="button">Enable camera &amp; mic</button>';
+    els.content.insertBefore(box, els.content.firstChild);
+    document.getElementById("mediaWarmupBtn").addEventListener("click", function () {
+      var btn = this;
+      btn.disabled = true;
+      getMedia("video").then(function (stream) {
+        stream.getTracks().forEach(function (t) { t.stop(); }); // permission saved; camera off
+        set(LS_MEDIA_OK, 1);
+        box.innerHTML = "✅ <strong>You're ready for live calls.</strong> " +
+          "When Palla calls, this page rings — just tap Accept.";
+      }).catch(function () {
+        btn.disabled = false;
+        alert("Camera/microphone was not allowed.\n\nWhen the browser asks, tap " +
+          "ALLOW — or enable Camera and Microphone for learnwithpalla.com in " +
+          "your browser's site settings, then try again.");
+      });
+    });
   }
 
   /* ---- Student: the 🎥 Live video tab ---- */
