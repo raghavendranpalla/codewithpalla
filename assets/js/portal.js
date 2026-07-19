@@ -679,6 +679,9 @@
 
     var access = get(LS_ACCESS);
 
+    // Live video enabled for this account — listen for incoming calls.
+    if (liveEnabled()) startLivePolling();
+
     // Server said blocked (same account on too many machines, or a
     // manual admin block) — this overrides everything else.
     if (access && access.status === "blocked") {
@@ -705,6 +708,7 @@
       document.body.classList.add("course-mode");
       renderContent(batch, user);
       addAdminButton();
+      addLiveButton();
     } else if (access && access.status === "student" && access.batchId) {
       // Enrolled in a batch whose content isn't published on the site
       // yet (batch created from the admin panel) — friendly holding page.
@@ -718,6 +722,7 @@
         '<p class="lead">Welcome! Your batch is set up and its recordings ' +
         "will appear right here as classes begin. Check back soon.</p>";
       addAdminButton();
+      addLiveButton();
     } else if (access && access.status === "trial") {
       // Not registered in any batch — FREE TRIAL of the first few days.
       hide(els.signinBox);
@@ -845,6 +850,7 @@
       html += '<h2 class="admin-h">Students (' + d.students.length + ")</h2>" +
         '<div class="admin-table-wrap"><table class="admin-table"><thead><tr>' +
         "<th>Email</th><th>Batch</th><th>Role</th><th>Status</th>" +
+        "<th>Live video</th>" +
         "<th>Machines (30d)</th><th>Last login</th><th></th>" +
         "</tr></thead><tbody>";
       d.students.forEach(function (s) {
@@ -852,6 +858,14 @@
           "<td>" + escapeHtml(s.batch_id) + "</td>" +
           "<td>" + escapeHtml(s.role || "student") + "</td>" +
           "<td>" + escapeHtml(s.status) + "</td>" +
+          '<td><button class="btn btn-ghost admin-act' + (s.live_enabled ? " live-on" : "") +
+            '" data-act="live" data-on="' + (s.live_enabled ? 1 : 0) +
+            '" data-email="' + escapeAttr(s.email) + '">' +
+            (s.live_enabled ? "Live: ON" : "Live: off") + "</button>" +
+          (s.live_enabled
+            ? ' <button class="btn btn-ghost admin-act" data-act="call" data-email="' +
+              escapeAttr(s.email) + '">📞 Call</button>'
+            : "") + "</td>" +
           "<td>" + (s.machines || 0) + " / " + s.machine_limit + "</td>" +
           "<td>" + fmtWhen(s.last_login) + "</td>" +
           "<td>" + (s.role === "admin" ? "" :
@@ -915,6 +929,12 @@
     var btn = e.currentTarget;
     var act = btn.getAttribute("data-act");
     var email = btn.getAttribute("data-email");
+    if (act === "live") {
+      adminPost("/api/admin/live/enable",
+        { email: email, enabled: btn.getAttribute("data-on") !== "1" }, btn);
+      return;
+    }
+    if (act === "call") { startAdminCall(email); return; }
     var payload = { email: email };
     if (act === "upgrade") {
       var sel = btn.parentNode.querySelector(".admin-batch-sel");
@@ -957,6 +977,239 @@
     adminPost("/api/admin/batch",
       { id: id.trim().toLowerCase(), name: name.trim() },
       document.getElementById("adminNewBatchBtn"));
+  }
+
+  /* =======================================================
+     LIVE VIDEO — Palla rings a student from the admin panel;
+     their portal (any view, as long as the tab is open) shows
+     a full-screen incoming-call card. Accepting opens the
+     meeting link (Google Meet / Zoom) in a new tab. Enabled
+     per student via the admin panel's "Live" toggle; the
+     server only answers polls from the account's one live
+     session device.
+     ======================================================= */
+  var LS_LIVE_URL = "lwp_live_url"; // admin: last meeting link used
+  var live = {
+    timer: null, lastCall: null, dismissed: {},
+    beepTimer: null, titleTimer: null, baseTitle: "", actx: null,
+    adminTimer: null
+  };
+
+  function liveEnabled() {
+    var a = get(LS_ACCESS) || {};
+    return !!a.live;
+  }
+
+  /* ---- Student: poll for an incoming / ongoing call ---- */
+  function startLivePolling() {
+    if (live.timer || !CONFIG.apiUrl) return;
+    live.timer = setInterval(livePoll, 10 * 1000);
+    livePoll();
+  }
+
+  function livePoll() {
+    var user = get(LS_USER);
+    if (!user || !liveEnabled() || document.visibilityState === "hidden") return;
+    fetch(CONFIG.apiUrl + "/api/live/poll?email=" + encodeURIComponent(user.email) +
+          "&device=" + encodeURIComponent(deviceId()))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var call = d && d.call;
+        updateLivePanel(call);
+        if (call && call.status === "ringing" && !live.dismissed[call.id]) {
+          showRing(call);
+        } else if (!call || call.status !== "ringing") {
+          hideRing(); // admin cancelled or call went stale
+        }
+      })
+      .catch(function () { /* offline — try again next tick */ });
+  }
+
+  function liveRespond(id, action) {
+    var user = get(LS_USER);
+    if (!user || !CONFIG.apiUrl) return;
+    fetch(CONFIG.apiUrl + "/api/live/respond", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: user.email, device: deviceId(), id: id, action: action })
+    }).catch(function () {});
+  }
+
+  /* ---- Student: full-screen incoming-call card ---- */
+  function showRing(call) {
+    if (document.getElementById("lwpRing")) return;
+    var ov = document.createElement("div");
+    ov.className = "ring-overlay";
+    ov.id = "lwpRing";
+    ov.innerHTML =
+      '<div class="ring-card">' +
+        '<div class="ring-ico">📞</div>' +
+        '<div class="ring-title">Palla is calling you</div>' +
+        '<div class="ring-sub">Live video session — accepting opens the class in a new tab.</div>' +
+        '<div class="ring-actions">' +
+          // An <a> (not window.open) so the new tab is never popup-blocked.
+          '<a class="btn btn-primary" id="ringAccept" target="_blank" rel="noopener" href="' +
+            escapeAttr(call.url) + '">✔ Accept &amp; join</a>' +
+          '<button class="btn btn-ghost ring-decline" id="ringDecline" type="button">✖ Decline</button>' +
+        "</div></div>";
+    document.body.appendChild(ov);
+    document.getElementById("ringAccept").addEventListener("click", function () {
+      live.dismissed[call.id] = true;
+      liveRespond(call.id, "answer");
+      hideRing();
+      updateLivePanel({ id: call.id, url: call.url, status: "answered" });
+    });
+    document.getElementById("ringDecline").addEventListener("click", function () {
+      live.dismissed[call.id] = true;
+      liveRespond(call.id, "decline");
+      hideRing();
+    });
+    ringBeep();
+    live.beepTimer = setInterval(ringBeep, 1400);
+    live.baseTitle = document.title;
+    live.titleTimer = setInterval(function () {
+      document.title =
+        document.title === "📞 Incoming call…" ? live.baseTitle : "📞 Incoming call…";
+    }, 900);
+  }
+
+  function hideRing() {
+    var ov = document.getElementById("lwpRing");
+    if (ov) ov.remove();
+    if (live.beepTimer) { clearInterval(live.beepTimer); live.beepTimer = null; }
+    if (live.titleTimer) {
+      clearInterval(live.titleTimer);
+      live.titleTimer = null;
+      document.title = live.baseTitle || document.title;
+    }
+  }
+
+  // Short ring tone. Browsers may refuse audio before the user has
+  // interacted with the page — then the ring is visual only.
+  function ringBeep() {
+    try {
+      if (!live.actx) live.actx = new (window.AudioContext || window.webkitAudioContext)();
+      if (live.actx.state === "suspended") live.actx.resume().catch(function () {});
+      var t = live.actx.currentTime;
+      [880, 660].forEach(function (freq, i) {
+        var o = live.actx.createOscillator(), g = live.actx.createGain();
+        o.type = "sine";
+        o.frequency.value = freq;
+        var at = t + i * 0.28;
+        g.gain.setValueAtTime(0.0001, at);
+        g.gain.exponentialRampToValueAtTime(0.15, at + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, at + 0.24);
+        o.connect(g); g.connect(live.actx.destination);
+        o.start(at); o.stop(at + 0.26);
+      });
+    } catch (e) { /* no audio — visual ring only */ }
+  }
+
+  /* ---- Student: the 🎥 Live video tab ---- */
+  function addLiveButton() {
+    if (!liveEnabled() || document.getElementById("liveOpen")) return;
+    var btn = document.createElement("button");
+    btn.id = "liveOpen";
+    btn.type = "button";
+    btn.className = "btn btn-ghost admin-open-btn";
+    btn.textContent = "🎥 Live video";
+    btn.addEventListener("click", renderLivePanel);
+    els.content.insertBefore(btn, els.content.firstChild);
+  }
+
+  function renderLivePanel() {
+    els.contentBox.classList.remove("is-course");
+    els.content.innerHTML =
+      '<div class="portal-batch-name">🎥 Live video sessions</div>' +
+      '<button id="liveBack" class="btn btn-ghost admin-open-btn" type="button">← Back to course</button>' +
+      '<div class="live-status" id="liveStatus">Checking…</div>' +
+      '<p class="day-desc">When Palla starts a live video call for you, the portal rings ' +
+      "with an Accept button — just keep this site open in a tab. Accepting opens the " +
+      "video class in a new tab.</p>";
+    document.getElementById("liveBack").addEventListener("click", function () { render(); });
+    updateLivePanel(live.lastCall);
+    livePoll();
+  }
+
+  function updateLivePanel(call) {
+    live.lastCall = call || null;
+    var box = document.getElementById("liveStatus");
+    if (!box) return;
+    if (call && call.status === "answered") {
+      box.innerHTML = "<strong>🟢 A live session is in progress.</strong> " +
+        '<a class="btn btn-primary live-join" target="_blank" rel="noopener" href="' +
+        escapeAttr(call.url) + '">Join the live class</a>';
+    } else if (call && call.status === "ringing") {
+      box.textContent = "📞 Incoming call…";
+    } else {
+      box.textContent = "No live session right now. It will ring here when one starts.";
+    }
+  }
+
+  /* ---- Admin: ring a student ---- */
+  function startAdminCall(email) {
+    var meet = window.prompt(
+      "Meeting link for the live class (Google Meet / Zoom).\n" +
+      "The student's portal will ring and open this link when they accept.",
+      get(LS_LIVE_URL) || "https://meet.google.com/");
+    if (!meet) return;
+    meet = meet.trim();
+    if (!/^https:\/\//.test(meet)) { alert("The link must start with https://"); return; }
+    set(LS_LIVE_URL, meet);
+    adminApi("/api/admin/live/call", {
+      method: "POST",
+      body: JSON.stringify({ email: email, url: meet })
+    }).then(function (r) {
+      if (r && r.ok) showAdminRinging(email, r.id, meet);
+      else alert("Failed: " + ((r && r.error) || "unknown error"));
+    }).catch(function () { alert("Network error — try again."); });
+  }
+
+  function showAdminRinging(email, id, meet) {
+    hideAdminRinging();
+    var ov = document.createElement("div");
+    ov.className = "ring-overlay";
+    ov.id = "adminRing";
+    ov.innerHTML =
+      '<div class="ring-card">' +
+        '<div class="ring-ico">📞</div>' +
+        '<div class="ring-title">Calling ' + escapeHtml(email) + "</div>" +
+        '<div class="ring-sub" id="adminRingStatus">Ringing on their portal… ' +
+          "(they must have the portal open in a browser tab to see it)</div>" +
+        '<div class="ring-actions">' +
+          '<a class="btn btn-primary" target="_blank" rel="noopener" href="' +
+            escapeAttr(meet) + '">Open the meeting</a>' +
+          '<button class="btn btn-ghost ring-decline" id="adminRingEnd" type="button">End call</button>' +
+        "</div></div>";
+    document.body.appendChild(ov);
+    document.getElementById("adminRingEnd").addEventListener("click", function () {
+      adminApi("/api/admin/live/end", { method: "POST", body: JSON.stringify({ id: id }) })
+        .catch(function () {});
+      hideAdminRinging();
+    });
+    // This poll doubles as the heartbeat that keeps the student ringing.
+    live.adminTimer = setInterval(function () {
+      adminApi("/api/admin/live/status?id=" + encodeURIComponent(id)).then(function (d) {
+        var st = d && d.status;
+        var box = document.getElementById("adminRingStatus");
+        if (!box) return;
+        if (st === "answered") {
+          box.innerHTML = "🟢 <strong>Accepted!</strong> They are joining your meeting now.";
+        } else if (st === "declined") {
+          box.textContent = "🔴 They declined the call.";
+          clearInterval(live.adminTimer); live.adminTimer = null;
+        } else if (st === "ended" || st === "gone") {
+          box.textContent = "Call ended.";
+          clearInterval(live.adminTimer); live.adminTimer = null;
+        }
+      }).catch(function () {});
+    }, 3000);
+  }
+
+  function hideAdminRinging() {
+    var ov = document.getElementById("adminRing");
+    if (ov) ov.remove();
+    if (live.adminTimer) { clearInterval(live.adminTimer); live.adminTimer = null; }
   }
 
   /* ---- BLOCKED: same account used on too many machines ---- */
@@ -1063,7 +1316,8 @@
           return;
         }
         var old = get(LS_ACCESS) || {};
-        if (old.status !== a.status || old.batchId !== a.batchId) {
+        if (old.status !== a.status || old.batchId !== a.batchId ||
+            !!old.live !== !!a.live) {
           // Keep the admin token — /api/status doesn't re-issue it.
           if (old.admin) { a.admin = old.admin; a.adminToken = old.adminToken; }
           set(LS_ACCESS, a);

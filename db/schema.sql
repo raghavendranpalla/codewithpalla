@@ -32,6 +32,8 @@ create table if not exists students (
                                                 --  in-portal admin panel)
   machine_limit int  not null default 5,        -- backstop: blocked when used on more than
                                                 -- this many devices in the LAST 30 DAYS
+  live_enabled  boolean not null default false, -- 🎥 Live-video tab + incoming calls
+                                                -- (toggled per student from the admin panel)
   created_at    timestamptz not null default now()
 );
 
@@ -57,6 +59,22 @@ create index if not exists logins_email_idx on logins (email);
 create table if not exists sessions (
   email      text primary key,               -- gmail-normalised
   device_id  text not null,                  -- the ONE device allowed right now
+  updated_at timestamptz not null default now()
+);
+
+-- Live video calls (2026-07): the admin rings a student from the admin
+-- panel; the student's portal polls and shows an incoming-call screen.
+-- Rows are history — a ring only counts as live while the admin's
+-- "Ringing…" dialog keeps heartbeating updated_at (every 3 s; stale
+-- after 45 s), and an answered call stays joinable for 4 hours.
+-- NOTE: this table AND students.live_enabled are auto-created by the
+-- Worker (ensureLiveSchema) — no manual migration needed.
+create table if not exists live_calls (
+  id         text primary key,               -- uuid minted by the Worker
+  email      text not null,                  -- gmail-normalised student
+  url        text not null default '',       -- meeting link (Meet / Zoom)
+  status     text not null default 'ringing',-- ringing|answered|declined|ended
+  created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 

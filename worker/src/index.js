@@ -16,6 +16,12 @@
        Read-only recheck the portal runs on load and every few minutes.
        Answers { status:"signed_out" } when another device has since
        logged in (one live session per account, newest login wins).
+     GET  /api/live/poll?email=...&device=...   student: any active call?
+     POST /api/live/respond { email, device, id, action }   answer/decline
+     Admin (X-Admin-Token): GET  /api/admin/live/status?id=...
+       POST /api/admin/live/enable { email, enabled }
+       POST /api/admin/live/call   { email, url }   ring the student
+       POST /api/admin/live/end    { id }
 
    Tables (created in Neon):
      students(email pk, name, batch_id, status, machine_limit, created_at)
@@ -79,12 +85,40 @@ async function adminEmailFor(sql, request) {
   return rows.length ? rows[0].email : null;
 }
 
+// Live-video schema, created on first use so no manual Neon step is
+// needed. Runs once per Worker isolate; `if not exists` makes it a no-op
+// after the first ever call.
+let liveSchemaReady = false;
+async function ensureLiveSchema(sql) {
+  if (liveSchemaReady) return;
+  await sql`alter table students
+    add column if not exists live_enabled boolean not null default false`;
+  await sql`create table if not exists live_calls (
+    id         text primary key,
+    email      text not null,
+    url        text not null default '',
+    status     text not null default 'ringing',
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
+  )`;
+  liveSchemaReady = true;
+}
+
+// Live-video auth: the caller must present the email's CURRENT
+// live-session device id — same one-live-session rule as /api/status,
+// so only the signed-in device can see or answer a call.
+async function isLiveSession(sql, email, device) {
+  if (!device) return false;
+  const rows = await sql`select device_id from sessions where email = ${email}`;
+  return rows.length > 0 && rows[0].device_id === device;
+}
+
 // Decide what a signed-in email may see. "Machines" are counted by the
 // device id the portal stores in each browser's localStorage — NOT by IP,
 // so a student whose network address changes is never wrongly blocked.
 async function accessFor(sql, email) {
   const rows =
-    await sql`select batch_id, status, machine_limit from students where email = ${email}`;
+    await sql`select batch_id, status, machine_limit, live_enabled from students where email = ${email}`;
   if (!rows.length) return { status: "trial" };
 
   const st = rows[0];
@@ -101,7 +135,7 @@ async function accessFor(sql, email) {
   if (machines > st.machine_limit) {
     return { status: "blocked", reason: "machine_limit", limit: st.machine_limit, machines };
   }
-  return { status: "student", batchId: st.batch_id };
+  return { status: "student", batchId: st.batch_id, live: !!st.live_enabled };
 }
 
 export default {
@@ -120,6 +154,8 @@ export default {
 
     const sql = neon(env.DATABASE_URL);
     try {
+      await ensureLiveSchema(sql);
+
       if (request.method === "POST" && url.pathname === "/api/session") {
         const body = await request.json().catch(() => ({}));
         if (!body.credential) return json({ error: "missing credential" }, 400);
@@ -190,6 +226,41 @@ export default {
           }
         }
         return json(await accessFor(sql, email));
+      }
+
+      /* ---- Live video (student side) ----
+         Palla rings a student from the admin panel; the student's portal
+         polls here and shows the incoming-call screen. A ring is only
+         "live" while the admin side keeps heartbeating it (updated_at),
+         so a closed admin tab stops the ringing within ~45 seconds.   */
+      if (request.method === "GET" && url.pathname === "/api/live/poll") {
+        const email = normEmail(url.searchParams.get("email"));
+        if (!email.includes("@")) return json({ error: "bad email" }, 400);
+        const device = String(url.searchParams.get("device") || "").slice(0, 64);
+        if (!(await isLiveSession(sql, email, device))) return json({ call: null });
+        const rows = await sql`
+          select id, url, status from live_calls
+          where email = ${email} and (
+            (status = 'ringing'  and updated_at > now() - interval '45 seconds') or
+            (status = 'answered' and updated_at > now() - interval '4 hours'))
+          order by created_at desc limit 1`;
+        return json({ call: rows.length ? rows[0] : null });
+      }
+
+      if (request.method === "POST" && url.pathname === "/api/live/respond") {
+        const body = await request.json().catch(() => ({}));
+        const email = normEmail(body.email || "");
+        const device = String(body.device || "").slice(0, 64);
+        const id = String(body.id || "").slice(0, 64);
+        const action =
+          body.action === "answer" ? "answered" :
+          body.action === "decline" ? "declined" : "";
+        if (!action || !email.includes("@")) return json({ error: "bad request" }, 400);
+        if (!(await isLiveSession(sql, email, device))) return json({ error: "unauthorized" }, 401);
+        await sql`
+          update live_calls set status = ${action}, updated_at = now()
+          where id = ${id} and email = ${email} and status = 'ringing'`;
+        return json({ ok: true });
       }
 
       /* ---- LinkedIn sign-in for the resume builder ----
@@ -279,9 +350,21 @@ export default {
         const adminEmail = await adminEmailFor(sql, request);
         if (!adminEmail) return json({ error: "unauthorized" }, 401);
 
+        // Heartbeat while the admin's "Ringing…" dialog is open: touching
+        // updated_at is what keeps the student's phone ringing.
+        if (request.method === "GET" && url.pathname === "/api/admin/live/status") {
+          const id = String(url.searchParams.get("id") || "").slice(0, 64);
+          const ringing = await sql`
+            update live_calls set updated_at = now()
+            where id = ${id} and status = 'ringing' returning status`;
+          if (ringing.length) return json({ status: "ringing" });
+          const cur = await sql`select status from live_calls where id = ${id}`;
+          return json({ status: cur.length ? cur[0].status : "gone" });
+        }
+
         if (request.method === "GET" && url.pathname === "/api/admin/users") {
           const students = await sql`
-            select s.email, s.batch_id, s.status, s.role, s.machine_limit,
+            select s.email, s.batch_id, s.status, s.role, s.machine_limit, s.live_enabled,
               (select count(distinct l.device_id)::int from logins l
                 where l.email = s.email and l.device_id <> ''
                   and l.created_at > now() - interval '30 days') as machines,
@@ -318,8 +401,47 @@ export default {
             return json({ ok: true });
           }
 
+          // End / cancel a live call (no email in the body).
+          if (url.pathname === "/api/admin/live/end") {
+            const id = String(body.id || "").slice(0, 64);
+            await sql`
+              update live_calls set status = 'ended', updated_at = now()
+              where id = ${id} and status <> 'ended'`;
+            return json({ ok: true });
+          }
+
           const email = normEmail(body.email || "");
           if (!email.includes("@")) return json({ error: "bad email" }, 400);
+
+          // Turn the Live-video tab on/off for one student.
+          if (url.pathname === "/api/admin/live/enable") {
+            const rows = await sql`
+              update students set live_enabled = ${!!body.enabled}
+              where email = ${email} returning email`;
+            if (!rows.length) {
+              return json({ error: "not a registered student — add them to a batch first" }, 400);
+            }
+            return json({ ok: true });
+          }
+
+          // Ring a student: any previous call for them is ended first.
+          if (url.pathname === "/api/admin/live/call") {
+            const meet = String(body.url || "").trim().slice(0, 500);
+            if (!/^https:\/\/\S+$/.test(meet)) {
+              return json({ error: "meeting link must start with https://" }, 400);
+            }
+            const st = await sql`select live_enabled from students where email = ${email}`;
+            if (!st.length) return json({ error: "not a registered student" }, 400);
+            if (!st[0].live_enabled) {
+              return json({ error: "live video is OFF for this student — turn it on first" }, 400);
+            }
+            await sql`
+              update live_calls set status = 'ended', updated_at = now()
+              where email = ${email} and status in ('ringing', 'answered')`;
+            const id = crypto.randomUUID();
+            await sql`insert into live_calls (id, email, url) values (${id}, ${email}, ${meet})`;
+            return json({ ok: true, id });
+          }
 
           // Add an email to a specific batch (also moves an existing
           // student between batches, and upgrades a trial user).

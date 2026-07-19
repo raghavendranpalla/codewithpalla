@@ -34,6 +34,19 @@ Live at https://learnwithpalla.com (GitHub Pages, repo `raghavendranpalla/codewi
   moves existing students), create new batches, remove a student (back
   to trial), unblock machines. Server-enforced via 30-day `admin_tokens`
   minted at Google sign-in (X-Admin-Token header).
+- **Live video (2026-07):** per-student 🎥 Live tab + in-portal ringing.
+  Admin panel students table has a "Live: on/off" toggle and a 📞 Call
+  button (asks for a Meet/Zoom link, remembered in localStorage
+  `lwp_live_url`). Calling rings the student's portal full-screen
+  (beep + flashing title) via 10-second polling of `/api/live/poll`;
+  Accept opens the link in a new tab. The admin "Ringing…" dialog
+  heartbeats `/api/admin/live/status` every 3 s — a ring goes stale 45 s
+  after the dialog closes; an answered call shows a Join button in the
+  student's Live tab for 4 h. Polls are gated by the account's
+  one-live-session device id. Schema (`students.live_enabled`,
+  `live_calls`) is auto-created by the Worker — no manual Neon step.
+  After toggling a student ON, their portal picks it up within ~5 min
+  (the /api/status recheck) — or immediately after a re-login.
 - **Batches** now live in the DB `batches` table (admin panel can create
   them), but a batch's course content still comes from
   `CONFIG.batches[]` in portal.js — students of a DB-only batch see a
