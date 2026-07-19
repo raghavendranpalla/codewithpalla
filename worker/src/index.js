@@ -16,11 +16,13 @@
        Read-only recheck the portal runs on load and every few minutes.
        Answers { status:"signed_out" } when another device has since
        logged in (one live session per account, newest login wins).
+     Live calls are browser-to-browser WebRTC; the API only relays the
+     SDP offer/answer (signalling) — no media touches the server.
      GET  /api/live/poll?email=...&device=...   student: any active call?
-     POST /api/live/respond { email, device, id, action }   answer/decline
+     POST /api/live/respond { email, device, id, action, answer? }
      Admin (X-Admin-Token): GET  /api/admin/live/status?id=...
        POST /api/admin/live/enable { email, enabled }
-       POST /api/admin/live/call   { email, url }   ring the student
+       POST /api/admin/live/call   { email, kind, offer }   ring the student
        POST /api/admin/live/end    { id }
 
    Tables (created in Neon):
@@ -99,11 +101,17 @@ async function ensureLiveSchema(sql) {
     url        text not null default '',
     kind       text not null default 'video',
     status     text not null default 'ringing',
+    offer      text not null default '',
+    answer     text not null default '',
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now()
   )`;
   await sql`alter table live_calls
     add column if not exists kind text not null default 'video'`;
+  await sql`alter table live_calls
+    add column if not exists offer text not null default ''`;
+  await sql`alter table live_calls
+    add column if not exists answer text not null default ''`;
   liveSchemaReady = true;
 }
 
@@ -242,12 +250,16 @@ export default {
         const device = String(url.searchParams.get("device") || "").slice(0, 64);
         if (!(await isLiveSession(sql, email, device))) return json({ call: null });
         const rows = await sql`
-          select id, url, kind, status from live_calls
+          select id, kind, status, offer from live_calls
           where email = ${email} and (
             (status = 'ringing'  and updated_at > now() - interval '45 seconds') or
             (status = 'answered' and updated_at > now() - interval '4 hours'))
           order by created_at desc limit 1`;
-        return json({ call: rows.length ? rows[0] : null });
+        if (!rows.length) return json({ call: null });
+        const c = rows[0];
+        let offer = null;
+        try { offer = c.offer ? JSON.parse(c.offer) : null; } catch (e) {}
+        return json({ call: { id: c.id, kind: c.kind, status: c.status, offer } });
       }
 
       if (request.method === "POST" && url.pathname === "/api/live/respond") {
@@ -255,14 +267,30 @@ export default {
         const email = normEmail(body.email || "");
         const device = String(body.device || "").slice(0, 64);
         const id = String(body.id || "").slice(0, 64);
-        const action =
-          body.action === "answer" ? "answered" :
-          body.action === "decline" ? "declined" : "";
+        const action = ["answer", "decline", "end"].includes(body.action) ? body.action : "";
         if (!action || !email.includes("@")) return json({ error: "bad request" }, 400);
         if (!(await isLiveSession(sql, email, device))) return json({ error: "unauthorized" }, 401);
-        await sql`
-          update live_calls set status = ${action}, updated_at = now()
-          where id = ${id} and email = ${email} and status = 'ringing'`;
+        if (action === "answer") {
+          // The answer carries the student's WebRTC SDP for the admin side.
+          const ans = body.answer;
+          if (!ans || ans.type !== "answer" || typeof ans.sdp !== "string" ||
+              ans.sdp.length > 100000) {
+            return json({ error: "bad answer" }, 400);
+          }
+          await sql`
+            update live_calls
+            set status = 'answered', answer = ${JSON.stringify({ type: "answer", sdp: ans.sdp })},
+                updated_at = now()
+            where id = ${id} and email = ${email} and status = 'ringing'`;
+        } else if (action === "decline") {
+          await sql`
+            update live_calls set status = 'declined', updated_at = now()
+            where id = ${id} and email = ${email} and status = 'ringing'`;
+        } else {
+          await sql`
+            update live_calls set status = 'ended', updated_at = now()
+            where id = ${id} and email = ${email} and status in ('ringing', 'answered')`;
+        }
         return json({ ok: true });
       }
 
@@ -354,15 +382,18 @@ export default {
         if (!adminEmail) return json({ error: "unauthorized" }, 401);
 
         // Heartbeat while the admin's "Ringing…" dialog is open: touching
-        // updated_at is what keeps the student's phone ringing.
+        // updated_at is what keeps the student's phone ringing. Once the
+        // student answers, this also hands back their WebRTC answer SDP.
         if (request.method === "GET" && url.pathname === "/api/admin/live/status") {
           const id = String(url.searchParams.get("id") || "").slice(0, 64);
-          const ringing = await sql`
+          await sql`
             update live_calls set updated_at = now()
-            where id = ${id} and status = 'ringing' returning status`;
-          if (ringing.length) return json({ status: "ringing" });
-          const cur = await sql`select status from live_calls where id = ${id}`;
-          return json({ status: cur.length ? cur[0].status : "gone" });
+            where id = ${id} and status = 'ringing'`;
+          const cur = await sql`select status, answer from live_calls where id = ${id}`;
+          if (!cur.length) return json({ status: "gone" });
+          let answer = null;
+          try { answer = cur[0].answer ? JSON.parse(cur[0].answer) : null; } catch (e) {}
+          return json({ status: cur[0].status, answer });
         }
 
         if (request.method === "GET" && url.pathname === "/api/admin/users") {
@@ -428,10 +459,13 @@ export default {
           }
 
           // Ring a student: any previous call for them is ended first.
+          // The body carries the admin's WebRTC offer (SDP with embedded
+          // ICE candidates) — the call itself is browser-to-browser.
           if (url.pathname === "/api/admin/live/call") {
-            const meet = String(body.url || "").trim().slice(0, 500);
-            if (!/^https:\/\/\S+$/.test(meet)) {
-              return json({ error: "meeting link must start with https://" }, 400);
+            const offer = body.offer;
+            if (!offer || offer.type !== "offer" || typeof offer.sdp !== "string" ||
+                offer.sdp.length > 100000) {
+              return json({ error: "missing call offer" }, 400);
             }
             const st = await sql`select live_enabled from students where email = ${email}`;
             if (!st.length) return json({ error: "not a registered student" }, 400);
@@ -443,8 +477,9 @@ export default {
               where email = ${email} and status in ('ringing', 'answered')`;
             const id = crypto.randomUUID();
             const kind = body.kind === "audio" ? "audio" : "video";
-            await sql`insert into live_calls (id, email, url, kind)
-              values (${id}, ${email}, ${meet}, ${kind})`;
+            await sql`insert into live_calls (id, email, kind, offer)
+              values (${id}, ${email}, ${kind},
+                      ${JSON.stringify({ type: "offer", sdp: offer.sdp })})`;
             return json({ ok: true, id });
           }
 

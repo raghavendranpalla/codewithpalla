@@ -176,6 +176,48 @@
     }
     .live-join { display: inline-flex; width: auto; margin-left: 10px; padding: 7px 16px; }
 
+    /* In-portal WebRTC call screen (both admin and student) */
+    .call-overlay { position: fixed; inset: 0; z-index: 1001; background: #05080c; }
+    #callRemote {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; background: #05080c;
+    }
+    #callLocal {
+      position: absolute; right: 16px; bottom: 104px;
+      width: clamp(96px, 24vw, 210px); height: auto;
+      border-radius: 12px; border: 1px solid var(--border-2);
+      object-fit: cover; background: #000;
+      box-shadow: var(--shadow);
+      transform: scaleX(-1); /* mirror yourself, like every call app */
+    }
+    .call-hidden { display: none; } /* audio call: hidden video still plays sound */
+    .call-audio-face {
+      position: absolute; inset: 0;
+      display: grid; place-items: center; text-align: center;
+    }
+    .call-status {
+      position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+      background: rgba(0, 0, 0, .55);
+      border: 1px solid var(--border-2); color: var(--text);
+      padding: 8px 18px; border-radius: 999px; font-size: .9rem;
+      white-space: nowrap;
+    }
+    .call-controls {
+      position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 14px;
+    }
+    .call-btn {
+      width: 56px; height: 56px; border-radius: 50%;
+      border: 1px solid var(--border-2);
+      background: rgba(255, 255, 255, .08); color: var(--text);
+      font-size: 22px; cursor: pointer;
+      display: grid; place-items: center;
+    }
+    .call-btn:hover { background: rgba(255, 255, 255, .16); }
+    .call-btn.call-off { background: rgba(248, 113, 113, .3); border-color: #f87171; }
+    .call-hang { background: #dc2626; border-color: #dc2626; }
+    .call-hang:hover { background: #ef4444; }
+
     /* Free-trial banner shown above the course for unregistered users */
     .trial-banner {
       padding: 13px 16px; margin-bottom: 18px;
@@ -519,6 +561,6 @@
   </footer>
 
   <script src="assets/js/main.js?v=3"></script>
-  <script src="assets/js/portal.js?v=39"></script>
+  <script src="assets/js/portal.js?v=40"></script>
 </body>
 </html>

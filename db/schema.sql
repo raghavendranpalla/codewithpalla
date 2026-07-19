@@ -62,19 +62,23 @@ create table if not exists sessions (
   updated_at timestamptz not null default now()
 );
 
--- Live video calls (2026-07): the admin rings a student from the admin
--- panel; the student's portal polls and shows an incoming-call screen.
+-- Live calls (2026-07): in-portal WebRTC audio/video. The admin rings a
+-- student from the admin panel; the student's portal polls, rings, and
+-- on Accept the call connects browser-to-browser — this table only
+-- relays the SDP signalling (offer/answer), never media.
 -- Rows are history — a ring only counts as live while the admin's
--- "Ringing…" dialog keeps heartbeating updated_at (every 3 s; stale
--- after 45 s), and an answered call stays joinable for 4 hours.
+-- "Ringing…" dialog keeps heartbeating updated_at (every 2.5 s; stale
+-- after 45 s).
 -- NOTE: this table AND students.live_enabled are auto-created by the
 -- Worker (ensureLiveSchema) — no manual migration needed.
 create table if not exists live_calls (
   id         text primary key,               -- uuid minted by the Worker
   email      text not null,                  -- gmail-normalised student
-  url        text not null default '',       -- meeting link (Meet / Zoom)
-  kind       text not null default 'video',  -- 'video' | 'audio' (ring-screen label)
+  url        text not null default '',       -- unused (was the Meet-link v1)
+  kind       text not null default 'video',  -- 'video' | 'audio'
   status     text not null default 'ringing',-- ringing|answered|declined|ended
+  offer      text not null default '',       -- admin's WebRTC offer SDP (JSON)
+  answer     text not null default '',       -- student's answer SDP (JSON)
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

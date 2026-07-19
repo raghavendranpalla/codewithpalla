@@ -993,12 +993,166 @@
      server only answers polls from the account's one live
      session device.
      ======================================================= */
-  var LS_LIVE_URL = "lwp_live_url"; // admin: last meeting link used
   var live = {
     timer: null, lastCall: null, dismissed: {},
     beepTimer: null, titleTimer: null, baseTitle: "", actx: null,
     adminTimer: null
   };
+
+  // The call itself is a browser-to-browser WebRTC connection — when the
+  // student taps Accept their camera/mic switch on automatically and the
+  // video plays right here in the portal (no Meet/Zoom, no new tab). The
+  // Worker only relays the offer/answer SDP; media never touches it.
+  var rtc = { pc: null, local: null, callId: null, role: "", kind: "video", watchTimer: null };
+  var RTC_CONFIG = {
+    iceServers: [
+      { urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"] },
+      // Free public TURN relay — fallback when both sides sit behind
+      // strict mobile NATs and no direct path can form.
+      { urls: ["turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443",
+               "turn:openrelay.metered.ca:443?transport=tcp"],
+        username: "openrelayproject", credential: "openrelayproject" }
+    ]
+  };
+
+  function getMedia(kind) {
+    return navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: kind === "video" ? { facingMode: "user" } : false
+    });
+  }
+
+  // Vanilla ICE: wait (max 3 s) until the SDP has its candidates embedded,
+  // so one single offer/answer exchange is enough — no trickle endpoint.
+  function waitIce(pc) {
+    return new Promise(function (resolve) {
+      if (pc.iceGatheringState === "complete") return resolve();
+      var to = setTimeout(resolve, 3000);
+      pc.addEventListener("icegatheringstatechange", function () {
+        if (pc.iceGatheringState === "complete") { clearTimeout(to); resolve(); }
+      });
+    });
+  }
+
+  function newPeer() {
+    var pc = new RTCPeerConnection(RTC_CONFIG);
+    rtc.local.getTracks().forEach(function (t) { pc.addTrack(t, rtc.local); });
+    pc.ontrack = function (ev) {
+      var v = document.getElementById("callRemote");
+      if (v && ev.streams && ev.streams[0] && v.srcObject !== ev.streams[0]) {
+        v.srcObject = ev.streams[0];
+      }
+    };
+    pc.onconnectionstatechange = function () {
+      if (pc !== rtc.pc) return;
+      var st = pc.connectionState;
+      if (st === "connected") setCallStatus("");
+      else if (st === "disconnected") setCallStatus("Reconnecting…");
+      else if (st === "failed") {
+        setCallStatus("Connection lost.");
+        setTimeout(function () { if (pc === rtc.pc) endCall(true); }, 1500);
+      }
+    };
+    return pc;
+  }
+
+  function setCallStatus(msg) {
+    var el = document.getElementById("callStatus");
+    if (el) { el.textContent = msg; el.hidden = !msg; }
+  }
+
+  function toggleTracks(tracks) {
+    var on = false;
+    tracks.forEach(function (t) { t.enabled = !t.enabled; on = t.enabled; });
+    return on;
+  }
+
+  /* ---- The in-portal call screen (both sides use it) ---- */
+  function buildCallUI(kind, withName) {
+    var old = document.getElementById("lwpCall");
+    if (old) old.remove();
+    var audio = kind === "audio";
+    var ov = document.createElement("div");
+    ov.className = "call-overlay";
+    ov.id = "lwpCall";
+    ov.innerHTML =
+      '<video id="callRemote" autoplay playsinline' + (audio ? ' class="call-hidden"' : "") + "></video>" +
+      (audio
+        ? '<div class="call-audio-face"><div><div class="ring-ico">📞</div>' +
+          '<div class="ring-title">' + escapeHtml(withName) + "</div>" +
+          '<div class="ring-sub">Audio call</div></div></div>'
+        : "") +
+      '<video id="callLocal" autoplay playsinline muted' + (audio ? ' class="call-hidden"' : "") + "></video>" +
+      '<div class="call-status" id="callStatus">Connecting…</div>' +
+      '<div class="call-controls">' +
+        '<button id="callMute" class="call-btn" type="button" title="Mute / unmute microphone">🎙</button>' +
+        (audio ? "" : '<button id="callCam" class="call-btn" type="button" title="Camera on / off">🎥</button>') +
+        '<button id="callHang" class="call-btn call-hang" type="button" title="End call">📵</button>' +
+      "</div>";
+    document.body.appendChild(ov);
+    var lv = document.getElementById("callLocal");
+    if (lv) lv.srcObject = rtc.local;
+    document.getElementById("callHang").addEventListener("click", function () { endCall(true); });
+    document.getElementById("callMute").addEventListener("click", function () {
+      var on = toggleTracks(rtc.local ? rtc.local.getAudioTracks() : []);
+      this.classList.toggle("call-off", !on);
+    });
+    var cam = document.getElementById("callCam");
+    if (cam) {
+      cam.addEventListener("click", function () {
+        var on = toggleTracks(rtc.local ? rtc.local.getVideoTracks() : []);
+        this.classList.toggle("call-off", !on);
+      });
+    }
+  }
+
+  // Watch the call row so either side notices the other hanging up even
+  // if the peer connection dies silently.
+  function startCallWatch() {
+    stopCallWatch();
+    rtc.watchTimer = setInterval(function () {
+      if (!rtc.pc) { stopCallWatch(); return; }
+      if (rtc.role === "admin") {
+        adminApi("/api/admin/live/status?id=" + encodeURIComponent(rtc.callId))
+          .then(function (d) {
+            var st = d && d.status;
+            if (st !== "ringing" && st !== "answered") endCall(false);
+          }).catch(function () {});
+      } else {
+        var user = get(LS_USER);
+        if (!user) return;
+        fetch(CONFIG.apiUrl + "/api/live/poll?email=" + encodeURIComponent(user.email) +
+              "&device=" + encodeURIComponent(deviceId()))
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            var c = d && d.call;
+            if (!c || c.id !== rtc.callId || c.status !== "answered") endCall(false);
+          }).catch(function () {});
+      }
+    }, 3000);
+  }
+  function stopCallWatch() {
+    if (rtc.watchTimer) { clearInterval(rtc.watchTimer); rtc.watchTimer = null; }
+  }
+
+  function endCall(tellServer) {
+    stopCallWatch();
+    if (tellServer && rtc.callId) {
+      if (rtc.role === "admin") {
+        adminApi("/api/admin/live/end", {
+          method: "POST", body: JSON.stringify({ id: rtc.callId })
+        }).catch(function () {});
+      } else {
+        liveRespond(rtc.callId, "end");
+      }
+    }
+    if (rtc.pc) { try { rtc.pc.close(); } catch (e) {} }
+    if (rtc.local) rtc.local.getTracks().forEach(function (t) { t.stop(); });
+    rtc.pc = null; rtc.local = null; rtc.callId = null; rtc.role = "";
+    var ov = document.getElementById("lwpCall");
+    if (ov) ov.remove();
+    hideAdminRinging();
+  }
 
   function liveEnabled() {
     var a = get(LS_ACCESS) || {};
@@ -1013,6 +1167,7 @@
   }
 
   function livePoll() {
+    if (rtc.pc) return; // in a call — startCallWatch handles the polling
     var user = get(LS_USER);
     if (!user || !liveEnabled() || document.visibilityState === "hidden") return;
     fetch(CONFIG.apiUrl + "/api/live/poll?email=" + encodeURIComponent(user.email) +
@@ -1030,13 +1185,16 @@
       .catch(function () { /* offline — try again next tick */ });
   }
 
-  function liveRespond(id, action) {
+  function liveRespond(id, action, answerDesc) {
     var user = get(LS_USER);
-    if (!user || !CONFIG.apiUrl) return;
-    fetch(CONFIG.apiUrl + "/api/live/respond", {
+    if (!user || !CONFIG.apiUrl) return Promise.resolve();
+    return fetch(CONFIG.apiUrl + "/api/live/respond", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: user.email, device: deviceId(), id: id, action: action })
+      body: JSON.stringify({
+        email: user.email, device: deviceId(), id: id, action: action,
+        answer: answerDesc ? { type: answerDesc.type, sdp: answerDesc.sdp } : undefined
+      })
     }).catch(function () {});
   }
 
@@ -1052,20 +1210,16 @@
         '<div class="ring-ico">' + (audio ? "📞" : "🎥") + "</div>" +
         '<div class="ring-title">Palla is calling you</div>' +
         '<div class="ring-sub">' + (audio
-          ? "Audio call — accepting opens the call in a new tab. You can keep your camera off."
-          : "Live video session — accepting opens the class in a new tab.") + "</div>" +
+          ? "Audio call — accepting turns on your microphone and connects right here."
+          : "Live video call — accepting turns on your camera and microphone and connects right here.") + "</div>" +
         '<div class="ring-actions">' +
-          // An <a> (not window.open) so the new tab is never popup-blocked.
-          '<a class="btn btn-primary" id="ringAccept" target="_blank" rel="noopener" href="' +
-            escapeAttr(call.url) + '">✔ Accept &amp; join</a>' +
+          '<button class="btn btn-primary" id="ringAccept" type="button">✔ Accept</button>' +
           '<button class="btn btn-ghost ring-decline" id="ringDecline" type="button">✖ Decline</button>' +
         "</div></div>";
     document.body.appendChild(ov);
     document.getElementById("ringAccept").addEventListener("click", function () {
       live.dismissed[call.id] = true;
-      liveRespond(call.id, "answer");
-      hideRing();
-      updateLivePanel({ id: call.id, url: call.url, kind: call.kind, status: "answered" });
+      acceptCall(call);
     });
     document.getElementById("ringDecline").addEventListener("click", function () {
       live.dismissed[call.id] = true;
@@ -1079,6 +1233,40 @@
       document.title =
         document.title === "📞 Incoming call…" ? live.baseTitle : "📞 Incoming call…";
     }, 900);
+  }
+
+  /* ---- Student: accept → camera/mic on → connect in-page ---- */
+  function acceptCall(call) {
+    var kind = call.kind === "audio" ? "audio" : "video";
+    hideRing();
+    if (!call.offer || !window.RTCPeerConnection || !navigator.mediaDevices) {
+      liveRespond(call.id, "decline");
+      alert("Sorry, live calls are not supported in this browser. Please use Chrome, Edge or Safari.");
+      return;
+    }
+    getMedia(kind).then(function (stream) {
+      rtc.local = stream;
+      rtc.callId = call.id;
+      rtc.role = "student";
+      rtc.kind = kind;
+      buildCallUI(kind, "Palla");
+      var pc = rtc.pc = newPeer();
+      return pc.setRemoteDescription(call.offer)
+        .then(function () { return pc.createAnswer(); })
+        .then(function (ans) { return pc.setLocalDescription(ans); })
+        .then(function () { return waitIce(pc); })
+        .then(function () {
+          return liveRespond(call.id, "answer", pc.localDescription);
+        })
+        .then(function () { startCallWatch(); });
+    }).catch(function () {
+      endCall(false);
+      liveRespond(call.id, "decline");
+      alert("Could not start your " + (kind === "video" ? "camera" : "microphone") +
+        ".\n\nPlease ALLOW camera & microphone for learnwithpalla.com when the " +
+        "browser asks (or enable it in the browser's site settings), then wait " +
+        "for Palla to call again.");
+    });
   }
 
   function hideRing() {
@@ -1132,8 +1320,10 @@
       '<button id="liveBack" class="btn btn-ghost admin-open-btn" type="button">← Back to course</button>' +
       '<div class="live-status" id="liveStatus">Checking…</div>' +
       '<p class="day-desc">When Palla starts an audio or video call for you, the portal ' +
-      "rings with an Accept button — just keep this site open in a tab. Accepting opens " +
-      "the call in a new tab. Only Palla can start a call.</p>";
+      "rings with an Accept button — just keep this site open in a tab. Accepting turns " +
+      "on your camera and microphone automatically and the call happens right here on " +
+      "this page (the first time, your browser will ask you to ALLOW the camera — " +
+      "tap Allow). Only Palla can start a call.</p>";
     document.getElementById("liveBack").addEventListener("click", function () { render(); });
     updateLivePanel(live.lastCall);
     livePoll();
@@ -1143,13 +1333,8 @@
     live.lastCall = call || null;
     var box = document.getElementById("liveStatus");
     if (!box) return;
-    if (call && call.status === "answered") {
-      box.innerHTML = "<strong>🟢 A live " +
-        (call.kind === "audio" ? "audio call" : "video session") +
-        " is in progress.</strong> " +
-        '<a class="btn btn-primary live-join" target="_blank" rel="noopener" href="' +
-        escapeAttr(call.url) + '">' +
-        (call.kind === "audio" ? "Rejoin the call" : "Join the live class") + "</a>";
+    if (rtc.pc) {
+      box.textContent = "🟢 You are in a live call.";
     } else if (call && call.status === "ringing") {
       box.textContent = "📞 Incoming call…";
     } else {
@@ -1157,27 +1342,50 @@
     }
   }
 
-  /* ---- Admin: ring a student (kind = 'audio' | 'video') ---- */
+  /* ---- Admin: ring a student (kind = 'audio' | 'video') ----
+     Flow: camera/mic on → WebRTC offer built → call row created (the
+     student's portal starts ringing) → poll for their answer SDP →
+     connected, in-page. ---- */
   function startAdminCall(email, kind) {
-    var meet = window.prompt(
-      "Meeting link for the live " + (kind === "audio" ? "audio call" : "video class") +
-      " (Google Meet / Zoom).\n" +
-      "The student's portal will ring and open this link when they accept.",
-      get(LS_LIVE_URL) || "https://meet.google.com/");
-    if (!meet) return;
-    meet = meet.trim();
-    if (!/^https:\/\//.test(meet)) { alert("The link must start with https://"); return; }
-    set(LS_LIVE_URL, meet);
-    adminApi("/api/admin/live/call", {
-      method: "POST",
-      body: JSON.stringify({ email: email, url: meet, kind: kind })
-    }).then(function (r) {
-      if (r && r.ok) showAdminRinging(email, r.id, meet, kind);
-      else alert("Failed: " + ((r && r.error) || "unknown error"));
-    }).catch(function () { alert("Network error — try again."); });
+    if (rtc.pc) { alert("You are already in a call — end it first."); return; }
+    if (!window.RTCPeerConnection || !navigator.mediaDevices) {
+      alert("Live calls need a modern browser (Chrome / Edge / Safari).");
+      return;
+    }
+    getMedia(kind).then(function (stream) {
+      rtc.local = stream;
+      rtc.role = "admin";
+      rtc.kind = kind;
+      var pc = rtc.pc = newPeer();
+      return pc.createOffer()
+        .then(function (o) { return pc.setLocalDescription(o); })
+        .then(function () { return waitIce(pc); })
+        .then(function () {
+          return adminApi("/api/admin/live/call", {
+            method: "POST",
+            body: JSON.stringify({
+              email: email, kind: kind,
+              offer: { type: pc.localDescription.type, sdp: pc.localDescription.sdp }
+            })
+          });
+        })
+        .then(function (r) {
+          if (!(r && r.ok)) {
+            endCall(false);
+            alert("Failed: " + ((r && r.error) || "unknown error"));
+            return;
+          }
+          rtc.callId = r.id;
+          showAdminRinging(email, r.id, kind);
+        });
+    }).catch(function () {
+      endCall(false);
+      alert("Could not start your " + (kind === "video" ? "camera/microphone" : "microphone") +
+        " — allow it for this site in the browser and try again.");
+    });
   }
 
-  function showAdminRinging(email, id, meet, kind) {
+  function showAdminRinging(email, id, kind) {
     hideAdminRinging();
     var ov = document.createElement("div");
     ov.className = "ring-overlay";
@@ -1190,33 +1398,41 @@
         '<div class="ring-sub" id="adminRingStatus">Ringing on their portal… ' +
           "(they must have the portal open in a browser tab to see it)</div>" +
         '<div class="ring-actions">' +
-          '<a class="btn btn-primary" target="_blank" rel="noopener" href="' +
-            escapeAttr(meet) + '">Open the meeting</a>' +
-          '<button class="btn btn-ghost ring-decline" id="adminRingEnd" type="button">End call</button>' +
+          '<button class="btn btn-ghost ring-decline" id="adminRingEnd" type="button">Cancel call</button>' +
         "</div></div>";
     document.body.appendChild(ov);
     document.getElementById("adminRingEnd").addEventListener("click", function () {
-      adminApi("/api/admin/live/end", { method: "POST", body: JSON.stringify({ id: id }) })
-        .catch(function () {});
-      hideAdminRinging();
+      endCall(true); // also removes this dialog + releases camera/mic
     });
-    // This poll doubles as the heartbeat that keeps the student ringing.
+    // This poll doubles as the heartbeat that keeps the student ringing,
+    // and it delivers their WebRTC answer once they accept.
     live.adminTimer = setInterval(function () {
       adminApi("/api/admin/live/status?id=" + encodeURIComponent(id)).then(function (d) {
         var st = d && d.status;
         var box = document.getElementById("adminRingStatus");
-        if (!box) return;
-        if (st === "answered") {
-          box.innerHTML = "🟢 <strong>Accepted!</strong> They are joining your meeting now.";
+        if (st === "answered" && d.answer && rtc.pc &&
+            rtc.pc.signalingState === "have-local-offer") {
+          clearInterval(live.adminTimer); live.adminTimer = null;
+          var pc = rtc.pc;
+          pc.setRemoteDescription(d.answer).then(function () {
+            var dlg = document.getElementById("adminRing");
+            if (dlg) dlg.remove();
+            buildCallUI(kind, email);
+            startCallWatch();
+          }).catch(function () {
+            endCall(true);
+            alert("Call setup failed — please try again.");
+          });
         } else if (st === "declined") {
-          box.textContent = "🔴 They declined the call.";
+          if (box) box.textContent = "🔴 They declined the call.";
           clearInterval(live.adminTimer); live.adminTimer = null;
+          setTimeout(function () { endCall(false); }, 2000);
         } else if (st === "ended" || st === "gone") {
-          box.textContent = "Call ended.";
           clearInterval(live.adminTimer); live.adminTimer = null;
+          endCall(false);
         }
       }).catch(function () {});
-    }, 3000);
+    }, 2500);
   }
 
   function hideAdminRinging() {
