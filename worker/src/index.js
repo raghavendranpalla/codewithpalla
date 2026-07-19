@@ -97,10 +97,13 @@ async function ensureLiveSchema(sql) {
     id         text primary key,
     email      text not null,
     url        text not null default '',
+    kind       text not null default 'video',
     status     text not null default 'ringing',
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now()
   )`;
+  await sql`alter table live_calls
+    add column if not exists kind text not null default 'video'`;
   liveSchemaReady = true;
 }
 
@@ -239,7 +242,7 @@ export default {
         const device = String(url.searchParams.get("device") || "").slice(0, 64);
         if (!(await isLiveSession(sql, email, device))) return json({ call: null });
         const rows = await sql`
-          select id, url, status from live_calls
+          select id, url, kind, status from live_calls
           where email = ${email} and (
             (status = 'ringing'  and updated_at > now() - interval '45 seconds') or
             (status = 'answered' and updated_at > now() - interval '4 hours'))
@@ -439,7 +442,9 @@ export default {
               update live_calls set status = 'ended', updated_at = now()
               where email = ${email} and status in ('ringing', 'answered')`;
             const id = crypto.randomUUID();
-            await sql`insert into live_calls (id, email, url) values (${id}, ${email}, ${meet})`;
+            const kind = body.kind === "audio" ? "audio" : "video";
+            await sql`insert into live_calls (id, email, url, kind)
+              values (${id}, ${email}, ${meet}, ${kind})`;
             return json({ ok: true, id });
           }
 

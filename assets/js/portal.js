@@ -863,8 +863,10 @@
             '" data-email="' + escapeAttr(s.email) + '">' +
             (s.live_enabled ? "Live: ON" : "Live: off") + "</button>" +
           (s.live_enabled
-            ? ' <button class="btn btn-ghost admin-act" data-act="call" data-email="' +
-              escapeAttr(s.email) + '">📞 Call</button>'
+            ? ' <button class="btn btn-ghost admin-act" data-act="call" data-kind="audio" data-email="' +
+              escapeAttr(s.email) + '">📞 Audio</button>' +
+              ' <button class="btn btn-ghost admin-act" data-act="call" data-kind="video" data-email="' +
+              escapeAttr(s.email) + '">🎥 Video</button>'
             : "") + "</td>" +
           "<td>" + (s.machines || 0) + " / " + s.machine_limit + "</td>" +
           "<td>" + fmtWhen(s.last_login) + "</td>" +
@@ -934,7 +936,10 @@
         { email: email, enabled: btn.getAttribute("data-on") !== "1" }, btn);
       return;
     }
-    if (act === "call") { startAdminCall(email); return; }
+    if (act === "call") {
+      startAdminCall(email, btn.getAttribute("data-kind") === "audio" ? "audio" : "video");
+      return;
+    }
     var payload = { email: email };
     if (act === "upgrade") {
       var sel = btn.parentNode.querySelector(".admin-batch-sel");
@@ -1038,14 +1043,17 @@
   /* ---- Student: full-screen incoming-call card ---- */
   function showRing(call) {
     if (document.getElementById("lwpRing")) return;
+    var audio = call.kind === "audio";
     var ov = document.createElement("div");
     ov.className = "ring-overlay";
     ov.id = "lwpRing";
     ov.innerHTML =
       '<div class="ring-card">' +
-        '<div class="ring-ico">📞</div>' +
+        '<div class="ring-ico">' + (audio ? "📞" : "🎥") + "</div>" +
         '<div class="ring-title">Palla is calling you</div>' +
-        '<div class="ring-sub">Live video session — accepting opens the class in a new tab.</div>' +
+        '<div class="ring-sub">' + (audio
+          ? "Audio call — accepting opens the call in a new tab. You can keep your camera off."
+          : "Live video session — accepting opens the class in a new tab.") + "</div>" +
         '<div class="ring-actions">' +
           // An <a> (not window.open) so the new tab is never popup-blocked.
           '<a class="btn btn-primary" id="ringAccept" target="_blank" rel="noopener" href="' +
@@ -1057,7 +1065,7 @@
       live.dismissed[call.id] = true;
       liveRespond(call.id, "answer");
       hideRing();
-      updateLivePanel({ id: call.id, url: call.url, status: "answered" });
+      updateLivePanel({ id: call.id, url: call.url, kind: call.kind, status: "answered" });
     });
     document.getElementById("ringDecline").addEventListener("click", function () {
       live.dismissed[call.id] = true;
@@ -1123,9 +1131,9 @@
       '<div class="portal-batch-name">🎥 Live video sessions</div>' +
       '<button id="liveBack" class="btn btn-ghost admin-open-btn" type="button">← Back to course</button>' +
       '<div class="live-status" id="liveStatus">Checking…</div>' +
-      '<p class="day-desc">When Palla starts a live video call for you, the portal rings ' +
-      "with an Accept button — just keep this site open in a tab. Accepting opens the " +
-      "video class in a new tab.</p>";
+      '<p class="day-desc">When Palla starts an audio or video call for you, the portal ' +
+      "rings with an Accept button — just keep this site open in a tab. Accepting opens " +
+      "the call in a new tab. Only Palla can start a call.</p>";
     document.getElementById("liveBack").addEventListener("click", function () { render(); });
     updateLivePanel(live.lastCall);
     livePoll();
@@ -1136,9 +1144,12 @@
     var box = document.getElementById("liveStatus");
     if (!box) return;
     if (call && call.status === "answered") {
-      box.innerHTML = "<strong>🟢 A live session is in progress.</strong> " +
+      box.innerHTML = "<strong>🟢 A live " +
+        (call.kind === "audio" ? "audio call" : "video session") +
+        " is in progress.</strong> " +
         '<a class="btn btn-primary live-join" target="_blank" rel="noopener" href="' +
-        escapeAttr(call.url) + '">Join the live class</a>';
+        escapeAttr(call.url) + '">' +
+        (call.kind === "audio" ? "Rejoin the call" : "Join the live class") + "</a>";
     } else if (call && call.status === "ringing") {
       box.textContent = "📞 Incoming call…";
     } else {
@@ -1146,10 +1157,11 @@
     }
   }
 
-  /* ---- Admin: ring a student ---- */
-  function startAdminCall(email) {
+  /* ---- Admin: ring a student (kind = 'audio' | 'video') ---- */
+  function startAdminCall(email, kind) {
     var meet = window.prompt(
-      "Meeting link for the live class (Google Meet / Zoom).\n" +
+      "Meeting link for the live " + (kind === "audio" ? "audio call" : "video class") +
+      " (Google Meet / Zoom).\n" +
       "The student's portal will ring and open this link when they accept.",
       get(LS_LIVE_URL) || "https://meet.google.com/");
     if (!meet) return;
@@ -1158,22 +1170,23 @@
     set(LS_LIVE_URL, meet);
     adminApi("/api/admin/live/call", {
       method: "POST",
-      body: JSON.stringify({ email: email, url: meet })
+      body: JSON.stringify({ email: email, url: meet, kind: kind })
     }).then(function (r) {
-      if (r && r.ok) showAdminRinging(email, r.id, meet);
+      if (r && r.ok) showAdminRinging(email, r.id, meet, kind);
       else alert("Failed: " + ((r && r.error) || "unknown error"));
     }).catch(function () { alert("Network error — try again."); });
   }
 
-  function showAdminRinging(email, id, meet) {
+  function showAdminRinging(email, id, meet, kind) {
     hideAdminRinging();
     var ov = document.createElement("div");
     ov.className = "ring-overlay";
     ov.id = "adminRing";
     ov.innerHTML =
       '<div class="ring-card">' +
-        '<div class="ring-ico">📞</div>' +
-        '<div class="ring-title">Calling ' + escapeHtml(email) + "</div>" +
+        '<div class="ring-ico">' + (kind === "audio" ? "📞" : "🎥") + "</div>" +
+        '<div class="ring-title">' + (kind === "audio" ? "Audio call to " : "Video call to ") +
+          escapeHtml(email) + "</div>" +
         '<div class="ring-sub" id="adminRingStatus">Ringing on their portal… ' +
           "(they must have the portal open in a browser tab to see it)</div>" +
         '<div class="ring-actions">' +

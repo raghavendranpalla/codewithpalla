@@ -73,6 +73,7 @@ create table if not exists live_calls (
   id         text primary key,               -- uuid minted by the Worker
   email      text not null,                  -- gmail-normalised student
   url        text not null default '',       -- meeting link (Meet / Zoom)
+  kind       text not null default 'video',  -- 'video' | 'audio' (ring-screen label)
   status     text not null default 'ringing',-- ringing|answered|declined|ended
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

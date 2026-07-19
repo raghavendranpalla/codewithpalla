@@ -35,9 +35,12 @@ Live at https://learnwithpalla.com (GitHub Pages, repo `raghavendranpalla/codewi
   to trial), unblock machines. Server-enforced via 30-day `admin_tokens`
   minted at Google sign-in (X-Admin-Token header).
 - **Live video (2026-07):** per-student 🎥 Live tab + in-portal ringing.
-  Admin panel students table has a "Live: on/off" toggle and a 📞 Call
-  button (asks for a Meet/Zoom link, remembered in localStorage
-  `lwp_live_url`). Calling rings the student's portal full-screen
+  ONLY the admin can start a call (server-enforced via X-Admin-Token);
+  students can only receive/answer. Admin panel students table has a
+  "Live: on/off" toggle and 📞 Audio / 🎥 Video call buttons (same flow,
+  `live_calls.kind` just changes the ring-screen label; both ask for a
+  Meet/Zoom link, remembered in localStorage `lwp_live_url`).
+  Calling rings the student's portal full-screen
   (beep + flashing title) via 10-second polling of `/api/live/poll`;
   Accept opens the link in a new tab. The admin "Ringing…" dialog
   heartbeats `/api/admin/live/status` every 3 s — a ring goes stale 45 s
