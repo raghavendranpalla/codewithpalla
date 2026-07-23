@@ -11,7 +11,7 @@ FF = os.environ.get('FFMPEG_DIR', '')
 FFMPEG = os.path.join(FF, 'ffmpeg.exe') if FF else 'ffmpeg'
 FFPROBE = os.path.join(FF, 'ffprobe.exe') if FF else 'ffprobe'
 FONT = 'consolab.ttf'  # copied into HERE; ffmpeg runs with cwd=HERE to dodge C:\ escaping
-TIMER_SECONDS = 20
+TIMER_SECONDS = 15
 
 VENC = ['-c:v', 'libx264', '-preset', 'medium', '-tune', 'stillimage',
         '-pix_fmt', 'yuv420p', '-r', '30', '-video_track_timescale', '15360']
@@ -34,7 +34,7 @@ def tts(text, voice, out):
         json={'text': text, 'model_id': 'eleven_multilingual_v2',
               'voice_settings': {'stability': 0.45, 'similarity_boost': 0.85,
                                  'style': 0.35, 'speed': 0.9,
-                                 'use_speaker_boost': True}},
+                                 'use_speaker_boost': False}},
         timeout=300)
     if r.status_code != 200:
         sys.exit(f'TTS failed ({r.status_code}): {r.text[:400]}')

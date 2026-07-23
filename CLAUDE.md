@@ -116,14 +116,16 @@ Live at https://learnwithpalla.com (GitHub Pages, repo `raghavendranpalla/codewi
 ### Mock-interview videos (tools/interview/)
 
 - Format Palla promised students: he asks a question in his voice →
-  20-second on-screen countdown for out-loud self-evaluation (beeps in
-  the last 3 s; TIMER_SECONDS in assemble.py, was 45 originally) →
+  15-second on-screen countdown for out-loud self-evaluation (beeps in
+  the last 3 s; TIMER_SECONDS in assemble.py, was 45 then 20) →
   he reveals the answer. ~18 min for 20 questions.
 - Narration voice: **"Raghu"** `XArEYi9seQIEXf0bxQuP` — the clone Palla
   registered himself and prefers. (An earlier auto-clone
   "Palla Raghavendran" `x8tHWG9VqOQ8sTCj3MZC` also exists.) He wants
   delivery slightly slow with emphasis — voice_settings in assemble.py
-  (speed 0.9, style 0.35) reflect that. API key is in the *user-scope*
+  (speed 0.9, style 0.35, speaker boost OFF — Palla picked this
+  "v24" combo from a 30-variant blind test, 2026-07-23) reflect
+  that. API key is in the *user-scope*
   env var `ELEVANLABS` (his typo spelling — keep it). Needs the paid
   Starter plan (~30k credits/mo; one 20-question video ≈ 9.3k).
 - Workflow: edit the `QA` list in `tools/interview/make_slides.py`
