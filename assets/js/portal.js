@@ -185,6 +185,14 @@
               { type: "video", label: "Part 1 — Logical Operators (&&, ||), Multi-condition if & Ternary", poster: "assets/img/thumb-day7-part1.svg", vid: "XTUmF1sAPCMQK3sKXX9OPxg6GUMVHVYVOkZ9Y0sFQTsz" },
               { type: "video", label: "Part 2 — The switch Statement", poster: "assets/img/thumb-day7-part2.svg", vid: "XSdEFS8ZFSdmGW5LewJVPA8/V1khFhIuB3tVfnoOJh4l" }
             ]
+          },
+          {
+            title: "Interview Practice — Days 1–7 Mock Interviews",
+            description: "Test yourself like it's the real thing. In each video Palla asks a question in his own voice, you get 15 seconds on a countdown to answer OUT LOUD, and then he reveals the answer so you can self-evaluate honestly. Practice #1 has 20 questions; Practice #2 goes deeper with 30 fresh questions (no repeats) — npm, hoisting, string methods, coercion traps, || vs ??, switch fall-through and more. Shaky on a question? Rewatch that day's video, then retake the interview a few days later.",
+            resources: [
+              { type: "video", label: "Interview Practice #1 — 20 Questions (17 min)", poster: "assets/img/thumb-interview1.svg", vid: "XRYhVBteIhU1CRIBdV4ANB8xYBRXNBdkHkhUcndYWAEJ" },
+              { type: "video", label: "Interview Practice #2 — 30 Questions (30 min)", poster: "assets/img/thumb-interview2.svg", vid: "XUE2Vx4ADy4sPhJISlpwVVpEbCY1VzYnB0sCAHBEARFF" }
+            ]
           }
         ]
       }
