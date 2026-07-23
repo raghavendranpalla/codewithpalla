@@ -1,0 +1,8 @@
+slides*/
+audio*/
+segs*/
+manifest*.json
+concat.txt
+consolab.ttf
+*.mp4
+make_slides_p1_fixed.py

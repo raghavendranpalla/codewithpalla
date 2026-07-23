@@ -137,7 +137,9 @@ Live at https://learnwithpalla.com (GitHub Pages, repo `raghavendranpalla/codewi
   globally on this machine; grab the gyan.dev essentials zip.
 - Output mp4 goes to Google Drive like class videos (not the repo);
   slides/audio/segs work dirs are gitignored by location (scratch).
-- Interview Practice #1 (Days 1–7, 20 questions) delivered 2026-07-13.
+- Interview Practice #1 (Days 1–7, 20 questions) delivered 2026-07-13;
+  regenerated 2026-07-23 with the v24 voice + 15 s timer. Practice #2
+  (Days 1–7, 30 fresh questions, deeper answers) delivered 2026-07-23.
 
 ## Marketing site
 
